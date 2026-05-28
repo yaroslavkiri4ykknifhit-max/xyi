@@ -544,11 +544,46 @@ function SyncPlayerApp() {
       window.addEventListener("touchstart", handleInteraction);
     }
 
-    return () => {
-      window.removeEventListener("click", handleInteraction);
-      window.removeEventListener("touchstart", handleInteraction);
-    };
   }, [needInteractionSync, isPlaying, widgetReady, progressMs]);
+
+  // Automatic background synchronization to keep users in sync seamlessly
+  useEffect(() => {
+    if (!widgetRef.current || !currentTrack || !isPlaying) return;
+
+    // Buffer stabilization delay (1.5 seconds) to let player settle before calibrating
+    const timer = setTimeout(async () => {
+      try {
+        const code = roomCode.toUpperCase().trim();
+        const { data: room } = await supabase
+          .from("rooms")
+          .select("*")
+          .eq("id", code)
+          .single();
+          
+        if (room) {
+          let expectedProgress = room.progress_ms;
+          if (room.is_playing) {
+            const delta = Date.now() - new Date(room.state_updated_at).getTime();
+            expectedProgress += delta;
+          }
+          
+          widgetRef.current.getPosition((actualPos) => {
+            const diff = Math.abs(actualPos - expectedProgress);
+            // If out of sync by more than 1.5 seconds, align silently
+            if (diff > 1500) {
+              widgetRef.current.seekTo(expectedProgress);
+              setProgressMs(expectedProgress);
+              console.log(`[Auto-Sync] Calibrated player position by ${((actualPos - expectedProgress)/1000).toFixed(2)}s`);
+            }
+          });
+        }
+      } catch (err) {
+        console.error("Error running auto-sync calibration:", err);
+      }
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [currentTrack, isPlaying, roomCode]);
 
   // 9. Send real-time broadcast controls
   const broadcastPlayerAction = (action, playing, progress, trackId) => {
@@ -1881,12 +1916,23 @@ function SyncPlayerApp() {
           <div className="glass-panel p-6 rounded-[32px] flex flex-col shadow-2xl relative">
             
             {/* Album Cover Container */}
-            <div className="relative w-full aspect-square bg-zinc-950/60 rounded-[24px] border border-white/5 overflow-hidden shadow-[0_20px_50px_rgba(255,85,0,0.15)] flex items-center justify-center group mb-6">
+            <div 
+              className={`relative w-full aspect-square bg-zinc-950/60 rounded-[24px] border border-white/5 overflow-hidden flex items-center justify-center group mb-6 transition-all duration-500 ${
+                isPlaying ? "animate-beat border-[#ff5500]/30" : "shadow-[0_20px_50px_rgba(255,85,0,0.15)]"
+              }`}
+            >
+              {/* Pulsing neon aura glow inside container */}
+              {isPlaying && (
+                <div 
+                  className="absolute inset-0 animate-pulse pointer-events-none z-0"
+                  style={{ backgroundImage: 'radial-gradient(circle, rgba(255, 85, 0, 0.2) 0%, transparent 75%)' }}
+                ></div>
+              )}
               {currentTrack && currentTrack.thumbnail ? (
                 <img
                   src={currentTrack.thumbnail.replace("-large", "-t500x500")}
                   alt="Track Cover Art"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 z-10"
                 />
               ) : (
                 <div className="flex flex-col items-center gap-4 text-zinc-600 animate-pulse">
@@ -1919,30 +1965,6 @@ function SyncPlayerApp() {
                 </span>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                {currentTrack && (
-                  <div className="flex items-center gap-1">
-                    {/* Sync Me with Room */}
-                    <button
-                      onClick={handleManualSync}
-                      disabled={calibrating}
-                      className={`flex items-center gap-1 px-3 py-1.5 bg-white/5 hover:bg-[#ff5500]/15 border border-white/8 hover:border-[#ff5500]/30 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-zinc-300 hover:text-[#ff5500] transition-all cursor-pointer ${calibrating ? "animate-pulse" : ""}`}
-                      title="Синхронизировать мой плеер с комнатой"
-                    >
-                      <Radio className={`w-3 h-3 ${calibrating ? "animate-spin text-[#ff5500]" : "text-[#ff5500]"}`} />
-                      <span>{calibrating ? "Я..." : "Синхр. Я"}</span>
-                    </button>
-                    {/* Force Sync Friend */}
-                    <button
-                      onClick={handleForceSyncEveryone}
-                      disabled={calibrating}
-                      className={`flex items-center gap-1 px-3 py-1.5 bg-white/5 hover:bg-[#ff5500]/15 border border-white/8 hover:border-[#ff5500]/30 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-zinc-300 hover:text-[#ff5500] transition-all cursor-pointer ${calibrating ? "animate-pulse" : ""}`}
-                      title="Принудительно подтянуть друга ко мне"
-                    >
-                      <Radio className={`w-3 h-3 text-[#ff5500] ${calibrating ? "animate-spin" : ""}`} />
-                      <span>{calibrating ? "Кент..." : "Синхр. Кент"}</span>
-                    </button>
-                  </div>
-                )}
                 <span className="text-[9px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2.5 py-1.5 rounded-full border border-[#ff5500]/15 animate-pulse">
                   {isPlaying ? "Live" : "Pause"}
                 </span>
