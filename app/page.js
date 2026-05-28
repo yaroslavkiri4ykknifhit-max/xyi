@@ -497,8 +497,8 @@ function SyncPlayerApp() {
     isSyncingRef.current = true;
     widgetRef.current.load(url, {
       auto_play: autoPlay,
-      show_artwork: true,
-      visual: true,
+      show_artwork: false,
+      visual: false,
       callback: () => {
         if (startProgressMs > 0) {
           widgetRef.current.seekTo(startProgressMs);
@@ -976,19 +976,7 @@ function SyncPlayerApp() {
       <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-[#ff5500]/5 rounded-full blur-[140px] pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[10%] w-[35%] h-[35%] bg-[#00b4d8]/5 rounded-full blur-[140px] pointer-events-none"></div>
 
-      {/* Hidden SoundCloud standard Widget iframe for core audio execution */}
-      <iframe
-        id="soundcloud-player"
-        width="100%"
-        height="166"
-        scrolling="no"
-        frameBorder="no"
-        allow="autoplay"
-        src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(
-          currentTrack ? currentTrack.track_url : "https://api.soundcloud.com/tracks/184131013"
-        )}&auto_play=false&visual=true&show_artwork=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false`}
-        className="sc-hidden"
-      ></iframe>
+      {/* SoundCloud player iframe is now embedded inside the player card below */}
 
       {/* Script loaded post-render */}
       <Script
@@ -1248,6 +1236,25 @@ function SyncPlayerApp() {
               <span className="text-[10px] font-bold text-zinc-500 min-w-[24px]">
                 {isMuted ? 0 : volume}%
               </span>
+            </div>
+
+            {/* SoundCloud Core Engine Widget (Required for audio playback and browser safety) */}
+            <div className="mt-4 p-2 bg-black/40 rounded-2xl border border-white/5">
+              <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest block mb-2 text-center pl-1">
+                SoundCloud Core Engine
+              </span>
+              <iframe
+                id="soundcloud-player"
+                width="100%"
+                height="80"
+                scrolling="no"
+                frameBorder="no"
+                allow="autoplay"
+                src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(
+                  currentTrack ? currentTrack.track_url : "https://api.soundcloud.com/tracks/184131013"
+                )}&auto_play=false&visual=false&show_artwork=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false`}
+                className="rounded-xl border border-white/5 bg-zinc-950 overflow-hidden shadow-2xl h-[80px]"
+              ></iframe>
             </div>
 
           </div>
