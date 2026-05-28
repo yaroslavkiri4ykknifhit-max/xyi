@@ -95,6 +95,12 @@ function SyncPlayerApp() {
   const [newChatMessage, setNewChatMessage] = useState("");
   const [needInteractionSync, setNeedInteractionSync] = useState(false);
 
+  // Personal Favorites states
+  const [personalLibrary, setPersonalLibrary] = useState([]);
+  const [newPersonalUrl, setNewPersonalUrl] = useState("");
+  const [addingPersonal, setAddingPersonal] = useState(false);
+  const [calibrating, setCalibrating] = useState(false);
+
   // Refs to handle realtime synchronization and prevent circular feedback loops
   const widgetRef = useRef(null);
   const currentTrackIdRef = useRef(null);
@@ -149,6 +155,16 @@ function SyncPlayerApp() {
     const savedVol = localStorage.getItem("xyi_volume");
     if (savedVol) {
       setVolume(parseInt(savedVol));
+    }
+
+    // LocalStorage Personal Favorites sync
+    const savedFav = localStorage.getItem("xyi_favorites");
+    if (savedFav) {
+      try {
+        setPersonalLibrary(JSON.parse(savedFav));
+      } catch (e) {
+        console.error(e);
+      }
     }
   }, []);
 
@@ -973,6 +989,144 @@ function SyncPlayerApp() {
     });
   };
 
+  // Add track to personal favorites (localStorage)
+  const handleAddPersonalTrack = async (e) => {
+    e.preventDefault();
+    if (!newPersonalUrl || addingPersonal) return;
+    if (!newPersonalUrl.includes("soundcloud.com")) {
+      alert("Вставьте верную ссылку на SoundCloud трек.");
+      return;
+    }
+    setAddingPersonal(true);
+    try {
+      const details = await getTrackDetails(newPersonalUrl);
+      const newTrack = {
+        id: "fav_" + Math.random().toString(36).substring(2, 9),
+        track_url: newPersonalUrl,
+        title: details.title,
+        thumbnail: details.thumbnail,
+        addedAt: new Date().toISOString()
+      };
+      const updated = [...personalLibrary, newTrack];
+      setPersonalLibrary(updated);
+      localStorage.setItem("xyi_favorites", JSON.stringify(updated));
+      setNewPersonalUrl("");
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAddingPersonal(false);
+    }
+  };
+
+  // Delete track from personal favorites
+  const handleDeletePersonalTrack = (id, e) => {
+    e.stopPropagation();
+    const updated = personalLibrary.filter(t => t.id !== id);
+    setPersonalLibrary(updated);
+    localStorage.setItem("xyi_favorites", JSON.stringify(updated));
+  };
+
+  // Queue personal track in shared playlist
+  const handleQueuePersonalTrack = async (track, e) => {
+    e.stopPropagation();
+    const code = roomCode.toUpperCase().trim();
+    try {
+      const { data: newDbTrack, error } = await supabase
+        .from("playlist")
+        .insert([
+          {
+            room_id: code,
+            track_url: track.track_url,
+            title: track.title,
+            thumbnail: track.thumbnail,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      sendChatSystemMessage(`${myUsername} добавил трек из медиатеки: "${track.title}"`);
+      
+      const { data: roomData } = await supabase
+        .from("rooms")
+        .select("current_track_id")
+        .eq("id", code)
+        .single();
+
+      if (roomData && !roomData.current_track_id) {
+        await playTrack(newDbTrack);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Play personal track now for everyone in the room
+  const handlePlayPersonalTrackNow = async (track, e) => {
+    e.stopPropagation();
+    const code = roomCode.toUpperCase().trim();
+    try {
+      const { data: newDbTrack, error } = await supabase
+        .from("playlist")
+        .insert([
+          {
+            room_id: code,
+            track_url: track.track_url,
+            title: track.title,
+            thumbnail: track.thumbnail,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      sendChatSystemMessage(`${myUsername} запустил трек из медиатеки: "${track.title}"`);
+      await playTrack(newDbTrack);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // Manual player synchronization calibration
+  const handleManualSync = async () => {
+    if (!widgetRef.current || !currentTrack) return;
+    setCalibrating(true);
+    
+    try {
+      const code = roomCode.toUpperCase().trim();
+      const { data: room } = await supabase
+        .from("rooms")
+        .select("*")
+        .eq("id", code)
+        .single();
+        
+      if (room) {
+        let expectedProgress = room.progress_ms;
+        if (room.is_playing) {
+          const delta = Date.now() - new Date(room.state_updated_at).getTime();
+          expectedProgress += delta;
+        }
+        
+        widgetRef.current.seekTo(expectedProgress);
+        setProgressMs(expectedProgress);
+        setIsPlaying(room.is_playing);
+        
+        widgetRef.current.getPosition((actualPos) => {
+          const diff = ((actualPos - expectedProgress) / 1000).toFixed(2);
+          sendChatSystemMessage(`⚙️ Ручная синхронизация звука завершена. Отклонение: ${diff} сек.`);
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setTimeout(() => {
+        setCalibrating(false);
+      }, 1000);
+    }
+  };
+
   const formatTime = (ms) => {
     if (isNaN(ms) || ms < 0) return "0:00";
     const totalSecs = Math.floor(ms / 1000);
@@ -1220,6 +1374,97 @@ function SyncPlayerApp() {
               </div>
             </div>
           </div>
+
+          {/* Personal Library Card (Saved Favorite tracks) */}
+          <div className="glass-panel p-6 rounded-[28px] text-left flex flex-col gap-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+              <Music className="w-4 h-4 text-[#ff5500]" />
+              <h3 className="text-sm font-bold">Моя Медиатека</h3>
+            </div>
+            
+            <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
+              Ваш личный приватный список треков. Друг его не видит, но вы можете в любой момент запустить песню отсюда для всех!
+            </p>
+            
+            {/* Input to add personal tracks */}
+            <form onSubmit={handleAddPersonalTrack} className="w-full flex gap-2">
+              <input
+                type="text"
+                placeholder="Вставьте SoundCloud ссылку..."
+                value={newPersonalUrl}
+                onChange={(e) => setNewPersonalUrl(e.target.value)}
+                disabled={addingPersonal}
+                className="flex-1 bg-black/60 border border-white/8 rounded-2xl px-3 py-2.5 text-[10px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors"
+              />
+              <button
+                type="submit"
+                disabled={!newPersonalUrl.trim() || addingPersonal}
+                className="p-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-2xl transition-all flex items-center justify-center cursor-pointer"
+              >
+                {addingPersonal ? (
+                  <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                ) : (
+                  <Plus className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </form>
+
+            {/* Scrollable Favorites list */}
+            {personalLibrary.length === 0 ? (
+              <div className="w-full py-6 bg-black/20 border border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 px-4 text-center">
+                <p className="text-zinc-600 text-[10px] leading-normal">Медиатека пуста. Вставьте ссылку на любимый SoundCloud трек выше!</p>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
+                {personalLibrary.map((track) => (
+                  <div
+                    key={track.id}
+                    className="w-full p-2 bg-black/30 border border-white/5 hover:border-white/10 rounded-xl flex items-center gap-2.5"
+                  >
+                    {/* Thumbnail */}
+                    <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      {track.thumbnail ? (
+                        <img src={track.thumbnail} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        <Music className="w-3.5 h-3.5 text-zinc-600" />
+                      )}
+                    </div>
+                    {/* Title */}
+                    <div className="flex-1 min-w-0 flex flex-col text-left">
+                      <p className="text-[10px] font-bold text-zinc-300 truncate" title={track.title}>
+                        {track.title}
+                      </p>
+                    </div>
+                    {/* Action buttons */}
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <button
+                        onClick={(e) => handlePlayPersonalTrackNow(track, e)}
+                        className="p-1.5 hover:bg-white/5 rounded text-zinc-400 hover:text-[#ff5500] transition-colors cursor-pointer"
+                        title="Запустить сейчас для всех"
+                      >
+                        <Play className="w-3 h-3 fill-current" />
+                      </button>
+                      <button
+                        onClick={(e) => handleQueuePersonalTrack(track, e)}
+                        className="p-1.5 hover:bg-white/5 rounded text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                        title="Добавить в очередь"
+                      >
+                        <Plus className="w-3 h-3" />
+                      </button>
+                      <button
+                        onClick={(e) => handleDeletePersonalTrack(track.id, e)}
+                        className="p-1.5 hover:bg-red-500/10 rounded text-zinc-600 hover:text-red-500 transition-colors cursor-pointer"
+                        title="Удалить из медиатеки"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
 
         {/* ==================== CENTER COLUMN (5/12 cols) ==================== */}
@@ -1266,7 +1511,18 @@ function SyncPlayerApp() {
                   {currentTrack ? "SoundCloud Realtime" : "Ожидание трека..."}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5 flex-shrink-0">
+              <div className="flex items-center gap-2 flex-shrink-0">
+                {currentTrack && (
+                  <button
+                    onClick={handleManualSync}
+                    disabled={calibrating}
+                    className={`flex items-center gap-1 px-3 py-1.5 bg-white/5 hover:bg-[#ff5500]/15 border border-white/8 hover:border-[#ff5500]/30 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-zinc-300 hover:text-[#ff5500] transition-all cursor-pointer ${calibrating ? "animate-pulse" : ""}`}
+                    title="Калибровать звук с сервером"
+                  >
+                    <Radio className={`w-3 h-3 ${calibrating ? "animate-spin text-[#ff5500]" : "text-[#ff5500]"}`} />
+                    <span>{calibrating ? "Синхронизация..." : "Синхронизировать"}</span>
+                  </button>
+                )}
                 <span className="text-[9px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2.5 py-1.5 rounded-full border border-[#ff5500]/15 animate-pulse">
                   {isPlaying ? "Live" : "Pause"}
                 </span>
