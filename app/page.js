@@ -1561,9 +1561,7 @@ function SyncPlayerApp() {
           scrolling="no"
           frameBorder="no"
           allow="autoplay"
-          src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(
-            currentTrack ? currentTrack.track_url : "https://api.soundcloud.com/tracks/184131013"
-          )}&auto_play=false&visual=true&show_artwork=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false`}
+          src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/184131013&auto_play=false&visual=true&show_artwork=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false"
         ></iframe>
       </div>
 
