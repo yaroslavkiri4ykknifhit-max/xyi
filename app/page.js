@@ -101,6 +101,8 @@ function SyncPlayerApp() {
   const isSyncingRef = useRef(false);
   const chatEndRef = useRef(null);
   const channelRef = useRef(null);
+  const iframeRef = useRef(null);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
 
   // 3. Initialize unique client session ID, username, and avatar color
   useEffect(() => {
@@ -575,14 +577,12 @@ function SyncPlayerApp() {
     });
   };
 
-  // 14. Initialise SoundCloud Widget Ref
-  const handleWidgetLoaded = () => {
-    if (typeof window === "undefined" || !window.SC) return;
-    const iframe = document.getElementById("soundcloud-player");
-    if (!iframe) return;
+  // 14. Initialise SoundCloud Widget Ref using robust reactive useEffect (Race condition & re-mount proof)
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.SC || !iframeRef.current || widgetReady) return;
 
     try {
-      const widget = window.SC.Widget(iframe);
+      const widget = window.SC.Widget(iframeRef.current);
       widgetRef.current = widget;
 
       widget.bind(window.SC.Widget.Events.READY, () => {
@@ -615,12 +615,10 @@ function SyncPlayerApp() {
         setProgressMs(data.currentPosition);
       });
 
-      // RACE CONDITION BYPASS:
-      // If the static iframe has already loaded (from cache or fast render), the READY event
-      // might not fire again. We ping the widget. If it responds, we mark it ready immediately.
+      // PING CHECK: In case the READY event had already fired (race condition bypass)
       setTimeout(() => {
         if (widgetRef.current) {
-          widgetRef.current.getVolume((vol) => {
+          widgetRef.current.getVolume(() => {
             setWidgetReady(true);
             widgetRef.current.getDuration((d) => {
               if (d > 0) setDurationMs(d);
@@ -628,19 +626,12 @@ function SyncPlayerApp() {
             widgetRef.current.setVolume(isMuted ? 0 : volume);
           });
         }
-      }, 150);
+      }, 200);
 
     } catch (err) {
-      console.error("Error setting up SoundCloud widget:", err);
+      console.error("Error setting up SoundCloud widget reactive:", err);
     }
-  };
-
-  // Trigger loading when iframe renders if window.SC already exists
-  useEffect(() => {
-    if (roomCode && typeof window !== "undefined" && window.SC && !widgetReady) {
-      handleWidgetLoaded();
-    }
-  }, [roomCode, widgetReady]);
+  }, [scriptLoaded, widgetReady, iframeRef.current]);
 
   // 15. Audio playback polling for responsive progress bar and volume enforcement
   useEffect(() => {
@@ -1095,7 +1086,7 @@ function SyncPlayerApp() {
       <Script
         src="https://w.soundcloud.com/player/api.js"
         strategy="afterInteractive"
-        onLoad={handleWidgetLoaded}
+        onLoad={() => setScriptLoaded(true)}
       />
 
       {/* Header bar */}
@@ -1575,6 +1566,7 @@ function SyncPlayerApp() {
         style={{ zIndex: -100 }}
       >
         <iframe
+          ref={iframeRef}
           id="soundcloud-player"
           width="100%"
           height="166"
