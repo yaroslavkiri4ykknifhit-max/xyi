@@ -103,6 +103,11 @@ function SyncPlayerApp() {
   const channelRef = useRef(null);
   const iframeRef = useRef(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
+  const playlistRef = useRef([]);
+
+  useEffect(() => {
+    playlistRef.current = playlist;
+  }, [playlist]);
 
   // 3. Initialize unique client session ID, username, and avatar color
   useEffect(() => {
@@ -197,8 +202,10 @@ function SyncPlayerApp() {
 
     if (error) {
       console.error("Error fetching playlist:", error);
+      return [];
     } else {
       setPlaylist(data || []);
+      return data || [];
     }
   };
 
@@ -433,8 +440,8 @@ function SyncPlayerApp() {
     // Track skips or initial track load
     if (updatedRoom.current_track_id !== currentTrackIdRef.current) {
       currentTrackIdRef.current = updatedRoom.current_track_id;
-      // Find matching track
-      const matchingTrack = playlist.find((t) => t.id === updatedRoom.current_track_id);
+      // Find matching track using reactive ref to prevent stale closure bugs
+      const matchingTrack = playlistRef.current.find((t) => t.id === updatedRoom.current_track_id);
       if (matchingTrack) {
         setCurrentTrack(matchingTrack);
         loadSoundCloudTrack(matchingTrack.track_url, updatedRoom.is_playing, updatedRoom.progress_ms);
@@ -491,13 +498,14 @@ function SyncPlayerApp() {
 
     if (trackId && currentTrackIdRef.current !== trackId) {
       currentTrackIdRef.current = trackId;
-      const matchingTrack = playlist.find(t => t.id === trackId);
+      const matchingTrack = playlistRef.current.find(t => t.id === trackId);
       if (matchingTrack) {
         setCurrentTrack(matchingTrack);
         loadSoundCloudTrack(matchingTrack.track_url, remotePlaying, remoteProgress);
       } else {
-        fetchPlaylist(roomCode.toUpperCase()).then(() => {
-          const t = playlist.find(x => x.id === trackId);
+        // Safe database search on new tracks to guarantee synchronization
+        fetchPlaylist(roomCode.toUpperCase()).then((latestList) => {
+          const t = latestList.find(x => x.id === trackId);
           if (t) {
             setCurrentTrack(t);
             loadSoundCloudTrack(t.track_url, remotePlaying, remoteProgress);
