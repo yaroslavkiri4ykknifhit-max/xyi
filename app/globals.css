@@ -3,30 +3,35 @@
 @theme {
   --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --color-soundcloud: #ff5500;
-  --color-ios-bg: #121212;
-  --color-ios-card: #1c1c1e;
-  --color-ios-border: rgba(255, 255, 255, 0.1);
+  --color-ios-bg: #0a0a0c;
+  --color-ios-card: rgba(20, 20, 25, 0.6);
+  --color-ios-border: rgba(255, 255, 255, 0.08);
   --color-ios-gray: #8e8e93;
 }
 
 :root {
-  --background: #000000;
+  --background: #050508;
   --foreground: #ffffff;
 }
 
 body {
-  background-color: #000000;
+  background-color: #050508;
   color: #ffffff;
   font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-image: 
+    radial-gradient(circle at 10% 20%, rgba(255, 85, 0, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(0, 180, 216, 0.08) 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, rgba(138, 43, 226, 0.05) 0%, transparent 50%);
+  background-attachment: fixed;
 }
 
 /* Custom Webkit scrollbar customization for a premium Apple UI experience */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
@@ -34,28 +39,13 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.08);
   border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #ff5500;
-}
-
-/* Smooth glassmorphic pulse animation */
-@keyframes glassPulse {
-  0%, 100% {
-    border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
-  }
-  50% {
-    border-color: rgba(255, 85, 0, 0.25);
-    box-shadow: 0 4px 30px rgba(255, 85, 0, 0.05);
-  }
-}
-
-.room-active-glow {
-  animation: glassPulse 4s infinite ease-in-out;
 }
 
 /* Hide SoundCloud default standard widget element but keep API working */
@@ -68,4 +58,94 @@ body {
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   border: 0;
+}
+
+/* Glassmorphism details */
+.glass-panel {
+  background: rgba(18, 18, 24, 0.45);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+.glass-panel-hover {
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-panel-hover:hover {
+  background: rgba(24, 24, 32, 0.6);
+  border-color: rgba(255, 85, 0, 0.2);
+  box-shadow: 0 12px 40px 0 rgba(255, 85, 0, 0.05);
+}
+
+/* Music dynamic animated sine waves */
+@keyframes waveAnimation1 {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(-4px) scaleY(1.15);
+  }
+}
+
+@keyframes waveAnimation2 {
+  0%, 100% {
+    transform: translateY(0) scaleY(1);
+  }
+  50% {
+    transform: translateY(3px) scaleY(0.85);
+  }
+}
+
+.animate-wave-1 {
+  animation: waveAnimation1 4s infinite ease-in-out;
+}
+
+.animate-wave-2 {
+  animation: waveAnimation2 3.5s infinite ease-in-out;
+}
+
+/* Custom premium slider */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 999px;
+  outline: none;
+  height: 4px;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ff5500;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 85, 0, 0.6);
+  transition: transform 0.1s ease, background-color 0.1s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+  background: #ff7733;
+}
+
+/* Pulsing red dot for LIVE indicators */
+@keyframes livePulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+.live-pulse-dot {
+  animation: livePulse 2s infinite;
 }
