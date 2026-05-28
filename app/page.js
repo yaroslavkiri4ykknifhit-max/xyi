@@ -93,6 +93,7 @@ function SyncPlayerApp() {
   // Real-time Chat state
   const [chatMessages, setChatMessages] = useState([]);
   const [newChatMessage, setNewChatMessage] = useState("");
+  const [needInteractionSync, setNeedInteractionSync] = useState(false);
 
   // Refs to handle realtime synchronization and prevent circular feedback loops
   const widgetRef = useRef(null);
@@ -344,6 +345,66 @@ function SyncPlayerApp() {
       setCurrentTrack(null);
     }
   }, [playlist]);
+
+  // Load track initially when widget is ready and current track is determined (Multiplayer late-join fix)
+  const initialLoadRef = useRef(false);
+
+  useEffect(() => {
+    if (widgetReady && currentTrack && !initialLoadRef.current) {
+      initialLoadRef.current = true;
+      
+      const getInitialPositionAndLoad = async () => {
+        const { data: room } = await supabase
+          .from("rooms")
+          .select("*")
+          .eq("id", roomCode.toUpperCase())
+          .single();
+          
+        if (room) {
+          let startProgress = room.progress_ms;
+          if (room.is_playing) {
+            // Apply drift compensation
+            const delta = Date.now() - new Date(room.state_updated_at).getTime();
+            startProgress += delta;
+          }
+          loadSoundCloudTrack(currentTrack.track_url, room.is_playing, startProgress);
+          setIsPlaying(room.is_playing);
+          setProgressMs(startProgress);
+          
+          if (room.is_playing) {
+            setNeedInteractionSync(true);
+          }
+        } else {
+          loadSoundCloudTrack(currentTrack.track_url, isPlaying, progressMs);
+        }
+      };
+
+      getInitialPositionAndLoad();
+    }
+  }, [widgetReady, currentTrack]);
+
+  // Audio interaction trigger (to resolve strict browser autoplay policy)
+  useEffect(() => {
+    const handleInteraction = () => {
+      setNeedInteractionSync(false);
+      if (widgetRef.current && widgetReady && isPlaying) {
+        widgetRef.current.play();
+        widgetRef.current.seekTo(progressMs);
+      }
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("touchstart", handleInteraction);
+    };
+
+    if (needInteractionSync) {
+      window.addEventListener("click", handleInteraction);
+      window.addEventListener("touchstart", handleInteraction);
+    }
+
+    return () => {
+      window.removeEventListener("click", handleInteraction);
+      window.removeEventListener("touchstart", handleInteraction);
+    };
+  }, [needInteractionSync, isPlaying, widgetReady, progressMs]);
 
   // 9. Send real-time broadcast controls
   const broadcastPlayerAction = (action, playing, progress, trackId) => {
@@ -975,6 +1036,19 @@ function SyncPlayerApp() {
       {/* Background glowing soft elements */}
       <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-[#ff5500]/5 rounded-full blur-[140px] pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[10%] w-[35%] h-[35%] bg-[#00b4d8]/5 rounded-full blur-[140px] pointer-events-none"></div>
+
+      {/* Autoplay Unlock banner */}
+      {needInteractionSync && (
+        <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 animate-bounce">
+          <div className="w-full bg-[#ff5500]/20 backdrop-blur-xl border border-[#ff5500]/40 rounded-2xl py-3 px-4 text-center text-xs font-bold text-white shadow-xl shadow-black/40 flex items-center justify-center gap-2">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff5500] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff5500]"></span>
+            </span>
+            <span>🔊 Кликните в любом месте для синхронизации звука!</span>
+          </div>
+        </div>
+      )}
 
       {/* SoundCloud player iframe is now embedded inside the player card below */}
 
