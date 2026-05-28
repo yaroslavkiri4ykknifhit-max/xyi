@@ -101,6 +101,14 @@ function SyncPlayerApp() {
   const [addingPersonal, setAddingPersonal] = useState(false);
   const [calibrating, setCalibrating] = useState(false);
 
+  // SoundCloud accounts and imports
+  const [activeLibraryTab, setActiveLibraryTab] = useState("favorites"); // 'favorites' | 'playlist' | 'bulk'
+  const [importUrl, setImportUrl] = useState("");
+  const [importingPlaylist, setImportingPlaylist] = useState(false);
+  const [bulkText, setBulkText] = useState("");
+  const [importingBulk, setImportingBulk] = useState(false);
+  const [tempIframeUrl, setTempIframeUrl] = useState("");
+
   // Refs to handle realtime synchronization and prevent circular feedback loops
   const widgetRef = useRef(null);
   const currentTrackIdRef = useRef(null);
@@ -167,6 +175,117 @@ function SyncPlayerApp() {
       }
     }
   }, []);
+
+  // useEffect to handle background playlist imports
+  useEffect(() => {
+    if (!tempIframeUrl || typeof window === "undefined" || !window.SC) return;
+
+    let pingInterval;
+    let finished = false;
+
+    const setupTempWidget = () => {
+      try {
+        const iframe = document.getElementById("soundcloud-temp-player");
+        if (!iframe) return false;
+
+        const tempWidget = window.SC.Widget(iframe);
+
+        tempWidget.bind(window.SC.Widget.Events.READY, () => {
+          if (finished) return;
+          tempWidget.getSounds((sounds) => {
+            if (finished) return;
+            finished = true;
+            clearInterval(pingInterval);
+
+            if (sounds && sounds.length > 0) {
+              const importedTracks = sounds.map((sound) => ({
+                id: "fav_" + Math.random().toString(36).substring(2, 9),
+                track_url: sound.permalink_url,
+                title: sound.title,
+                thumbnail: sound.artwork_url || "https://w.soundcloud.com/player/assets/images/default-artwork.png",
+                addedAt: new Date().toISOString(),
+              }));
+
+              setPersonalLibrary((prev) => {
+                const updated = [...prev, ...importedTracks];
+                localStorage.setItem("xyi_favorites", JSON.stringify(updated));
+                return updated;
+              });
+
+              sendChatSystemMessage(`📥 ${myUsername} импортировал плейлист: добавлено ${sounds.length} треков в медиатеку!`);
+            } else {
+              alert("Не удалось загрузить треки из этого плейлиста. Убедитесь, что плейлист публичный.");
+            }
+
+            setTempIframeUrl("");
+            setImportingPlaylist(false);
+          });
+        });
+
+        // Fallback ping: in case READY event has fired or got missed
+        let pings = 0;
+        pingInterval = setInterval(() => {
+          if (finished) return;
+          pings++;
+          if (pings > 30) {
+            clearInterval(pingInterval);
+            if (!finished) {
+              finished = true;
+              alert("Импорт превысил лимит времени ожидания. Проверьте правильность ссылки плейлиста.");
+              setTempIframeUrl("");
+              setImportingPlaylist(false);
+            }
+            return;
+          }
+
+          try {
+            tempWidget.getSounds((sounds) => {
+              if (finished) return;
+              if (sounds && sounds.length > 0) {
+                finished = true;
+                clearInterval(pingInterval);
+
+                const importedTracks = sounds.map((sound) => ({
+                  id: "fav_" + Math.random().toString(36).substring(2, 9),
+                  track_url: sound.permalink_url,
+                  title: sound.title,
+                  thumbnail: sound.artwork_url || "https://w.soundcloud.com/player/assets/images/default-artwork.png",
+                  addedAt: new Date().toISOString(),
+                }));
+
+                setPersonalLibrary((prev) => {
+                  const updated = [...prev, ...importedTracks];
+                  localStorage.setItem("xyi_favorites", JSON.stringify(updated));
+                  return updated;
+                });
+
+                sendChatSystemMessage(`📥 ${myUsername} импортировал плейлист: добавлено ${sounds.length} треков в медиатеку!`);
+                setTempIframeUrl("");
+                setImportingPlaylist(false);
+              }
+            });
+          } catch (e) {
+            // ignore
+          }
+        }, 500);
+
+        return true;
+      } catch (err) {
+        console.error("Error setting up temp widget:", err);
+        return false;
+      }
+    };
+
+    const timer = setTimeout(() => {
+      setupTempWidget();
+    }, 400);
+
+    return () => {
+      finished = true;
+      clearTimeout(timer);
+      if (pingInterval) clearInterval(pingInterval);
+    };
+  }, [tempIframeUrl, myUsername]);
 
   // 4. Scroll to bottom of chat
   useEffect(() => {
@@ -508,8 +627,66 @@ function SyncPlayerApp() {
 
   // 11. Handle instant play/pause/seek from Broadcast
   const handleIncomingBroadcastControl = (payload) => {
-    const { action, isPlaying: remotePlaying, progressMs: remoteProgress, trackId, timestamp } = payload;
+    const { action, isPlaying: remotePlaying, progressMs: remoteProgress, trackId, timestamp, senderName } = payload;
     
+    if (action === "force_sync") {
+      isSyncingRef.current = true;
+      setIsPlaying(remotePlaying);
+      
+      let expectedProgress = remoteProgress;
+      if (remotePlaying) {
+        const latency = Date.now() - timestamp;
+        expectedProgress += Math.max(0, latency);
+      }
+      
+      const executeForceSnap = () => {
+        if (widgetRef.current) {
+          if (remotePlaying) {
+            widgetRef.current.play();
+          } else {
+            widgetRef.current.pause();
+          }
+          widgetRef.current.seekTo(expectedProgress);
+          setProgressMs(expectedProgress);
+          isSyncingRef.current = false;
+        }
+      };
+
+      if (trackId && currentTrackIdRef.current !== trackId) {
+        currentTrackIdRef.current = trackId;
+        const matchingTrack = playlistRef.current.find(t => t.id === trackId);
+        if (matchingTrack) {
+          setCurrentTrack(matchingTrack);
+          loadSoundCloudTrack(matchingTrack.track_url, remotePlaying, expectedProgress);
+          isSyncingRef.current = false;
+        } else {
+          fetchPlaylist(roomCode.toUpperCase()).then((latestList) => {
+            const t = latestList.find(x => x.id === trackId);
+            if (t) {
+              setCurrentTrack(t);
+              loadSoundCloudTrack(t.track_url, remotePlaying, expectedProgress);
+            }
+            isSyncingRef.current = false;
+          });
+        }
+      } else {
+        executeForceSnap();
+      }
+
+      setChatMessages((prev) => [
+        ...prev,
+        {
+          id: "sys_sync_" + Math.random().toString(36).substring(2, 9),
+          username: "⚡ Синхронизация",
+          avatarColor: "#ff5500",
+          text: `${senderName || "Друг"} притянул ваш плеер к своей позиции!`,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isSystem: true
+        }
+      ]);
+      return;
+    }
+
     setIsPlaying(remotePlaying);
 
     if (trackId && currentTrackIdRef.current !== trackId) {
@@ -1127,6 +1304,110 @@ function SyncPlayerApp() {
     }
   };
 
+  // Force sync everyone in the room to current playback progress
+  const handleForceSyncEveryone = async () => {
+    if (!widgetRef.current || !currentTrack) return;
+    setCalibrating(true);
+    
+    widgetRef.current.getPosition(async (pos) => {
+      if (channelRef.current) {
+        channelRef.current.send({
+          type: "broadcast",
+          event: "player_control",
+          payload: {
+            action: "force_sync",
+            isPlaying: isPlaying,
+            progressMs: pos,
+            trackId: currentTrack.id,
+            senderId: clientId,
+            senderName: myUsername,
+            timestamp: Date.now()
+          }
+        });
+      }
+
+      await pushRoomState(isPlaying, pos);
+      sendChatSystemMessage(`⚡ ${myUsername} принудительно синхронизировал всех слушателей (позиция: ${formatTime(pos)})`);
+
+      setTimeout(() => {
+        setCalibrating(false);
+      }, 1000);
+    });
+  };
+
+  // Import a public SoundCloud playlist into personal library
+  const handleImportPlaylistSubmit = (e) => {
+    e.preventDefault();
+    if (!importUrl.trim() || importingPlaylist) return;
+
+    if (!importUrl.includes("soundcloud.com")) {
+      alert("Вставьте верную ссылку на плейлист SoundCloud.");
+      return;
+    }
+
+    setImportingPlaylist(true);
+    setTempIframeUrl(importUrl.trim());
+    setImportUrl("");
+  };
+
+  // Bulk import multiple SoundCloud tracks in parallel
+  const handleBulkImportSubmit = async (e) => {
+    e.preventDefault();
+    if (!bulkText.trim() || importingBulk) return;
+
+    setImportingBulk(true);
+
+    const urls = bulkText
+      .split(/[\n,]+/)
+      .map((url) => url.trim())
+      .filter((url) => url.includes("soundcloud.com"));
+
+    if (urls.length === 0) {
+      alert("Ссылки SoundCloud не найдены. Каждая ссылка должна быть с новой строки или разделена запятой.");
+      setImportingBulk(false);
+      return;
+    }
+
+    sendChatSystemMessage(`⏳ ${myUsername} запускает пакетный импорт ${urls.length} треков...`);
+
+    try {
+      const fetchPromises = urls.map(async (url) => {
+        try {
+          const details = await getTrackDetails(url);
+          return {
+            id: "fav_" + Math.random().toString(36).substring(2, 9),
+            track_url: url,
+            title: details.title,
+            thumbnail: details.thumbnail,
+            addedAt: new Date().toISOString(),
+          };
+        } catch (err) {
+          console.error(`Failed parsing bulk track: ${url}`, err);
+          return null;
+        }
+      });
+
+      const results = await Promise.all(fetchPromises);
+      const validResults = results.filter((r) => r !== null);
+
+      if (validResults.length > 0) {
+        setPersonalLibrary((prev) => {
+          const updated = [...prev, ...validResults];
+          localStorage.setItem("xyi_favorites", JSON.stringify(updated));
+          return updated;
+        });
+        sendChatSystemMessage(`✅ Пакетный импорт завершен: успешно добавлено ${validResults.length} из ${urls.length} треков!`);
+      } else {
+        alert("Не удалось импортировать треки. Проверьте ссылки на SoundCloud.");
+      }
+    } catch (err) {
+      console.error("Error bulk importing:", err);
+    } finally {
+      setBulkText("");
+      setImportingBulk(false);
+    }
+  };
+
   const formatTime = (ms) => {
     if (isNaN(ms) || ms < 0) return "0:00";
     const totalSecs = Math.floor(ms / 1000);
@@ -1375,93 +1656,219 @@ function SyncPlayerApp() {
             </div>
           </div>
 
-          {/* Personal Library Card (Saved Favorite tracks) */}
+          {/* Personal Library Card (Saved Favorite tracks / SoundCloud accounts) */}
           <div className="glass-panel p-6 rounded-[28px] text-left flex flex-col gap-4">
-            <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-              <Music className="w-4 h-4 text-[#ff5500]" />
-              <h3 className="text-sm font-bold">Моя Медиатека</h3>
+            <div className="flex items-center justify-between pb-2 border-b border-white/5">
+              <div className="flex items-center gap-2">
+                <Music className="w-4 h-4 text-[#ff5500]" />
+                <h3 className="text-sm font-bold">Мой SoundCloud</h3>
+              </div>
+              <span className="text-[9px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2 py-0.5 rounded-full border border-[#ff5500]/20 animate-pulse">
+                Свободно
+              </span>
             </div>
-            
-            <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
-              Ваш личный приватный список треков. Друг его не видит, но вы можете в любой момент запустить песню отсюда для всех!
-            </p>
-            
-            {/* Input to add personal tracks */}
-            <form onSubmit={handleAddPersonalTrack} className="w-full flex gap-2">
-              <input
-                type="text"
-                placeholder="Вставьте SoundCloud ссылку..."
-                value={newPersonalUrl}
-                onChange={(e) => setNewPersonalUrl(e.target.value)}
-                disabled={addingPersonal}
-                className="flex-1 bg-black/60 border border-white/8 rounded-2xl px-3 py-2.5 text-[10px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors"
-              />
-              <button
-                type="submit"
-                disabled={!newPersonalUrl.trim() || addingPersonal}
-                className="p-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-2xl transition-all flex items-center justify-center cursor-pointer"
-              >
-                {addingPersonal ? (
-                  <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
-                ) : (
-                  <Plus className="w-3.5 h-3.5" />
-                )}
-              </button>
-            </form>
 
-            {/* Scrollable Favorites list */}
-            {personalLibrary.length === 0 ? (
-              <div className="w-full py-6 bg-black/20 border border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 px-4 text-center">
-                <p className="text-zinc-600 text-[10px] leading-normal">Медиатека пуста. Вставьте ссылку на любимый SoundCloud трек выше!</p>
-              </div>
-            ) : (
-              <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
-                {personalLibrary.map((track) => (
-                  <div
-                    key={track.id}
-                    className="w-full p-2 bg-black/30 border border-white/5 hover:border-white/10 rounded-xl flex items-center gap-2.5"
+            {/* Gorgeous Segmented Tab Bar */}
+            <div className="grid grid-cols-3 bg-black/40 p-1 rounded-2xl border border-white/5">
+              <button
+                onClick={() => setActiveLibraryTab("favorites")}
+                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  activeLibraryTab === "favorites"
+                    ? "bg-white/10 text-white shadow-sm border border-white/5"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                Мои Треки
+              </button>
+              <button
+                onClick={() => setActiveLibraryTab("playlist")}
+                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  activeLibraryTab === "playlist"
+                    ? "bg-white/10 text-white shadow-sm border border-white/5"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                Импорт
+              </button>
+              <button
+                onClick={() => setActiveLibraryTab("bulk")}
+                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  activeLibraryTab === "bulk"
+                    ? "bg-white/10 text-white shadow-sm border border-white/5"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                Списком
+              </button>
+            </div>
+
+            {/* TAB CONTENT: FAVORITES */}
+            {activeLibraryTab === "favorites" && (
+              <>
+                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
+                  Ваша личная медиатека. Добавьте трек поштучно, либо импортируйте плейлист из других вкладок. Запускайте треки синхронно для всех!
+                </p>
+                
+                {/* Input to add personal tracks */}
+                <form onSubmit={handleAddPersonalTrack} className="w-full flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="Вставьте SoundCloud ссылку на трек..."
+                    value={newPersonalUrl}
+                    onChange={(e) => setNewPersonalUrl(e.target.value)}
+                    disabled={addingPersonal}
+                    className="flex-1 bg-black/60 border border-white/8 rounded-2xl px-3 py-2.5 text-[10px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!newPersonalUrl.trim() || addingPersonal}
+                    className="p-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-2xl transition-all flex items-center justify-center cursor-pointer"
                   >
-                    {/* Thumbnail */}
-                    <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                      {track.thumbnail ? (
-                        <img src={track.thumbnail} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        <Music className="w-3.5 h-3.5 text-zinc-600" />
-                      )}
-                    </div>
-                    {/* Title */}
-                    <div className="flex-1 min-w-0 flex flex-col text-left">
-                      <p className="text-[10px] font-bold text-zinc-300 truncate" title={track.title}>
-                        {track.title}
-                      </p>
-                    </div>
-                    {/* Action buttons */}
-                    <div className="flex items-center gap-1 flex-shrink-0">
-                      <button
-                        onClick={(e) => handlePlayPersonalTrackNow(track, e)}
-                        className="p-1.5 hover:bg-white/5 rounded text-zinc-400 hover:text-[#ff5500] transition-colors cursor-pointer"
-                        title="Запустить сейчас для всех"
-                      >
-                        <Play className="w-3 h-3 fill-current" />
-                      </button>
-                      <button
-                        onClick={(e) => handleQueuePersonalTrack(track, e)}
-                        className="p-1.5 hover:bg-white/5 rounded text-zinc-400 hover:text-white transition-colors cursor-pointer"
-                        title="Добавить в очередь"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                      <button
-                        onClick={(e) => handleDeletePersonalTrack(track.id, e)}
-                        className="p-1.5 hover:bg-red-500/10 rounded text-zinc-600 hover:text-red-500 transition-colors cursor-pointer"
-                        title="Удалить из медиатеки"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                      </button>
-                    </div>
+                    {addingPersonal ? (
+                      <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                    ) : (
+                      <Plus className="w-3.5 h-3.5" />
+                    )}
+                  </button>
+                </form>
+
+                {/* Scrollable Favorites list */}
+                {personalLibrary.length === 0 ? (
+                  <div className="w-full py-6 bg-black/20 border border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 px-4 text-center">
+                    <p className="text-zinc-600 text-[10px] leading-normal">Медиатека пуста. Добавьте трек выше или импортируйте плейлист!</p>
                   </div>
-                ))}
-              </div>
+                ) : (
+                  <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
+                    {personalLibrary.map((track) => (
+                      <div
+                        key={track.id}
+                        className="w-full p-2 bg-black/30 border border-white/5 hover:border-[#ff5500]/20 rounded-xl flex items-center gap-2.5 transition-all hover:bg-black/50"
+                      >
+                        {/* Thumbnail */}
+                        <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          {track.thumbnail ? (
+                            <img src={track.thumbnail} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            <Music className="w-3.5 h-3.5 text-zinc-600" />
+                          )}
+                        </div>
+                        {/* Title */}
+                        <div className="flex-1 min-w-0 flex flex-col text-left">
+                          <p className="text-[10px] font-bold text-zinc-300 truncate" title={track.title}>
+                            {track.title}
+                          </p>
+                        </div>
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <button
+                            onClick={(e) => handlePlayPersonalTrackNow(track, e)}
+                            className="p-1.5 hover:bg-white/5 rounded text-zinc-400 hover:text-[#ff5500] transition-colors cursor-pointer"
+                            title="Запустить сейчас для всех"
+                          >
+                            <Play className="w-3 h-3 fill-current" />
+                          </button>
+                          <button
+                            onClick={(e) => handleQueuePersonalTrack(track, e)}
+                            className="p-1.5 hover:bg-white/5 rounded text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                            title="Добавить в очередь"
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                          <button
+                            onClick={(e) => handleDeletePersonalTrack(track.id, e)}
+                            className="p-1.5 hover:bg-red-500/10 rounded text-zinc-600 hover:text-red-500 transition-colors cursor-pointer"
+                            title="Удалить из медиатеки"
+                          >
+                            <Trash2 className="w-3 h-3" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* TAB CONTENT: PLAYLIST IMPORT */}
+            {activeLibraryTab === "playlist" && (
+              <>
+                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
+                  Создайте в SoundCloud публичный плейлист со своими любимыми треками (лайками) и вставьте ссылку ниже. Мы автоматически вытащим все треки!
+                </p>
+
+                <form onSubmit={handleImportPlaylistSubmit} className="w-full flex flex-col gap-3">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Вставьте ссылку на плейлист SoundCloud..."
+                      value={importUrl}
+                      onChange={(e) => setImportUrl(e.target.value)}
+                      disabled={importingPlaylist}
+                      className="flex-1 bg-black/60 border border-white/8 rounded-2xl px-3 py-2.5 text-[10px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!importUrl.trim() || importingPlaylist}
+                      className="px-4 py-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-2xl font-bold text-[10px] uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer"
+                    >
+                      {importingPlaylist ? (
+                        <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                      ) : (
+                        "Импорт"
+                      )}
+                    </button>
+                  </div>
+                </form>
+
+                {importingPlaylist && (
+                  <div className="w-full p-4 bg-[#ff5500]/5 border border-[#ff5500]/10 rounded-2xl flex items-center justify-center gap-3">
+                    <div className="w-4 h-4 rounded-full border-2 border-[#ff5500] border-r-transparent animate-spin"></div>
+                    <span className="text-[10px] font-bold text-[#ff5500] tracking-wide animate-pulse uppercase">
+                      Разбираем плейлист, пожалуйста подождите...
+                    </span>
+                  </div>
+                )}
+
+                <div className="p-3 bg-black/20 rounded-2xl border border-white/5 flex flex-col gap-1.5">
+                  <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Как импортировать Лайки?</span>
+                  <p className="text-[9px] text-zinc-500 leading-normal">
+                    1. Перейдите в SoundCloud, зайдите во вкладку <span className="text-zinc-300">Likes</span>.<br />
+                    2. Создайте новый публичный плейлист и добавьте туда треки.<br />
+                    3. Скопируйте ссылку на этот плейлист и вставьте выше.
+                  </p>
+                </div>
+              </>
+            )}
+
+            {/* TAB CONTENT: BULK IMPORT */}
+            {activeLibraryTab === "bulk" && (
+              <>
+                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
+                  Скопируйте ссылки на любые треки SoundCloud из адресной строки и вставьте их ниже. Каждая ссылка должна быть на новой строчке или разделена запятой.
+                </p>
+
+                <form onSubmit={handleBulkImportSubmit} className="w-full flex flex-col gap-3">
+                  <textarea
+                    rows={4}
+                    placeholder="https://soundcloud.com/artist/track-1&#10;https://soundcloud.com/artist/track-2"
+                    value={bulkText}
+                    onChange={(e) => setBulkText(e.target.value)}
+                    disabled={importingBulk}
+                    className="w-full bg-black/60 border border-white/8 rounded-2xl p-3 text-[10px] text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-[#ff5500] transition-colors resize-none leading-normal"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!bulkText.trim() || importingBulk}
+                    className="w-full py-3 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-2xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center cursor-pointer"
+                  >
+                    {importingBulk ? (
+                      <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                    ) : (
+                      "Импортировать список"
+                    )}
+                  </button>
+                </form>
+              </>
             )}
           </div>
 
@@ -1513,15 +1920,28 @@ function SyncPlayerApp() {
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
                 {currentTrack && (
-                  <button
-                    onClick={handleManualSync}
-                    disabled={calibrating}
-                    className={`flex items-center gap-1 px-3 py-1.5 bg-white/5 hover:bg-[#ff5500]/15 border border-white/8 hover:border-[#ff5500]/30 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-zinc-300 hover:text-[#ff5500] transition-all cursor-pointer ${calibrating ? "animate-pulse" : ""}`}
-                    title="Калибровать звук с сервером"
-                  >
-                    <Radio className={`w-3 h-3 ${calibrating ? "animate-spin text-[#ff5500]" : "text-[#ff5500]"}`} />
-                    <span>{calibrating ? "Синхронизация..." : "Синхронизировать"}</span>
-                  </button>
+                  <div className="flex items-center gap-1">
+                    {/* Sync Me with Room */}
+                    <button
+                      onClick={handleManualSync}
+                      disabled={calibrating}
+                      className={`flex items-center gap-1 px-3 py-1.5 bg-white/5 hover:bg-[#ff5500]/15 border border-white/8 hover:border-[#ff5500]/30 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-zinc-300 hover:text-[#ff5500] transition-all cursor-pointer ${calibrating ? "animate-pulse" : ""}`}
+                      title="Синхронизировать мой плеер с комнатой"
+                    >
+                      <Radio className={`w-3 h-3 ${calibrating ? "animate-spin text-[#ff5500]" : "text-[#ff5500]"}`} />
+                      <span>{calibrating ? "Я..." : "Синхр. Я"}</span>
+                    </button>
+                    {/* Force Sync Friend */}
+                    <button
+                      onClick={handleForceSyncEveryone}
+                      disabled={calibrating}
+                      className={`flex items-center gap-1 px-3 py-1.5 bg-white/5 hover:bg-[#ff5500]/15 border border-white/8 hover:border-[#ff5500]/30 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-zinc-300 hover:text-[#ff5500] transition-all cursor-pointer ${calibrating ? "animate-pulse" : ""}`}
+                      title="Принудительно подтянуть друга ко мне"
+                    >
+                      <Radio className={`w-3 h-3 text-[#ff5500] ${calibrating ? "animate-spin" : ""}`} />
+                      <span>{calibrating ? "Кент..." : "Синхр. Кент"}</span>
+                    </button>
+                  </div>
                 )}
                 <span className="text-[9px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2.5 py-1.5 rounded-full border border-[#ff5500]/15 animate-pulse">
                   {isPlaying ? "Live" : "Pause"}
@@ -1851,6 +2271,24 @@ function SyncPlayerApp() {
           src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/184131013&auto_play=false&visual=true&show_artwork=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false"
         ></iframe>
       </div>
+
+      {/* Background SoundCloud playlist importer (hidden) */}
+      {tempIframeUrl && (
+        <div 
+          className="fixed bottom-0 left-0 w-[1px] h-[1px] pointer-events-none opacity-0 overflow-hidden"
+          style={{ zIndex: -999 }}
+        >
+          <iframe
+            id="soundcloud-temp-player"
+            width="100%"
+            height="166"
+            scrolling="no"
+            frameBorder="no"
+            allow="autoplay"
+            src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(tempIframeUrl)}&auto_play=false&visual=false&show_artwork=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false`}
+          ></iframe>
+        </div>
+      )}
 
     </main>
   );
