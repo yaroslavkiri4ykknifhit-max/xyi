@@ -581,15 +581,17 @@ function SyncPlayerApp() {
     const iframe = document.getElementById("soundcloud-player");
     if (!iframe) return;
 
-    const widget = window.SC.Widget(iframe);
-    widgetRef.current = widget;
+    try {
+      const widget = window.SC.Widget(iframe);
+      widgetRef.current = widget;
 
-    widget.bind(window.SC.Widget.Events.READY, () => {
-      setWidgetReady(true);
-      widget.setVolume(isMuted ? 0 : volume);
-      
-      // Sync initial metadata duration
-      widget.getDuration((d) => setDurationMs(d));
+      widget.bind(window.SC.Widget.Events.READY, () => {
+        setWidgetReady(true);
+        widget.setVolume(isMuted ? 0 : volume);
+        
+        // Sync initial metadata duration
+        widget.getDuration((d) => setDurationMs(d));
+      });
 
       // Trigger automatic track end skipping
       widget.bind(window.SC.Widget.Events.FINISH, () => {
@@ -612,7 +614,25 @@ function SyncPlayerApp() {
       widget.bind(window.SC.Widget.Events.PLAY_PROGRESS, (data) => {
         setProgressMs(data.currentPosition);
       });
-    });
+
+      // RACE CONDITION BYPASS:
+      // If the static iframe has already loaded (from cache or fast render), the READY event
+      // might not fire again. We ping the widget. If it responds, we mark it ready immediately.
+      setTimeout(() => {
+        if (widgetRef.current) {
+          widgetRef.current.getVolume((vol) => {
+            setWidgetReady(true);
+            widgetRef.current.getDuration((d) => {
+              if (d > 0) setDurationMs(d);
+            });
+            widgetRef.current.setVolume(isMuted ? 0 : volume);
+          });
+        }
+      }, 150);
+
+    } catch (err) {
+      console.error("Error setting up SoundCloud widget:", err);
+    }
   };
 
   // Trigger loading when iframe renders if window.SC already exists
