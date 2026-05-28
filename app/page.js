@@ -457,7 +457,7 @@ function SyncPlayerApp() {
       }
     } else {
       // Normal Play/Pause or Seek on same track
-      if (widgetRef.current && widgetReady) {
+      if (widgetRef.current) {
         isSyncingRef.current = true;
         if (updatedRoom.is_playing) {
           widgetRef.current.play();
@@ -507,7 +507,7 @@ function SyncPlayerApp() {
       return;
     }
 
-    if (widgetRef.current && widgetReady) {
+    if (widgetRef.current) {
       isSyncingRef.current = true;
       if (remotePlaying) {
         widgetRef.current.play();
@@ -555,7 +555,7 @@ function SyncPlayerApp() {
 
   // 13. Load a track into the SoundCloud Widget element
   const loadSoundCloudTrack = (url, autoPlay, startProgressMs = 0) => {
-    if (!widgetRef.current || !widgetReady) return;
+    if (!widgetRef.current) return;
 
     isSyncingRef.current = true;
     widgetRef.current.load(url, {
@@ -581,6 +581,7 @@ function SyncPlayerApp() {
   useEffect(() => {
     if (typeof window === "undefined" || !window.SC || !iframeRef.current || widgetReady) return;
 
+    let pingInterval;
     try {
       const widget = window.SC.Widget(iframeRef.current);
       widgetRef.current = widget;
@@ -615,8 +616,9 @@ function SyncPlayerApp() {
         setProgressMs(data.currentPosition);
       });
 
-      // PING CHECK: In case the READY event had already fired (race condition bypass)
-      setTimeout(() => {
+      // PING CHECK: Repeatedly ping the widget every 250ms until it responds (resolves late iframe binding race condition)
+      let pings = 0;
+      pingInterval = setInterval(() => {
         if (widgetRef.current) {
           widgetRef.current.getVolume(() => {
             setWidgetReady(true);
@@ -624,19 +626,28 @@ function SyncPlayerApp() {
               if (d > 0) setDurationMs(d);
             });
             widgetRef.current.setVolume(isMuted ? 0 : volume);
+            clearInterval(pingInterval);
           });
         }
-      }, 200);
+        pings++;
+        if (pings > 15) {
+          clearInterval(pingInterval);
+        }
+      }, 250);
 
     } catch (err) {
       console.error("Error setting up SoundCloud widget reactive:", err);
     }
+
+    return () => {
+      if (pingInterval) clearInterval(pingInterval);
+    };
   }, [scriptLoaded, widgetReady, iframeRef.current]);
 
   // 15. Audio playback polling for responsive progress bar and volume enforcement
   useEffect(() => {
     let timer;
-    if (widgetRef.current && widgetReady) {
+    if (widgetRef.current) {
       // Force volume state directly onto widget
       widgetRef.current.setVolume(isMuted ? 0 : volume);
 
@@ -683,7 +694,7 @@ function SyncPlayerApp() {
     const nextPlaying = !isPlaying;
     setIsPlaying(nextPlaying);
 
-    if (widgetRef.current && widgetReady) {
+    if (widgetRef.current) {
       if (nextPlaying) {
         widgetRef.current.play();
       } else {
@@ -705,7 +716,7 @@ function SyncPlayerApp() {
     const seekMs = parseInt(e.target.value);
     setProgressMs(seekMs);
 
-    if (widgetRef.current && widgetReady) {
+    if (widgetRef.current) {
       widgetRef.current.seekTo(seekMs);
       broadcastPlayerAction("seek", isPlaying, seekMs);
       await pushRoomState(isPlaying, seekMs);
@@ -719,7 +730,7 @@ function SyncPlayerApp() {
     setIsPlaying(true);
     setIsHearted(false);
 
-    if (widgetRef.current && widgetReady) {
+    if (widgetRef.current) {
       loadSoundCloudTrack(track.track_url, true, 0);
     }
 
@@ -793,7 +804,7 @@ function SyncPlayerApp() {
     setVolume(val);
     setIsMuted(val === 0);
     localStorage.setItem("xyi_volume", val.toString());
-    if (widgetRef.current && widgetReady) {
+    if (widgetRef.current) {
       widgetRef.current.setVolume(val);
     }
   };
@@ -801,7 +812,7 @@ function SyncPlayerApp() {
   const toggleMute = () => {
     const nextMute = !isMuted;
     setIsMuted(nextMute);
-    if (widgetRef.current && widgetReady) {
+    if (widgetRef.current) {
       widgetRef.current.setVolume(nextMute ? 0 : volume);
     }
   };
