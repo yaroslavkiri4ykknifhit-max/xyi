@@ -558,8 +558,8 @@ function SyncPlayerApp() {
     isSyncingRef.current = true;
     widgetRef.current.load(url, {
       auto_play: autoPlay,
-      show_artwork: false,
-      visual: false,
+      show_artwork: true,
+      visual: true,
       callback: () => {
         if (startProgressMs > 0) {
           widgetRef.current.seekTo(startProgressMs);
@@ -1331,24 +1331,7 @@ function SyncPlayerApp() {
               </span>
             </div>
 
-            {/* SoundCloud Core Engine Widget (Required for audio playback and browser safety) */}
-            <div className="mt-4 p-2 bg-black/40 rounded-2xl border border-white/5">
-              <span className="text-[9px] font-bold text-zinc-500 uppercase tracking-widest block mb-2 text-center pl-1">
-                SoundCloud Core Engine
-              </span>
-              <iframe
-                id="soundcloud-player"
-                width="100%"
-                height="80"
-                scrolling="no"
-                frameBorder="no"
-                allow="autoplay"
-                src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(
-                  currentTrack ? currentTrack.track_url : "https://api.soundcloud.com/tracks/184131013"
-                )}&auto_play=false&visual=false&show_artwork=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false`}
-                className="rounded-xl border border-white/5 bg-zinc-950 overflow-hidden shadow-2xl h-[80px] pointer-events-none"
-              ></iframe>
-            </div>
+            {/* SoundCloud Core Engine Widget is now rendered completely off-screen below */}
 
           </div>
 
@@ -1566,6 +1549,21 @@ function SyncPlayerApp() {
         </div>
 
       </div>
+      {/* Off-screen SoundCloud engine (Required for audio playback but visually hidden) */}
+      <div className="fixed -left-[9999px] -top-[9999px] w-[300px] h-[200px] pointer-events-none opacity-0 overflow-hidden">
+        <iframe
+          id="soundcloud-player"
+          width="100%"
+          height="166"
+          scrolling="no"
+          frameBorder="no"
+          allow="autoplay"
+          src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(
+            currentTrack ? currentTrack.track_url : "https://api.soundcloud.com/tracks/184131013"
+          )}&auto_play=false&visual=true&show_artwork=true&hide_related=true&show_comments=false&show_user=false&show_reposts=false`}
+        ></iframe>
+      </div>
+
     </main>
   );
 }
