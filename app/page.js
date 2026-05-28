@@ -586,7 +586,7 @@ function SyncPlayerApp() {
 
     widget.bind(window.SC.Widget.Events.READY, () => {
       setWidgetReady(true);
-      widget.setVolume(volume);
+      widget.setVolume(isMuted ? 0 : volume);
       
       // Sync initial metadata duration
       widget.getDuration((d) => setDurationMs(d));
@@ -596,9 +596,21 @@ function SyncPlayerApp() {
         handleTrackFinished();
       });
 
-      // Update duration on play events
+      // Synchronize play state when iframe executes audio play
       widget.bind(window.SC.Widget.Events.PLAY, () => {
+        setIsPlaying(true);
+        widget.setVolume(isMuted ? 0 : volume);
         widget.getDuration((d) => setDurationMs(d));
+      });
+
+      // Synchronize pause state when iframe executes pause
+      widget.bind(window.SC.Widget.Events.PAUSE, () => {
+        setIsPlaying(false);
+      });
+
+      // Native progress updates for pixel-perfect smooth timeline synchronization
+      widget.bind(window.SC.Widget.Events.PLAY_PROGRESS, (data) => {
+        setProgressMs(data.currentPosition);
       });
     });
   };
@@ -610,18 +622,25 @@ function SyncPlayerApp() {
     }
   }, [roomCode, widgetReady]);
 
-  // 15. Audio playback polling for responsive progress bar
+  // 15. Audio playback polling for responsive progress bar and volume enforcement
   useEffect(() => {
     let timer;
-    if (isPlaying && widgetRef.current && widgetReady) {
-      timer = setInterval(() => {
-        widgetRef.current.getPosition((pos) => {
-          setProgressMs(pos);
-        });
-      }, 250);
+    if (widgetRef.current && widgetReady) {
+      // Force volume state directly onto widget
+      widgetRef.current.setVolume(isMuted ? 0 : volume);
+
+      if (isPlaying) {
+        timer = setInterval(() => {
+          widgetRef.current.getPosition((pos) => {
+            setProgressMs(pos);
+          });
+          // Regularly lock volume level to prevent default SoundCloud overrides
+          widgetRef.current.setVolume(isMuted ? 0 : volume);
+        }, 250);
+      }
     }
     return () => clearInterval(timer);
-  }, [isPlaying, widgetReady]);
+  }, [isPlaying, volume, isMuted, widgetReady]);
 
   // 16. Synchronize player actions to Supabase Database
   const pushRoomState = async (playing, currentProgress) => {
@@ -1327,7 +1346,7 @@ function SyncPlayerApp() {
                 src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(
                   currentTrack ? currentTrack.track_url : "https://api.soundcloud.com/tracks/184131013"
                 )}&auto_play=false&visual=false&show_artwork=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false`}
-                className="rounded-xl border border-white/5 bg-zinc-950 overflow-hidden shadow-2xl h-[80px]"
+                className="rounded-xl border border-white/5 bg-zinc-950 overflow-hidden shadow-2xl h-[80px] pointer-events-none"
               ></iframe>
             </div>
 
