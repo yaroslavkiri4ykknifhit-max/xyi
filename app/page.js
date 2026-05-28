@@ -1550,7 +1550,10 @@ function SyncPlayerApp() {
 
       </div>
       {/* Off-screen SoundCloud engine (Required for audio playback but visually hidden) */}
-      <div className="fixed -left-[9999px] -top-[9999px] w-[300px] h-[200px] pointer-events-none opacity-0 overflow-hidden">
+      <div 
+        className="fixed bottom-0 left-0 w-[300px] h-[166px] pointer-events-none opacity-0 overflow-hidden"
+        style={{ zIndex: -100 }}
+      >
         <iframe
           id="soundcloud-player"
           width="100%"
