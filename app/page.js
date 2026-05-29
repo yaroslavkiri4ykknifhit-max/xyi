@@ -1451,110 +1451,111 @@ function SyncPlayerApp() {
     return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
   };
 
-  // 21. Beautiful Landing Page (Overhauled)
-  if (!roomCode) {
-    return (
-      <main className="min-h-screen bg-[#050508] text-white flex flex-col relative select-none overflow-hidden">
-        {/* Glow Auras */}
-        <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#ff5500]/10 rounded-full blur-[120px] pointer-events-none"></div>
-        <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/10 rounded-full blur-[120px] pointer-events-none"></div>
-
-        {/* Global Nav */}
-        <nav className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between z-10">
-          <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => router.push("/")}>
-            <span className="text-3xl font-black tracking-tighter text-white">xyi</span>
-            <span className="w-5 h-5 rounded-md bg-[#ff5500] flex items-center justify-center text-[10px] font-black text-black select-none">▶</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-            <span className="hover:text-white transition-colors cursor-pointer">Home</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Rooms</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Features</span>
-            <span className="hover:text-white transition-colors cursor-pointer">Support</span>
-          </div>
-          <button className="px-5 py-2.5 rounded-full border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98]">
-            Sign In
-          </button>
-        </nav>
-
-        {/* Hero & Join Card Panel */}
-        <section className="flex-1 max-w-7xl mx-auto w-full px-6 flex flex-col lg:flex-row items-center justify-center gap-16 py-12 z-10">
-          <div className="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start max-w-xl">
-            <span className="px-3.5 py-1.5 rounded-full bg-[#ff5500]/10 text-[#ff5500] text-xs font-bold uppercase tracking-widest mb-6 border border-[#ff5500]/15">
-              Na leg. All vibe.
-            </span>
-            <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight leading-none mb-6">
-              XYI: Listen <br className="hidden md:block"/>
-              <span className="bg-gradient-to-r from-[#ff5500] via-[#ff7733] to-[#8A2BE2] bg-clip-text text-transparent">Together, Live</span>
-            </h1>
-            <p className="text-zinc-400 text-base md:text-lg mb-8 font-light leading-relaxed max-w-md">
-              Синхронизируйте музыку в реальном времени с друзьями. Нажмите кнопку, чтобы мгновенно создать приватную аудиосессию без задержек.
-            </p>
-            <button
-              onClick={handleCreateRoomAction}
-              className="px-8 py-4 bg-[#ff5500] hover:bg-[#ff661a] text-black font-extrabold text-sm uppercase tracking-widest rounded-full transition-all active:scale-[0.97] hover:shadow-[0_8px_30px_rgba(255,85,0,0.3)]"
-            >
-              Create a Session
-            </button>
-          </div>
-
-          {/* Glass Card Input Box */}
-          <div className="w-full max-w-md glass-panel p-8 rounded-[36px] border-white/10 shadow-2xl flex flex-col gap-6 relative">
-            <div className="absolute top-4 right-4 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
-              <span className="text-[9px] font-bold text-emerald-400 tracking-widest uppercase">Online</span>
-            </div>
-            
-            <div className="flex flex-col gap-1">
-              <h2 className="text-xl font-bold">Войти в комнату</h2>
-              <p className="text-xs text-zinc-500">Введите уникальный код сессии вашего друга</p>
-            </div>
-
-            <form onSubmit={handleJoinOrCreateRoomSubmit} className="flex flex-col gap-4">
-              <input
-                type="text"
-                placeholder="НАПРИМЕР: XYI-8LP2"
-                value={roomCodeInput}
-                onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
-                className="w-full bg-black/60 border border-white/8 rounded-2xl px-4 py-4 text-white text-center text-lg font-bold tracking-widest focus:outline-none focus:border-[#ff5500] focus:ring-1 focus:ring-[#ff5500]/30 transition-all uppercase placeholder:text-zinc-700"
-                maxLength={12}
-              />
-              <button
-                type="submit"
-                disabled={!roomCodeInput.trim()}
-                className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-2xl transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
-              >
-                Подключиться
-              </button>
-            </form>
-
-            <div className="relative flex py-2 items-center">
-              <div className="flex-grow border-t border-white/5"></div>
-              <span className="flex-shrink mx-4 text-zinc-600 text-[10px] uppercase tracking-widest">или</span>
-              <div className="flex-grow border-t border-white/5"></div>
-            </div>
-
-            <button
-              onClick={handleCreateRoomAction}
-              className="w-full py-4 bg-zinc-950 border border-white/10 hover:border-[#ff5500]/50 hover:bg-[#ff5500]/5 text-white font-bold text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-[0.98] cursor-pointer"
-            >
-              Создать новую сессию
-            </button>
-          </div>
-        </section>
-      </main>
-    );
-  }
-
-  // 22. Loading Screen inside Room
+  // 21. Unified Render: Landing or Room + Sticky Bottom Player
   if (loading) {
     return <PageLoading />;
   }
 
   return (
-    <main className="min-h-screen bg-[#050508] text-white flex flex-col relative select-none pb-12">
+    <main className="min-h-screen bg-[#050508] text-white flex flex-col relative select-none pb-28 overflow-x-hidden">
       {/* Background glowing soft elements */}
       <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-[#ff5500]/5 rounded-full blur-[140px] pointer-events-none"></div>
       <div className="absolute bottom-[10%] right-[10%] w-[35%] h-[35%] bg-[#00b4d8]/5 rounded-full blur-[140px] pointer-events-none"></div>
+
+      {!roomCode ? (
+        /* ==================== LANDING PAGE CONTENT ==================== */
+        <div className="flex flex-col flex-1 relative z-10 w-full min-h-screen">
+          {/* Glow Auras */}
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#ff5500]/10 rounded-full blur-[120px] pointer-events-none"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+          {/* Global Nav */}
+          <nav className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between z-10">
+            <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => router.push("/")}>
+              <span className="text-3xl font-black tracking-tighter text-white">xyi</span>
+              <span className="w-5 h-5 rounded-md bg-[#ff5500] flex items-center justify-center text-[10px] font-black text-black select-none">▶</span>
+            </div>
+            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
+              <span className="hover:text-white transition-colors cursor-pointer">Home</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Rooms</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Features</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Support</span>
+            </div>
+            <button className="px-5 py-2.5 rounded-full border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98]">
+              Sign In
+            </button>
+          </nav>
+
+          {/* Hero & Join Card Panel */}
+          <section className="flex-1 max-w-7xl mx-auto w-full px-6 flex flex-col lg:flex-row items-center justify-center gap-16 py-12 z-10">
+            <div className="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start max-w-xl">
+              <span className="px-3.5 py-1.5 rounded-full bg-[#ff5500]/10 text-[#ff5500] text-xs font-bold uppercase tracking-widest mb-6 border border-[#ff5500]/15">
+                Na leg. All vibe.
+              </span>
+              <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight leading-none mb-6">
+                XYI: Listen <br className="hidden md:block"/>
+                <span className="bg-gradient-to-r from-[#ff5500] via-[#ff7733] to-[#8A2BE2] bg-clip-text text-transparent">Together, Live</span>
+              </h1>
+              <p className="text-zinc-400 text-base md:text-lg mb-8 font-light leading-relaxed max-w-md">
+                Синхронизируйте музыку в реальном времени с друзьями. Нажмите кнопку, чтобы мгновенно создать приватную аудиосессию без задержек.
+              </p>
+              <button
+                onClick={handleCreateRoomAction}
+                className="px-8 py-4 bg-[#ff5500] hover:bg-[#ff661a] text-black font-extrabold text-sm uppercase tracking-widest rounded-full transition-all active:scale-[0.97] hover:shadow-[0_8px_30px_rgba(255,85,0,0.3)]"
+              >
+                Create a Session
+              </button>
+            </div>
+
+            {/* Glass Card Input Box */}
+            <div className="w-full max-w-md glass-panel p-8 rounded-[36px] border-white/10 shadow-2xl flex flex-col gap-6 relative">
+              <div className="absolute top-4 right-4 flex items-center gap-1.5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <span className="text-[9px] font-bold text-emerald-400 tracking-widest uppercase">Online</span>
+              </div>
+              
+              <div className="flex flex-col gap-1">
+                <h2 className="text-xl font-bold">Войти в комнату</h2>
+                <p className="text-xs text-zinc-500">Введите уникальный код сессии вашего друга</p>
+              </div>
+
+              <form onSubmit={handleJoinOrCreateRoomSubmit} className="flex flex-col gap-4">
+                <input
+                  type="text"
+                  placeholder="НАПРИМЕР: XYI-8LP2"
+                  value={roomCodeInput}
+                  onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
+                  className="w-full bg-black/60 border border-white/8 rounded-2xl px-4 py-4 text-white text-center text-lg font-bold tracking-widest focus:outline-none focus:border-[#ff5500] focus:ring-1 focus:ring-[#ff5500]/30 transition-all uppercase placeholder:text-zinc-700"
+                  maxLength={12}
+                />
+                <button
+                  type="submit"
+                  disabled={!roomCodeInput.trim()}
+                  className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-2xl transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                >
+                  Подключиться
+                </button>
+              </form>
+
+              <div className="relative flex py-2 items-center">
+                <div className="flex-grow border-t border-white/5"></div>
+                <span className="flex-shrink mx-4 text-zinc-600 text-[10px] uppercase tracking-widest">или</span>
+                <div className="flex-grow border-t border-white/5"></div>
+              </div>
+
+              <button
+                onClick={handleCreateRoomAction}
+                className="w-full py-4 bg-zinc-950 border border-white/10 hover:border-[#ff5500]/50 hover:bg-[#ff5500]/5 text-white font-bold text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-[0.98] cursor-pointer"
+              >
+                Создать новую сессию
+              </button>
+            </div>
+          </section>
+        </div>
+      ) : (
+        /* ==================== ROOM PAGE CONTENT ==================== */
+        <div className="flex flex-col flex-1 relative z-10 w-full">
+
 
       {/* Autoplay Unlock banner */}
       {needInteractionSync && (
@@ -1912,27 +1913,18 @@ function SyncPlayerApp() {
         {/* ==================== CENTER COLUMN (5/12 cols) ==================== */}
         <div className="col-span-1 lg:col-span-5 flex flex-col gap-6">
           
-          {/* Main Custom High-Fidelity Music Player Card */}
+          {/* Main Visual Artwork Card (Static) */}
           <div className="glass-panel p-6 rounded-[32px] flex flex-col shadow-2xl relative">
             
-            {/* Album Cover Container */}
+            {/* Album Cover Container (Static) */}
             <div 
-              className={`relative w-full aspect-square bg-zinc-950/60 rounded-[24px] border border-white/5 overflow-hidden flex items-center justify-center group mb-6 transition-all duration-500 ${
-                isPlaying ? "animate-beat border-[#ff5500]/30" : "shadow-[0_20px_50px_rgba(255,85,0,0.15)]"
-              }`}
+              className={`relative w-full aspect-square bg-zinc-950/60 rounded-[24px] border border-white/5 overflow-hidden flex items-center justify-center group mb-6 transition-all duration-500 animate-beat`}
             >
-              {/* Pulsing neon aura glow inside container */}
-              {isPlaying && (
-                <div 
-                  className="absolute inset-0 animate-pulse pointer-events-none z-0"
-                  style={{ backgroundImage: 'radial-gradient(circle, rgba(255, 85, 0, 0.2) 0%, transparent 75%)' }}
-                ></div>
-              )}
               {currentTrack && currentTrack.thumbnail ? (
                 <img
                   src={currentTrack.thumbnail.replace("-large", "-t500x500")}
                   alt="Track Cover Art"
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 z-10"
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-102 z-10"
                 />
               ) : (
                 <div className="flex flex-col items-center gap-4 text-zinc-600 animate-pulse">
@@ -1947,7 +1939,7 @@ function SyncPlayerApp() {
               {currentTrack && (
                 <button
                   onClick={() => setIsHearted(!isHearted)}
-                  className="absolute top-4 right-4 w-9 h-9 bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 hover:border-red-500/40 text-zinc-300 hover:text-red-500 active:scale-90 transition-all cursor-pointer"
+                  className="absolute top-4 right-4 w-9 h-9 bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 hover:border-red-500/40 text-zinc-300 hover:text-red-500 active:scale-90 transition-all cursor-pointer z-20"
                 >
                   <Heart className={`w-4.5 h-4.5 ${isHearted ? "fill-red-500 text-red-500" : ""}`} />
                 </button>
@@ -1955,7 +1947,7 @@ function SyncPlayerApp() {
             </div>
 
             {/* Track metadata details */}
-            <div className="flex items-center justify-between mb-6 text-left px-1">
+            <div className="flex items-center justify-between text-left px-1">
               <div className="flex flex-col min-w-0 flex-1 pr-4 leading-normal">
                 <h3 className="text-xl font-bold text-white truncate">
                   {currentTrack ? currentTrack.title : "Ничего не проигрывается"}
@@ -1965,101 +1957,11 @@ function SyncPlayerApp() {
                 </span>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-[9px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2.5 py-1.5 rounded-full border border-[#ff5500]/15 animate-pulse">
+                <span className="text-[9px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2.5 py-1.5 rounded-full border border-[#ff5500]/15">
                   {isPlaying ? "Live" : "Pause"}
                 </span>
               </div>
             </div>
-
-            {/* Timeline Progress Slider */}
-            <div className="flex flex-col gap-2 mb-6">
-              <div className="flex items-center gap-3">
-                <span className="text-[9px] font-mono text-zinc-500 min-w-[28px] text-right">
-                  {formatTime(progressMs)}
-                </span>
-                <input
-                  type="range"
-                  min="0"
-                  max={durationMs || 100}
-                  value={progressMs}
-                  onChange={handleSeek}
-                  disabled={!currentTrack}
-                  className="flex-1 cursor-pointer accent-[#ff5500]"
-                />
-                <span className="text-[9px] font-mono text-zinc-500 min-w-[28px]">
-                  {formatTime(durationMs)}
-                </span>
-              </div>
-            </div>
-
-            {/* Media Player Controls (Shuffle, Prev, Play/Pause, Next, Repeat) */}
-            <div className="flex items-center justify-between px-4 mb-6">
-              <button
-                onClick={() => setIsShuffle(!isShuffle)}
-                className={`p-2 rounded-xl active:scale-95 transition-all cursor-pointer ${isShuffle ? "text-[#ff5500]" : "text-zinc-600 hover:text-white"}`}
-                title="Случайный порядок"
-              >
-                <Shuffle className="w-4.5 h-4.5" />
-              </button>
-
-              <button
-                onClick={handleSkipPrev}
-                disabled={playlist.length <= 1}
-                className="p-2.5 text-zinc-400 hover:text-white disabled:opacity-20 disabled:pointer-events-none rounded-xl active:scale-95 transition-all cursor-pointer"
-              >
-                <SkipBack className="w-5 h-5 fill-current" />
-              </button>
-
-              <button
-                onClick={handlePlayPauseToggle}
-                className="w-14 h-14 bg-white hover:bg-zinc-200 active:scale-95 text-black rounded-full flex items-center justify-center shadow-lg transition-all cursor-pointer"
-              >
-                {isPlaying ? (
-                  <Pause className="w-6 h-6 fill-black text-black" />
-                ) : (
-                  <Play className="w-6 h-6 fill-black text-black translate-x-0.5" />
-                )}
-              </button>
-
-              <button
-                onClick={handleSkipNext}
-                disabled={playlist.length <= 1}
-                className="p-2.5 text-zinc-400 hover:text-white disabled:opacity-20 disabled:pointer-events-none rounded-xl active:scale-95 transition-all cursor-pointer"
-              >
-                <SkipForward className="w-5 h-5 fill-current" />
-              </button>
-
-              <button
-                onClick={() => setIsRepeat(!isRepeat)}
-                className={`p-2 rounded-xl active:scale-95 transition-all cursor-pointer ${isRepeat ? "text-[#ff5500]" : "text-zinc-600 hover:text-white"}`}
-                title="Повторять один трек"
-              >
-                <Repeat className="w-4.5 h-4.5" />
-              </button>
-            </div>
-
-            {/* volume controls slider */}
-            <div className="flex items-center gap-3 px-3 py-2 bg-black/30 rounded-2xl border border-white/5 mb-2">
-              <button
-                onClick={toggleMute}
-                className="text-zinc-400 hover:text-white transition-colors cursor-pointer"
-              >
-                {isMuted ? <VolumeX className="w-4 h-4 text-zinc-500" /> : <Volume2 className="w-4 h-4" />}
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={isMuted ? 0 : volume}
-                onChange={handleVolumeChange}
-                className="flex-1 cursor-pointer accent-white/80 h-1 bg-white/10"
-              />
-              <span className="text-[10px] font-bold text-zinc-500 min-w-[24px]">
-                {isMuted ? 0 : volume}%
-              </span>
-            </div>
-
-            {/* SoundCloud Core Engine Widget is now rendered completely off-screen below */}
 
           </div>
 
@@ -2273,10 +2175,165 @@ function SyncPlayerApp() {
               ))}
             </div>
           </div>
-
         </div>
-
       </div>
+    </div>
+  )}      {/* ==================== STICKY BOTTOM PLAYER (SPOTIFY STYLE) ==================== */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 h-24 bg-[#07070a]/95 backdrop-blur-xl border-t border-white/5 px-6 py-3 flex items-center justify-between select-none shadow-2xl">
+        {!roomCode ? (
+          /* Landing/Idle Inactive State */
+          <div className="w-full flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="w-12 h-12 rounded-xl bg-zinc-950 border border-white/5 flex items-center justify-center flex-shrink-0">
+                <Radio className="w-6 h-6 text-zinc-600" />
+              </div>
+              <div className="flex flex-col min-w-0 text-left">
+                <span className="text-sm font-bold text-zinc-400 truncate">Оффлайн сессия</span>
+                <span className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider mt-0.5">Не в сети</span>
+              </div>
+            </div>
+            <div className="text-zinc-500 text-xs font-semibold max-w-md hidden md:block">
+              Создайте сессию или подключитесь, чтобы начать синхронное прослушивание музыки
+            </div>
+            <button 
+              onClick={handleCreateRoomAction}
+              className="px-5 py-2.5 bg-zinc-900 hover:bg-[#ff5500] hover:text-black border border-white/10 hover:border-transparent rounded-full text-xs font-black uppercase tracking-wider transition-all active:scale-[0.98] cursor-pointer"
+            >
+              Создать сессию
+            </button>
+          </div>
+        ) : (
+          /* Room Active State */
+          <div className="w-full grid grid-cols-12 items-center gap-4">
+            {/* LEFT SECTION (3/12 cols): Track details & Like */}
+            <div className="col-span-4 lg:col-span-3 flex items-center gap-3 min-w-0">
+              <div className="w-12 h-12 rounded-xl bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                {currentTrack && currentTrack.thumbnail ? (
+                  <img src={currentTrack.thumbnail} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <Music className="w-5 h-5 text-zinc-600" />
+                )}
+              </div>
+              <div className="flex flex-col min-w-0 text-left flex-1">
+                <span className="text-sm font-bold text-white truncate" title={currentTrack ? currentTrack.title : "Ничего не воспроизводится"}>
+                  {currentTrack ? currentTrack.title : "Ничего не воспроизводится"}
+                </span>
+                <span className="text-[10px] text-[#ff5500] font-bold uppercase tracking-widest mt-0.5 truncate">
+                  {currentTrack ? "SoundCloud Live" : "Ожидание трека"}
+                </span>
+              </div>
+              {currentTrack && (
+                <button
+                  onClick={() => setIsHearted(!isHearted)}
+                  className="p-1.5 hover:bg-white/5 rounded-full text-zinc-400 hover:text-red-500 transition-colors cursor-pointer flex-shrink-0"
+                >
+                  <Heart className={`w-4 h-4 ${isHearted ? "fill-red-500 text-red-500" : ""}`} />
+                </button>
+              )}
+            </div>
+
+            {/* CENTER SECTION (5/12 or 6/12 cols): Playback Controls & Seekbar */}
+            <div className="col-span-5 lg:col-span-6 flex flex-col items-center gap-1.5">
+              {/* Playback Button Panel */}
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setIsShuffle(!isShuffle)}
+                  className={`p-1 rounded transition-colors cursor-pointer ${isShuffle ? "text-[#ff5500]" : "text-zinc-500 hover:text-white"}`}
+                  title="Случайный порядок"
+                >
+                  <Shuffle className="w-4 h-4" />
+                </button>
+
+                <button
+                  onClick={handleSkipPrev}
+                  disabled={playlist.length <= 1}
+                  className="p-1 text-zinc-400 hover:text-white disabled:opacity-20 disabled:pointer-events-none rounded transition-colors active:scale-95 cursor-pointer"
+                  title="Предыдущий трек"
+                >
+                  <SkipBack className="w-4.5 h-4.5 fill-current" />
+                </button>
+
+                <button
+                  onClick={handlePlayPauseToggle}
+                  disabled={!currentTrack}
+                  className="w-9 h-9 bg-white hover:bg-zinc-200 disabled:opacity-40 disabled:pointer-events-none active:scale-95 text-black rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer flex-shrink-0"
+                  title={isPlaying ? "Пауза" : "Воспроизвести"}
+                >
+                  {isPlaying ? (
+                    <Pause className="w-4 h-4 fill-black text-black" />
+                  ) : (
+                    <Play className="w-4 h-4 fill-black text-black translate-x-0.5" />
+                  )}
+                </button>
+
+                <button
+                  onClick={handleSkipNext}
+                  disabled={playlist.length <= 1}
+                  className="p-1 text-zinc-400 hover:text-white disabled:opacity-20 disabled:pointer-events-none rounded transition-colors active:scale-95 cursor-pointer"
+                  title="Следующий трек"
+                >
+                  <SkipForward className="w-4.5 h-4.5 fill-current" />
+                </button>
+
+                <button
+                  onClick={() => setIsRepeat(!isRepeat)}
+                  className={`p-1 rounded transition-colors cursor-pointer ${isRepeat ? "text-[#ff5500]" : "text-zinc-500 hover:text-white"}`}
+                  title="Повторять трек"
+                >
+                  <Repeat className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Seekbar Timeline */}
+              <div className="w-full flex items-center gap-3">
+                <span className="text-[9px] font-mono text-zinc-500 min-w-[28px] text-right">
+                  {formatTime(progressMs)}
+                </span>
+                <input
+                  type="range"
+                  min="0"
+                  max={durationMs || 100}
+                  value={progressMs}
+                  onChange={handleSeek}
+                  disabled={!currentTrack}
+                  className="flex-1 cursor-pointer accent-[#ff5500] h-1 bg-white/10 rounded-full"
+                />
+                <span className="text-[9px] font-mono text-zinc-500 min-w-[28px] text-left">
+                  {formatTime(durationMs)}
+                </span>
+              </div>
+            </div>
+
+            {/* RIGHT SECTION (3/12 cols): Volume & Latency/Presence status */}
+            <div className="col-span-3 lg:col-span-3 flex items-center justify-end gap-4">
+              {/* Volume block */}
+              <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border border-white/5 max-w-[140px] w-full">
+                <button
+                  onClick={toggleMute}
+                  className="text-zinc-400 hover:text-white transition-colors cursor-pointer flex-shrink-0"
+                >
+                  {isMuted ? <VolumeX className="w-3.5 h-3.5 text-zinc-500" /> : <Volume2 className="w-3.5 h-3.5" />}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  className="w-full cursor-pointer accent-white h-0.5 bg-white/10"
+                />
+              </div>
+
+              {/* Room indicator status */}
+              <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400">
+                <Wifi className="w-3 h-3 animate-pulse" />
+                <span className="text-[9px] font-bold uppercase tracking-wider">Sync</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Off-screen SoundCloud engine (Required for audio playback but visually hidden) */}
       <div 
         className="fixed bottom-0 left-0 w-[300px] h-[166px] pointer-events-none opacity-0 overflow-hidden"

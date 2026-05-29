@@ -150,18 +150,13 @@ input[type="range"]::-webkit-slider-thumb:hover {
   animation: livePulse 2s infinite;
 }
 
-/* Premium dynamic beat pulse animation for cover art */
-@keyframes beatPulse {
-  0%, 100% {
-    transform: scale(1);
-    box-shadow: 0 20px 50px rgba(255, 85, 0, 0.12);
-  }
-  50% {
-    transform: scale(1.025);
-    box-shadow: 0 25px 60px rgba(255, 85, 0, 0.32);
-  }
+/* Premium static glow shadow for cover art */
+.animate-beat {
+  box-shadow: 0 20px 50px rgba(255, 85, 0, 0.2);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.animate-beat:hover {
+  transform: scale(1.015);
+  box-shadow: 0 25px 60px rgba(255, 85, 0, 0.35);
 }
 
-.animate-beat {
-  animation: beatPulse 0.47s infinite cubic-bezier(0.25, 0.8, 0.25, 1);
-}
