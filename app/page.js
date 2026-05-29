@@ -109,6 +109,25 @@ function SyncPlayerApp() {
   const [importingBulk, setImportingBulk] = useState(false);
   const [tempIframeUrl, setTempIframeUrl] = useState("");
 
+  // ==================== SUPABASE AUTH & ROOMS STATES ====================
+  const [currentUser, setCurrentUser] = useState(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authTab, setAuthTab] = useState("login"); // 'login' | 'register'
+  const [authEmail, setAuthEmail] = useState("");
+  const [authPassword, setAuthPassword] = useState("");
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState("");
+
+  const [publicRooms, setPublicRooms] = useState([]);
+  const [loadingPublicRooms, setLoadingPublicRooms] = useState(false);
+
+  const [roomSettings, setRoomSettings] = useState({
+    owner_id: null,
+    is_public: false,
+    room_name: ""
+  });
+  const [newRoomNameInput, setNewRoomNameInput] = useState("");
+
   // Refs to handle realtime synchronization and prevent circular feedback loops
   const widgetRef = useRef(null);
   const currentTrackIdRef = useRef(null);
@@ -175,6 +194,172 @@ function SyncPlayerApp() {
       }
     }
   }, []);
+
+  // ==================== SUPABASE AUTH & ROOMS ACTIONS ====================
+  useEffect(() => {
+    // Check initial user session
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setCurrentUser(user);
+      if (user) {
+        const emailNick = user.email.split("@")[0];
+        if (!sessionStorage.getItem("xyi_username")) {
+          setMyUsername(emailNick);
+          sessionStorage.setItem("xyi_username", emailNick);
+        }
+      }
+    });
+
+    // Listen for real-time authentication events
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      const user = session?.user || null;
+      setCurrentUser(user);
+      if (user) {
+        const emailNick = user.email.split("@")[0];
+        setMyUsername(emailNick);
+        sessionStorage.setItem("xyi_username", emailNick);
+      }
+    });
+
+    return () => {
+      subscription?.unsubscribe();
+    };
+  }, []);
+
+  // Fetch Public Rooms List periodically
+  const fetchPublicRooms = async () => {
+    setLoadingPublicRooms(true);
+    try {
+      const { data, error } = await supabase
+        .from("rooms")
+        .select("id, room_name, is_public, created_at")
+        .eq("is_public", true)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      setPublicRooms(data || []);
+    } catch (err) {
+      console.error("Error fetching public rooms:", err);
+    } finally {
+      setLoadingPublicRooms(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!roomCode) {
+      fetchPublicRooms();
+      const interval = setInterval(fetchPublicRooms, 15000);
+      return () => clearInterval(interval);
+    }
+  }, [roomCode]);
+
+  // Auth Form Handlers
+  const handleAuthSubmit = async (e) => {
+    e.preventDefault();
+    if (!authEmail.trim() || !authPassword.trim()) {
+      setAuthError("Заполните все поля");
+      return;
+    }
+    setAuthLoading(true);
+    setAuthError("");
+
+    try {
+      if (authTab === "login") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email: authEmail,
+          password: authPassword,
+        });
+        if (error) throw error;
+        setShowAuthModal(false);
+        setAuthEmail("");
+        setAuthPassword("");
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email: authEmail,
+          password: authPassword,
+        });
+        if (error) throw error;
+        alert("Регистрация успешна! Теперь вы можете войти.");
+        setAuthTab("login");
+      }
+    } catch (err) {
+      setAuthError(err.message || "Ошибка авторизации");
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setCurrentUser(null);
+    sessionStorage.removeItem("xyi_username");
+    
+    // Fallback to random nickname
+    const guestNick = NICKNAMES[Math.floor(Math.random() * NICKNAMES.length)] + "_" + Math.floor(100 + Math.random() * 900);
+    setMyUsername(guestNick);
+    sessionStorage.setItem("xyi_username", guestNick);
+    
+    router.push("/");
+  };
+
+  // Navigates authenticated user to their one permanent room, or creates it if none exists
+  const handleGoToMyRoom = async () => {
+    if (!currentUser) return;
+    setLoading(true);
+    try {
+      const { data: existingRoom } = await supabase
+        .from("rooms")
+        .select("id")
+        .eq("owner_id", currentUser.id)
+        .maybeSingle();
+
+      if (existingRoom) {
+        router.push(`/?room=${existingRoom.id}`);
+      } else {
+        await handleCreateRoomAction();
+      }
+    } catch (err) {
+      console.error("Error navigating to my room:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Room Settings Handlers
+  const handleToggleRoomPublicity = async () => {
+    if (!currentUser || roomSettings.owner_id !== currentUser.id) return;
+    
+    const nextPublicState = !roomSettings.is_public;
+    try {
+      const { error } = await supabase
+        .from("rooms")
+        .update({ is_public: nextPublicState })
+        .eq("id", roomCode.toUpperCase());
+
+      if (error) throw error;
+      setRoomSettings(prev => ({ ...prev, is_public: nextPublicState }));
+      sendChatSystemMessage(`🔧 Настройки: комната переведена в ${nextPublicState ? "ПУБЛИЧНЫЙ" : "ПРИВАТНЫЙ"} режим!`);
+    } catch (err) {
+      console.error("Error updating room publicity:", err);
+    }
+  };
+
+  const handleUpdateRoomName = async (e) => {
+    e.preventDefault();
+    if (!currentUser || roomSettings.owner_id !== currentUser.id || !newRoomNameInput.trim()) return;
+
+    try {
+      const { error } = await supabase
+        .from("rooms")
+        .update({ room_name: newRoomNameInput.trim() })
+        .eq("id", roomCode.toUpperCase());
+
+      if (error) throw error;
+      setRoomSettings(prev => ({ ...prev, room_name: newRoomNameInput.trim() }));
+      sendChatSystemMessage(`🔧 Настройки: комната переименована в "${newRoomNameInput.trim()}"!`);
+    } catch (err) {
+      console.error("Error updating room name:", err);
+    }
+  };
 
   // useEffect to handle background playlist imports
   useEffect(() => {
@@ -363,6 +548,14 @@ function SyncPlayerApp() {
         setLoading(false);
         return;
       }
+
+      // Populate room settings for owner checking and metadata display
+      setRoomSettings({
+        owner_id: room.owner_id || null,
+        is_public: room.is_public || false,
+        room_name: room.room_name || `Комната ${code}`
+      });
+      setNewRoomNameInput(room.room_name || `Комната ${code}`);
 
       // Fetch playlist
       await fetchPlaylist(code);
@@ -1184,13 +1377,61 @@ function SyncPlayerApp() {
     router.push(`/?room=${roomCodeInput.toUpperCase().trim()}`);
   };
 
-  const handleCreateRoomAction = () => {
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    let code = "";
-    for (let i = 0; i < 4; i++) {
-      code += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+  const handleCreateRoomAction = async () => {
+    if (!currentUser) {
+      setAuthTab("login");
+      setAuthError("Войдите или зарегистрируйтесь, чтобы создать собственную сессию!");
+      setShowAuthModal(true);
+      return;
     }
-    router.push(`/?room=XYI-${code}`);
+
+    setLoading(true);
+    try {
+      // 1. Check if user already owns a room
+      const { data: existingRoom, error: fetchError } = await supabase
+        .from("rooms")
+        .select("id")
+        .eq("owner_id", currentUser.id)
+        .maybeSingle();
+
+      if (existingRoom) {
+        // Redirect to their existing permanent room
+        router.push(`/?room=${existingRoom.id}`);
+        return;
+      }
+
+      // 2. If no room exists, create their one permanent room!
+      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      let code = "";
+      for (let i = 0; i < 4; i++) {
+        code += alphabet.charAt(Math.floor(Math.random() * alphabet.length));
+      }
+      const newRoomId = `XYI-${code}`;
+      const emailNick = currentUser.email.split("@")[0];
+
+      const { error: createError } = await supabase
+        .from("rooms")
+        .insert([
+          {
+            id: newRoomId,
+            is_playing: false,
+            progress_ms: 0,
+            state_updated_at: new Date().toISOString(),
+            owner_id: currentUser.id,
+            room_name: `Комната ${emailNick}`,
+            is_public: false // Starts as private
+          }
+        ]);
+
+      if (createError) throw createError;
+
+      router.push(`/?room=${newRoomId}`);
+    } catch (err) {
+      console.error("Error creating personal room:", err);
+      alert("Не удалось создать комнату. Убедитесь, что миграция базы данных выполнена.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleCopyLink = () => {
@@ -1481,9 +1722,35 @@ function SyncPlayerApp() {
               <span className="hover:text-white transition-colors cursor-pointer">Features</span>
               <span className="hover:text-white transition-colors cursor-pointer">Support</span>
             </div>
-            <button className="px-5 py-2.5 rounded-full border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98]">
-              Sign In
-            </button>
+            {currentUser ? (
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleGoToMyRoom}
+                  className="px-4 py-2 rounded-full bg-zinc-900 border border-white/10 hover:border-[#ff5500]/50 text-xs font-bold tracking-wider hover:bg-[#ff5500]/5 text-white transition-all active:scale-[0.98] cursor-pointer"
+                >
+                  Моя комната
+                </button>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-full">
+                  <div className="w-5 h-5 rounded-full bg-[#ff5500] text-black text-[10px] font-black flex items-center justify-center">
+                    {myUsername ? myUsername.charAt(0).toUpperCase() : "?"}
+                  </div>
+                  <span className="text-xs font-bold text-zinc-300 max-w-[100px] truncate">{myUsername}</span>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-1.5 rounded-full border border-red-500/10 hover:border-red-500/30 text-[10px] font-bold text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
+                >
+                  Выйти
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setAuthTab("login"); setAuthError(""); setShowAuthModal(true); }}
+                className="px-5 py-2.5 rounded-full border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
+              >
+                Sign In
+              </button>
+            )}
           </nav>
 
           {/* Hero & Join Card Panel */}
@@ -1551,6 +1818,62 @@ function SyncPlayerApp() {
               </button>
             </div>
           </section>
+
+          {/* Public Rooms Section */}
+          <section className="w-full max-w-7xl mx-auto px-6 py-12 z-10 flex flex-col gap-6 text-left pb-24">
+            <div className="flex items-center justify-between pb-2 border-b border-white/5">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 live-pulse-dot"></span>
+                <h2 className="text-xl font-black tracking-tight">Публичные комнаты</h2>
+              </div>
+              <button 
+                onClick={fetchPublicRooms} 
+                className="text-xs font-bold text-zinc-400 hover:text-white transition-colors cursor-pointer"
+              >
+                Обновить список
+              </button>
+            </div>
+
+            {loadingPublicRooms ? (
+              <div className="w-full py-16 flex items-center justify-center">
+                <div className="w-6 h-6 rounded-full border-2 border-[#ff5500] border-r-transparent animate-spin"></div>
+              </div>
+            ) : publicRooms.length === 0 ? (
+              <div className="w-full py-16 bg-zinc-950/40 border border-dashed border-white/5 rounded-3xl flex flex-col items-center justify-center gap-3 px-6 text-center shadow-inner">
+                <Radio className="w-8 h-8 text-zinc-700 animate-pulse" />
+                <h3 className="text-sm font-bold text-zinc-400">Нет активных публичных комнат</h3>
+                <p className="text-zinc-600 text-xs max-w-sm">
+                  Сейчас никто не стримит публично. Войдите, создайте свою постоянную комнату и сделайте её публичной в настройках!
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {publicRooms.map((room) => (
+                  <div key={room.id} className="glass-panel p-6 rounded-[28px] flex flex-col justify-between gap-4 shadow-xl border-white/8 hover:border-[#ff5500]/30 transition-all hover:shadow-[0_8px_30px_rgba(255,85,0,0.03)] glass-panel-hover">
+                    <div className="flex flex-col gap-1.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[9px] font-bold text-[#ff5500] uppercase tracking-widest pl-0.5">Live Broadcast</span>
+                        <span className="text-[9px] font-mono text-zinc-500 font-bold uppercase">{room.id}</span>
+                      </div>
+                      <h3 className="text-base font-black text-white truncate">{room.room_name || `Комната ${room.id}`}</h3>
+                    </div>
+                    <div className="flex items-center justify-between mt-2 pt-4 border-t border-white/5">
+                      <div className="flex items-center gap-1.5 text-zinc-500 text-[10px] font-bold">
+                        <Users className="w-3.5 h-3.5 text-zinc-500" />
+                        <span>Слушать вместе</span>
+                      </div>
+                      <button 
+                        onClick={() => router.push(`/?room=${room.id}`)}
+                        className="px-4 py-2 bg-white text-black font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all hover:bg-zinc-200 active:scale-[0.97] cursor-pointer"
+                      >
+                        Войти
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </section>
         </div>
       ) : (
         /* ==================== ROOM PAGE CONTENT ==================== */
@@ -1585,27 +1908,54 @@ function SyncPlayerApp() {
           <span className="text-2xl font-black tracking-tighter text-white">xyi</span>
           <span className="w-4 h-4 rounded bg-[#ff5500] flex items-center justify-center text-[9px] font-black text-black select-none">▶</span>
         </div>
-        <div className="hidden md:flex items-center gap-8 text-xs font-semibold uppercase tracking-wider text-zinc-400">
-          <span className="hover:text-white transition-colors cursor-pointer" onClick={() => router.push("/")}>Home</span>
-          <span className="hover:text-white transition-colors cursor-pointer">Rooms</span>
-          <span className="hover:text-white transition-colors cursor-pointer">Features</span>
-          <span className="hover:text-white transition-colors cursor-pointer">Support</span>
+        <div className="hidden md:flex items-center gap-4 text-xs font-semibold text-zinc-400">
+          <span className="text-zinc-500 uppercase tracking-widest text-[9px] font-bold">Сессия:</span>
+          <span className="text-white text-sm font-black tracking-tight bg-[#ff5500]/10 border border-[#ff5500]/20 px-3 py-1.5 rounded-xl">
+            {roomSettings.room_name || `Комната ${roomCode}`}
+          </span>
         </div>
 
-        {/* Room Code Display with Quick Copy */}
-        <button
-          onClick={handleCopyLink}
-          className="flex items-center gap-2 px-4 py-2 bg-zinc-900/60 border border-white/8 hover:border-[#ff5500]/40 rounded-full transition-colors cursor-pointer glass-panel-hover"
-        >
-          <span className="text-xs font-bold text-zinc-200 tracking-wider">
-            {roomCode.toUpperCase()}
-          </span>
-          {copied ? (
-            <Check className="w-3.5 h-3.5 text-emerald-500" />
+        <div className="flex items-center gap-3">
+          {/* Room Code Display with Quick Copy */}
+          <button
+            onClick={handleCopyLink}
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-900/60 border border-white/8 hover:border-[#ff5500]/40 rounded-full transition-colors cursor-pointer glass-panel-hover"
+          >
+            <span className="text-xs font-bold text-zinc-200 tracking-wider">
+              {roomCode.toUpperCase()}
+            </span>
+            {copied ? (
+              <Check className="w-3.5 h-3.5 text-emerald-500" />
+            ) : (
+              <Copy className="w-3.5 h-3.5 text-[#ff5500]" />
+            )}
+          </button>
+
+          {/* User profile controls inside Room Header */}
+          {currentUser ? (
+            <div className="flex items-center gap-2">
+              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-full">
+                <div className="w-4.5 h-4.5 rounded-full bg-[#ff5500] text-black text-[9px] font-black flex items-center justify-center">
+                  {myUsername ? myUsername.charAt(0).toUpperCase() : "?"}
+                </div>
+                <span className="text-[10px] font-bold text-zinc-300 max-w-[80px] truncate">{myUsername}</span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="px-3 py-1.5 rounded-full border border-red-500/10 hover:border-red-500/30 text-[9px] font-bold text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
+              >
+                Выйти
+              </button>
+            </div>
           ) : (
-            <Copy className="w-3.5 h-3.5 text-[#ff5500]" />
+            <button
+              onClick={() => { setAuthTab("login"); setAuthError(""); setShowAuthModal(true); }}
+              className="px-4 py-2 rounded-full border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
+            >
+              Sign In
+            </button>
           )}
-        </button>
+        </div>
       </header>
 
       {/* Main 3-Column Grid */}
@@ -1613,6 +1963,56 @@ function SyncPlayerApp() {
         
         {/* ==================== LEFT COLUMN (3/12 cols) ==================== */}
         <div className="col-span-1 lg:col-span-3 flex flex-col gap-6">
+
+          {/* Owner Room Settings Control Panel */}
+          {currentUser && roomSettings.owner_id === currentUser.id && (
+            <div className="glass-panel p-6 rounded-[28px] text-left flex flex-col gap-4 border-[#ff5500]/20 shadow-[0_8px_30px_rgba(255,85,0,0.04)]">
+              <div className="flex items-center justify-between pb-2 border-b border-white/5">
+                <h3 className="text-sm font-black uppercase tracking-widest text-[#ff5500]">Настройки комнаты</h3>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 live-pulse-dot"></span>
+              </div>
+              
+              {/* Room name form */}
+              <form onSubmit={handleUpdateRoomName} className="flex flex-col gap-1.5">
+                <label className="text-[9px] uppercase font-bold text-zinc-500 pl-0.5">Название комнаты</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={newRoomNameInput}
+                    onChange={(e) => setNewRoomNameInput(e.target.value)}
+                    placeholder="Название сессии..."
+                    className="flex-1 bg-black/60 border border-white/8 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#ff5500] transition-colors"
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-2 bg-white text-black hover:bg-zinc-200 font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                  >
+                    OK
+                  </button>
+                </div>
+              </form>
+
+              {/* Publicity Toggle switch */}
+              <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                <div className="flex flex-col">
+                  <span className="text-[10px] uppercase font-bold text-zinc-400">Публичный доступ</span>
+                  <span className="text-[8px] text-zinc-600 mt-0.5 font-bold">Отображать в списке комнат</span>
+                </div>
+                <button
+                  onClick={handleToggleRoomPublicity}
+                  className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 cursor-pointer ${
+                    roomSettings.is_public ? "bg-[#ff5500]" : "bg-zinc-800"
+                  }`}
+                >
+                  <div
+                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                      roomSettings.is_public ? "translate-x-6" : "translate-x-0"
+                    }`}
+                  ></div>
+                </button>
+              </div>
+            </div>
+          )}
           
           {/* Slogan details */}
           <div className="glass-panel p-6 rounded-[28px] text-left flex flex-col items-start gap-4">
@@ -2366,6 +2766,95 @@ function SyncPlayerApp() {
             allow="autoplay"
             src={`https://w.soundcloud.com/player/?url=${encodeURIComponent(tempIframeUrl)}&auto_play=false&visual=false&show_artwork=false&hide_related=true&show_comments=false&show_user=false&show_reposts=false`}
           ></iframe>
+        </div>
+      )}
+
+      {/* ==================== SUPABASE AUTH MODAL ==================== */}
+      {showAuthModal && (
+        <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 select-text">
+          <div className="w-full max-w-sm glass-panel p-8 rounded-[36px] border-white/10 shadow-2xl relative flex flex-col gap-6">
+            <button
+              onClick={() => setShowAuthModal(false)}
+              className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors cursor-pointer text-sm font-bold"
+            >
+              ✕
+            </button>
+
+            <div className="flex flex-col gap-1 text-center">
+              <h2 className="text-2xl font-black tracking-tight">
+                {authTab === "login" ? "Вход в аккаунт" : "Регистрация"}
+              </h2>
+              <p className="text-xs text-zinc-500">
+                {authTab === "login"
+                  ? "Войдите, чтобы управлять своей комнатой"
+                  : "Создайте профиль и получите постоянную комнату"}
+              </p>
+            </div>
+
+            {/* Segmented Modal Tabs */}
+            <div className="grid grid-cols-2 bg-black/40 p-1 rounded-2xl border border-white/5">
+              <button
+                onClick={() => { setAuthTab("login"); setAuthError(""); }}
+                className={`py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  authTab === "login"
+                    ? "bg-white/10 text-white shadow-sm border border-white/5"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                Вход
+              </button>
+              <button
+                onClick={() => { setAuthTab("register"); setAuthError(""); }}
+                className={`py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  authTab === "register"
+                    ? "bg-white/10 text-white shadow-sm border border-white/5"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                Регистрация
+              </button>
+            </div>
+
+            <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-[10px] uppercase font-bold text-zinc-500 pl-1">Email</label>
+                <input
+                  type="email"
+                  placeholder="name@example.com"
+                  value={authEmail}
+                  onChange={(e) => setAuthEmail(e.target.value)}
+                  className="w-full bg-black/60 border border-white/8 rounded-2xl px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#ff5500] transition-all"
+                  required
+                />
+              </div>
+
+              <div className="flex flex-col gap-1.5 text-left">
+                <label className="text-[10px] uppercase font-bold text-zinc-500 pl-1">Пароль</label>
+                <input
+                  type="password"
+                  placeholder="••••••••"
+                  value={authPassword}
+                  onChange={(e) => setAuthPassword(e.target.value)}
+                  className="w-full bg-black/60 border border-white/8 rounded-2xl px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#ff5500] transition-all"
+                  required
+                />
+              </div>
+
+              {authError && (
+                <div className="text-red-500 text-xs font-semibold pl-1 text-left">
+                  ⚠️ {authError}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                disabled={authLoading}
+                className="w-full py-4 bg-white text-black font-extrabold text-xs uppercase tracking-widest rounded-2xl transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer mt-2"
+              >
+                {authLoading ? "Пожалуйста, подождите..." : authTab === "login" ? "Войти" : "Зарегистрироваться"}
+              </button>
+            </form>
+          </div>
         </div>
       )}
 
