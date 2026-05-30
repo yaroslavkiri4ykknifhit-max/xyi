@@ -274,6 +274,15 @@ export default function ProfileCustomizer({
                 </p>
               </div>
             </div>
+
+            {/* View Full Profile Route Shortcut Button */}
+            <button
+              type="button"
+              onClick={() => window.open(`/${username || "Guest"}`, "_blank")}
+              className="mt-3 w-full py-2 bg-zinc-900 hover:bg-white/5 border border-white/5 hover:border-[#ff5500]/30 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-[#ff5500]" /> Открыть страницу
+            </button>
           </div>
         </div>
 

@@ -2296,7 +2296,7 @@ function SyncPlayerApp() {
                 {participants.slice(0, 4).map((p, idx) => (
                   <button 
                     key={idx} 
-                    onClick={() => setSelectedUserProfile(p)}
+                    onClick={() => window.open(`/${p.username}`, "_blank")}
                     className="flex flex-col items-center gap-0.5 group cursor-pointer hover:scale-105 active:scale-95 transition-all outline-none"
                   >
                     <div
@@ -2735,16 +2735,7 @@ function SyncPlayerApp() {
                   className={`flex gap-2.5 items-start ${!msg.isSystem ? "cursor-pointer group" : ""}`}
                   onClick={() => {
                     if (!msg.isSystem) {
-                      setSelectedUserProfile({
-                        username: msg.username,
-                        avatarColor: msg.avatarColor,
-                        avatarUrl: msg.avatarUrl,
-                        bannerUrl: msg.bannerUrl,
-                        bio: msg.bio,
-                        customBadge: msg.customBadge,
-                        joinedAt: msg.joinedAt || new Date().toISOString(),
-                        latency: "Chat"
-                      });
+                      window.open(`/${msg.username}`, "_blank");
                     }
                   }}
                 >
@@ -2812,7 +2803,7 @@ function SyncPlayerApp() {
               {participants.map((p, idx) => (
                 <div 
                   key={idx} 
-                  onClick={() => setSelectedUserProfile(p)}
+                  onClick={() => window.open(`/${p.username}`, "_blank")}
                   className="w-full p-2.5 bg-black/30 border border-white/5 rounded-2xl flex items-center justify-between hover:bg-white/5 cursor-pointer transition-all active:scale-[0.99] select-none"
                 >
                   <div className="flex items-center gap-3 min-w-0">
@@ -3153,13 +3144,7 @@ function SyncPlayerApp() {
         />
       )}
 
-      {/* ==================== USER PROFILE CARD POPUP ==================== */}
-      {selectedUserProfile && (
-        <UserProfileCard
-          userProfile={selectedUserProfile}
-          onClose={() => setSelectedUserProfile(null)}
-        />
-      )}
+
 
     </main>
   );
