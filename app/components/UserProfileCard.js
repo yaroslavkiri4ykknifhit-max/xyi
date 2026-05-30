@@ -53,13 +53,13 @@ export default function UserProfileCard({
       onClick={onClose}
     >
       <div 
-        className="w-full max-w-sm glass-panel rounded-[36px] border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col relative scale-up-animation"
+        className="w-full max-w-sm glass-panel rounded-none border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col relative scale-up-animation"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-3 right-3 z-50 p-1.5 rounded-full bg-black/40 hover:bg-white/10 border border-white/5 text-zinc-400 hover:text-white transition-all cursor-pointer"
+          className="absolute top-3 right-3 z-50 p-1.5 rounded-none bg-black/40 hover:bg-white/10 border border-white/5 text-zinc-400 hover:text-white transition-all cursor-pointer"
         >
           <X className="w-3.5 h-3.5" />
         </button>
@@ -72,8 +72,8 @@ export default function UserProfileCard({
           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent"></div>
           
           {/* Audio Aura indicator */}
-          <div className="absolute bottom-2 right-4 flex items-center gap-1.5 px-2 py-1 bg-black/40 backdrop-blur-md border border-white/5 rounded-full text-[8px] font-black uppercase tracking-wider text-emerald-400">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 live-pulse-dot"></span>
+          <div className="absolute bottom-2 right-4 flex items-center gap-1.5 px-2 py-1 bg-black/40 backdrop-blur-md border border-white/5 rounded-none text-[8px] font-black uppercase tracking-wider text-emerald-400">
+            <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 live-pulse-dot"></span>
             Сослушатель
           </div>
         </div>
@@ -83,8 +83,8 @@ export default function UserProfileCard({
           
           {/* User Avatar */}
           <div 
-            className="w-20 h-20 rounded-full border-[4px] border-[#08080a] flex items-center justify-center shadow-xl relative overflow-hidden transition-all duration-300 bg-zinc-800"
-            style={{ backgroundColor: avatarColor || "#ff5500" }}
+            className="w-20 h-20 rounded-none border-[4px] border-[#08080a] flex items-center justify-center shadow-xl relative overflow-hidden transition-all duration-300 bg-zinc-800"
+            style={{ backgroundColor: avatarColor || "#007aff" }}
           >
             {avatarUrl && avatarUrl.startsWith("data:image") ? (
               <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -100,7 +100,7 @@ export default function UserProfileCard({
                 {username || "Guest"}
               </h4>
               {customBadge && (
-                <span className="px-2 py-0.5 rounded-[6px] bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/25 text-[8px] font-extrabold uppercase tracking-widest flex-shrink-0 scale-90">
+                <span className="px-2 py-0.5 rounded-[6px] bg-[#007aff]/10 text-[#007aff] border border-[#007aff]/25 text-[8px] font-extrabold uppercase tracking-widest flex-shrink-0 scale-90">
                   {customBadge}
                 </span>
               )}
@@ -110,14 +110,14 @@ export default function UserProfileCard({
             </span>
 
             {/* Bio Status */}
-            <p className="text-xs text-zinc-300 font-medium px-4 mt-3 py-2.5 rounded-2xl bg-black/40 border border-white/5 max-w-xs italic break-words leading-relaxed min-h-[48px] flex items-center justify-center w-full shadow-inner">
+            <p className="text-xs text-zinc-300 font-medium px-4 mt-3 py-2.5 rounded-none bg-black/40 border border-white/5 max-w-xs italic break-words leading-relaxed min-h-[48px] flex items-center justify-center w-full shadow-inner">
               {bio ? `"${bio}"` : "Присоединился к совместному прослушиванию музыки на XYI! 🎧"}
             </p>
           </div>
 
           {/* Social Stats/Details panel */}
           <div className="w-full grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/5 text-left">
-            <div className="p-2.5 bg-black/25 rounded-2xl border border-white/3 flex items-center gap-2">
+            <div className="p-2.5 bg-black/25 rounded-none border border-white/3 flex items-center gap-2">
               <Calendar className="w-4 h-4 text-zinc-500 flex-shrink-0" />
               <div className="flex flex-col">
                 <span className="text-[8px] font-black uppercase tracking-wider text-zinc-500">В сети с</span>
@@ -125,8 +125,8 @@ export default function UserProfileCard({
               </div>
             </div>
             
-            <div className="p-2.5 bg-black/25 rounded-2xl border border-white/3 flex items-center gap-2">
-              <Music className="w-4 h-4 text-[#ff5500] flex-shrink-0 animate-pulse" />
+            <div className="p-2.5 bg-black/25 rounded-none border border-white/3 flex items-center gap-2">
+              <Music className="w-4 h-4 text-[#007aff] flex-shrink-0 animate-pulse" />
               <div className="flex flex-col">
                 <span className="text-[8px] font-black uppercase tracking-wider text-zinc-500">Пинг / Пакеты</span>
                 <span className="text-[10px] font-bold text-emerald-400 font-mono">{latency || "24ms"}</span>

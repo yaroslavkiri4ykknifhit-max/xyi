@@ -16,12 +16,12 @@ import {
 
 // Predefined gorgeous gradient presets for banners
 export const BANNER_GRADIENTS = [
-  { id: "sunset", name: "Sunset Pulse", style: "linear-gradient(135deg, #ff5500 0%, #ff007f 100%)" },
+  { id: "sunset", name: "Deep Cobalt", style: "linear-gradient(135deg, #0052d4 0%, #4364f7 50%, #6fb1fc 100%)" },
   { id: "cyberpunk", name: "Cyber Neon", style: "linear-gradient(135deg, #8a2be2 0%, #00b4d8 100%)" },
   { id: "emerald", name: "Emerald Dusk", style: "linear-gradient(135deg, #10b981 0%, #064e3b 100%)" },
-  { id: "gold", name: "Liquid Gold", style: "linear-gradient(135deg, #f59e0b 0%, #ec4899 100%)" },
-  { id: "darkmatter", name: "Dark Matter", style: "linear-gradient(135deg, #1e1b4b 0%, #030712 100%)" },
-  { id: "soundwave", name: "Soundwave Glow", style: "linear-gradient(135deg, #ef4444 0%, #f97316 100%)" }
+  { id: "gold", name: "Ocean Breeze", style: "linear-gradient(135deg, #0a1128 0%, #001f54 50%, #007aff 100%)" },
+  { id: "darkmatter", name: "Dark Matter", style: "linear-gradient(135deg, #030712 0%, #0a0f1d 100%)" },
+  { id: "soundwave", name: "Indigo Wave", style: "linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4f46e5 100%)" }
 ];
 
 // Aesthetic music-focused preset avatars (emojis)
@@ -31,8 +31,8 @@ export const AVATAR_PRESETS = [
 
 // Custom colors for avatars
 export const AVATAR_COLORS = [
-  "#FF5500", "#00B4D8", "#8A2BE2", "#10B981", "#EC4899",
-  "#F59E0B", "#3B82F6", "#EF4444", "#6366F1", "#14B8A6"
+  "#007aff", "#00B4D8", "#8A2BE2", "#10B981", "#EC4899",
+  "#3B82F6", "#ef4444", "#6366F1", "#14B8A6", "#1e293b"
 ];
 
 export default function ProfileCustomizer({ 
@@ -44,7 +44,7 @@ export default function ProfileCustomizer({
 }) {
   // Input fields
   const [username, setUsername] = useState("");
-  const [avatarColor, setAvatarColor] = useState("#FF5500");
+  const [avatarColor, setAvatarColor] = useState("#007aff");
   const [avatarUrl, setAvatarUrl] = useState(""); // preset-emoji OR base64 custom img
   const [bannerUrl, setBannerUrl] = useState("sunset"); // preset ID OR base64 custom img
   const [bio, setBio] = useState("");
@@ -66,7 +66,7 @@ export default function ProfileCustomizer({
   useEffect(() => {
     if (currentProfile) {
       setUsername(currentProfile.username || "");
-      setAvatarColor(currentProfile.avatarColor || currentProfile.avatar_color || "#FF5500");
+      setAvatarColor(currentProfile.avatarColor || currentProfile.avatar_color || "#007aff");
       setAvatarUrl(currentProfile.avatarUrl || currentProfile.avatar_url || "🎧");
       setBannerUrl(currentProfile.bannerUrl || currentProfile.banner_url || "sunset");
       setBio(currentProfile.bio || "");
@@ -212,12 +212,12 @@ export default function ProfileCustomizer({
 
   return (
     <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/75 backdrop-blur-lg px-4 select-text animate-fadeIn">
-      <div className="w-full max-w-2xl glass-panel rounded-[16px] border-[#ff5500]/25 shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row relative max-h-[90vh]">
+      <div className="w-full max-w-2xl glass-panel rounded-[16px] border-[#007aff]/25 shadow-[0_24px_64px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col md:flex-row relative max-h-[90vh]">
         
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 z-50 p-2 rounded-lg bg-black/40 hover:bg-white/10 border border-white/5 text-zinc-400 hover:text-white transition-all cursor-pointer"
+          className="absolute top-4 right-4 z-50 p-2 rounded-none bg-black/40 hover:bg-white/10 border border-white/5 text-zinc-400 hover:text-white transition-all cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
@@ -225,12 +225,12 @@ export default function ProfileCustomizer({
         {/* LEFT COLUMN: LIVE CARD PREVIEW (iOS STYLE CARD) */}
         <div className="w-full md:w-[240px] bg-black/40 border-b md:border-b-0 md:border-r border-white/5 p-6 flex flex-col gap-6 items-center justify-center flex-shrink-0">
           <div className="text-center w-full">
-            <span className="text-[10px] uppercase font-black tracking-widest text-[#ff5500] pl-0.5">Предпросмотр</span>
+            <span className="text-[10px] uppercase font-black tracking-widest text-[#007aff] pl-0.5">Предпросмотр</span>
             <p className="text-[9px] text-zinc-550 mt-0.5">Строгий стиль хастл-клуба</p>
           </div>
 
           {/* Premium Hustler Profile Mockup Card */}
-          <div className="w-full max-w-[200px] bg-[#08080c] border border-[#ff5500]/20 rounded-xl overflow-hidden flex flex-col shadow-2xl select-none group relative">
+          <div className="w-full max-w-[200px] bg-[#08080c] border border-[#007aff]/20 rounded-none overflow-hidden flex flex-col shadow-2xl select-none group relative">
             {/* Card Banner */}
             <div 
               className="w-full h-16 relative transition-all duration-500"
@@ -242,7 +242,7 @@ export default function ProfileCustomizer({
             {/* Card Avatar - Strict Rounded Square */}
             <div className="w-full px-4 relative flex flex-col items-center -mt-8 pb-4">
               <div 
-                className="w-14 h-14 rounded-xl border-2 border-[#ff5500]/35 flex items-center justify-center shadow-lg relative overflow-hidden transition-all duration-300 bg-zinc-950"
+                className="w-14 h-14 rounded-none border-2 border-[#007aff]/35 flex items-center justify-center shadow-lg relative overflow-hidden transition-all duration-300 bg-zinc-950"
                 style={{ backgroundColor: avatarColor }}
               >
                 {avatarUrl && avatarUrl.startsWith("data:image") ? (
@@ -259,7 +259,7 @@ export default function ProfileCustomizer({
                     {username || "Guest"}
                   </span>
                   {customBadge && (
-                    <span className="px-1.5 py-0.5 rounded-[4px] bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/20 text-[7px] font-black uppercase tracking-wider scale-90 origin-left flex-shrink-0">
+                    <span className="px-1.5 py-0.5 rounded-[4px] bg-[#007aff]/10 text-[#007aff] border border-[#007aff]/20 text-[7px] font-black uppercase tracking-wider scale-90 origin-left flex-shrink-0">
                       {customBadge.substring(0, 10)}
                     </span>
                   )}
@@ -269,7 +269,7 @@ export default function ProfileCustomizer({
                 </span>
 
                 {/* Card Bio */}
-                <p className="text-[9px] text-zinc-400 font-medium px-1 mt-1 line-clamp-2 italic break-words leading-tight bg-black/20 p-1.5 rounded-lg border border-white/3 min-h-[28px] flex items-center justify-center">
+                <p className="text-[9px] text-zinc-400 font-medium px-1 mt-1 line-clamp-2 italic break-words leading-tight bg-black/20 p-1.5 rounded-none border border-white/3 min-h-[28px] flex items-center justify-center">
                   {bio ? `"${bio}"` : "Слушает музыку в реальном времени 🎧"}
                 </p>
               </div>
@@ -279,9 +279,9 @@ export default function ProfileCustomizer({
             <button
               type="button"
               onClick={() => window.open(`/${username || "Guest"}`, "_blank")}
-              className="mt-3 w-full py-2 bg-zinc-900 hover:bg-white/5 border border-white/5 hover:border-[#ff5500]/30 rounded-xl text-[9px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
+              className="mt-3 w-full py-2 bg-zinc-900 hover:bg-white/5 border border-white/5 hover:border-[#007aff]/30 rounded-none text-[9px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm active:scale-95"
             >
-              <Sparkles className="w-3.5 h-3.5 text-[#ff5500]" /> Открыть страницу
+              <Sparkles className="w-3.5 h-3.5 text-[#007aff]" /> Открыть страницу
             </button>
           </div>
         </div>
@@ -290,7 +290,7 @@ export default function ProfileCustomizer({
         <form onSubmit={handleSaveSubmit} className="flex-1 p-8 flex flex-col gap-6 overflow-y-auto min-h-0 text-left select-text">
           <div className="flex flex-col gap-1">
             <h3 className="text-xl font-black tracking-tight text-white flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#ff5500]" /> Кастомизация аккаунта
+              <Sparkles className="w-5 h-5 text-[#007aff]" /> Кастомизация аккаунта
             </h3>
             <p className="text-xs text-zinc-400">
               Создайте крутую идентичность в плеере
@@ -299,7 +299,7 @@ export default function ProfileCustomizer({
 
           {/* Database Alert Warning */}
           {isDbTableMissing && (
-            <div className="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-lg flex gap-3 text-left">
+            <div className="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-none flex gap-3 text-left">
               <AlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
               <div className="flex flex-col gap-0.5">
                 <span className="text-[10px] font-black text-amber-400 uppercase tracking-widest">Таблица отсутствует</span>
@@ -311,11 +311,11 @@ export default function ProfileCustomizer({
           )}
 
           {/* Segmented Control Tabs */}
-          <div className="grid grid-cols-3 bg-black/40 p-1 rounded-lg border border-white/5">
+          <div className="grid grid-cols-3 bg-black/40 p-1 rounded-none border border-white/5">
             <button
               type="button"
               onClick={() => setActiveTab("info")}
-              className={`py-2 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5 ${
+              className={`py-2 rounded-none text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === "info"
                   ? "bg-white/10 text-white shadow-sm border border-white/5"
                   : "text-zinc-500 hover:text-zinc-300"
@@ -326,7 +326,7 @@ export default function ProfileCustomizer({
             <button
               type="button"
               onClick={() => setActiveTab("avatar")}
-              className={`py-2 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5 ${
+              className={`py-2 rounded-none text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === "avatar"
                   ? "bg-white/10 text-white shadow-sm border border-white/5"
                   : "text-zinc-500 hover:text-zinc-300"
@@ -337,7 +337,7 @@ export default function ProfileCustomizer({
             <button
               type="button"
               onClick={() => setActiveTab("banner")}
-              className={`py-2 rounded-md text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5 ${
+              className={`py-2 rounded-none text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer flex items-center justify-center gap-1.5 ${
                 activeTab === "banner"
                   ? "bg-white/10 text-white shadow-sm border border-white/5"
                   : "text-zinc-500 hover:text-zinc-300"
@@ -361,7 +361,7 @@ export default function ProfileCustomizer({
                   placeholder="Например, LofiVibe"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-black/60 border border-white/8 rounded-xl px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#ff5500] transition-all"
+                  className="w-full bg-black/60 border border-white/8 rounded-none px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#007aff] transition-all"
                   required
                 />
               </div>
@@ -378,7 +378,7 @@ export default function ProfileCustomizer({
                     placeholder="Например, DJ, PROD"
                     value={customBadge}
                     onChange={(e) => setCustomBadge(e.target.value)}
-                    className="w-full bg-black/60 border border-white/8 rounded-xl px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#ff5500] transition-all font-bold tracking-wider placeholder:font-normal placeholder:tracking-normal"
+                    className="w-full bg-black/60 border border-white/8 rounded-none px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#007aff] transition-all font-bold tracking-wider placeholder:font-normal placeholder:tracking-normal"
                   />
                 </div>
 
@@ -386,15 +386,15 @@ export default function ProfileCustomizer({
                   <label className="text-[10px] uppercase font-extrabold text-zinc-500 pl-1">
                     Цвет аватара (для подложки)
                   </label>
-                  <div className="flex flex-wrap gap-2 p-2 bg-black/40 rounded-xl border border-white/5 min-h-[46px] items-center justify-center">
+                  <div className="flex flex-wrap gap-2 p-2 bg-black/40 rounded-none border border-white/5 min-h-[46px] items-center justify-center">
                     {AVATAR_COLORS.map((col) => (
                       <button
                         key={col}
                         type="button"
                         onClick={() => setAvatarColor(col)}
                         style={{ backgroundColor: col }}
-                        className={`w-6 h-6 rounded-lg transition-transform active:scale-90 cursor-pointer flex items-center justify-center border border-black/30 ${
-                          avatarColor === col ? "scale-125 ring-2 ring-[#ff5500]/50" : "hover:scale-110"
+                        className={`w-6 h-6 rounded-none transition-transform active:scale-90 cursor-pointer flex items-center justify-center border border-black/30 ${
+                          avatarColor === col ? "scale-125 ring-2 ring-[#007aff]/50" : "hover:scale-110"
                         }`}
                       >
                         {avatarColor === col && <Check className="w-3 h-3 text-black stroke-[3]" />}
@@ -412,7 +412,7 @@ export default function ProfileCustomizer({
                   placeholder="Расскажите о своих вкусах..."
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
-                  className="w-full bg-black/60 border border-white/8 rounded-xl px-4 py-3 text-white text-xs focus:outline-none focus:border-[#ff5500] transition-all resize-none"
+                  className="w-full bg-black/60 border border-white/8 rounded-none px-4 py-3 text-white text-xs focus:outline-none focus:border-[#007aff] transition-all resize-none"
                 />
               </div>
             </div>
@@ -424,10 +424,10 @@ export default function ProfileCustomizer({
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] uppercase font-extrabold text-zinc-500 pl-1">Загрузить свой аватар</span>
                 
-                <div className="flex items-center gap-4 bg-black/40 p-4 border border-white/5 rounded-xl">
+                <div className="flex items-center gap-4 bg-black/40 p-4 border border-white/5 rounded-none">
                   <div 
                     onClick={() => avatarInputRef.current?.click()}
-                    className="w-16 h-16 rounded-xl border border-white/10 flex flex-col gap-1 items-center justify-center bg-black/50 hover:bg-white/5 transition-all cursor-pointer text-zinc-500 hover:text-white"
+                    className="w-16 h-16 rounded-none border border-white/10 flex flex-col gap-1 items-center justify-center bg-black/50 hover:bg-white/5 transition-all cursor-pointer text-zinc-500 hover:text-white"
                   >
                     <Camera className="w-5 h-5" />
                     <span className="text-[8px] font-black uppercase tracking-wider">Фото</span>
@@ -437,7 +437,7 @@ export default function ProfileCustomizer({
                     <button
                       type="button"
                       onClick={() => avatarInputRef.current?.click()}
-                      className="px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg bg-white/5 text-xs font-black uppercase tracking-wider cursor-pointer hover:bg-white/10 active:scale-[0.98] w-fit"
+                      className="px-4 py-2 border border-white/10 hover:border-white/20 rounded-none bg-white/5 text-xs font-black uppercase tracking-wider cursor-pointer hover:bg-white/10 active:scale-[0.98] w-fit"
                     >
                       {uploadingAvatar ? "Сжатие..." : "Выбрать файл"}
                     </button>
@@ -470,15 +470,15 @@ export default function ProfileCustomizer({
                   )}
                 </div>
 
-                <div className="grid grid-cols-7 gap-3 p-4 bg-black/40 rounded-2xl border border-white/5">
+                <div className="grid grid-cols-7 gap-3 p-4 bg-black/40 rounded-none border border-white/5">
                   {AVATAR_PRESETS.map((emoji) => (
                     <button
                       key={emoji}
                       type="button"
                       onClick={() => setAvatarUrl(emoji)}
-                      className={`h-11 rounded-xl flex items-center justify-center text-xl transition-all cursor-pointer ${
+                      className={`h-11 rounded-none flex items-center justify-center text-xl transition-all cursor-pointer ${
                         avatarUrl === emoji 
-                          ? "bg-[#ff5500]/10 border border-[#ff5500]/40 scale-110 shadow-md"
+                          ? "bg-[#007aff]/10 border border-[#007aff]/40 scale-110 shadow-md"
                           : "bg-black/30 border border-white/5 hover:bg-white/5 hover:scale-105"
                       }`}
                     >
@@ -496,10 +496,10 @@ export default function ProfileCustomizer({
               <div className="flex flex-col gap-2">
                 <span className="text-[10px] uppercase font-extrabold text-zinc-500 pl-1">Загрузить свой баннер</span>
                 
-                <div className="flex items-center gap-4 bg-black/40 p-4 border border-white/5 rounded-xl">
+                <div className="flex items-center gap-4 bg-black/40 p-4 border border-white/5 rounded-none">
                   <div 
                     onClick={() => bannerInputRef.current?.click()}
-                    className="w-16 h-12 rounded-xl border border-white/10 flex flex-col gap-1 items-center justify-center bg-black/50 hover:bg-white/5 transition-all cursor-pointer text-zinc-500 hover:text-white"
+                    className="w-16 h-12 rounded-none border border-white/10 flex flex-col gap-1 items-center justify-center bg-black/50 hover:bg-white/5 transition-all cursor-pointer text-zinc-500 hover:text-white"
                   >
                     <ImageIcon className="w-5 h-5" />
                     <span className="text-[7px] font-black uppercase tracking-wider">Баннер</span>
@@ -509,7 +509,7 @@ export default function ProfileCustomizer({
                     <button
                       type="button"
                       onClick={() => bannerInputRef.current?.click()}
-                      className="px-4 py-2 border border-white/10 hover:border-white/20 rounded-lg bg-white/5 text-xs font-black uppercase tracking-wider cursor-pointer hover:bg-white/10 active:scale-[0.98] w-fit"
+                      className="px-4 py-2 border border-white/10 hover:border-white/20 rounded-none bg-white/5 text-xs font-black uppercase tracking-wider cursor-pointer hover:bg-white/10 active:scale-[0.98] w-fit"
                     >
                       {uploadingBanner ? "Сжатие..." : "Выбрать баннер"}
                     </button>
@@ -548,9 +548,9 @@ export default function ProfileCustomizer({
                       key={gradient.id}
                       type="button"
                       onClick={() => setBannerUrl(gradient.id)}
-                      className={`h-14 rounded-xl p-3 flex flex-col justify-end text-left relative overflow-hidden transition-all duration-300 cursor-pointer ${
+                      className={`h-14 rounded-none p-3 flex flex-col justify-end text-left relative overflow-hidden transition-all duration-300 cursor-pointer ${
                         bannerUrl === gradient.id
-                          ? "ring-2 ring-[#ff5500] scale-[1.02] shadow-lg"
+                          ? "ring-2 ring-[#007aff] scale-[1.02] shadow-lg"
                           : "hover:scale-[1.01] hover:brightness-110"
                       }`}
                       style={{ background: gradient.style }}
@@ -583,7 +583,7 @@ export default function ProfileCustomizer({
             <button
               type="submit"
               disabled={saving || uploadingAvatar || uploadingBanner}
-              className="flex-1 py-4 bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer flex items-center justify-center gap-2 shadow-lg"
+              className="flex-1 py-4 bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer flex items-center justify-center gap-2 shadow-lg"
             >
               <Save className="w-4 h-4" />
               {saving ? "Сохранение..." : "Сохранить профиль"}
@@ -591,7 +591,7 @@ export default function ProfileCustomizer({
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-4 bg-black/40 hover:bg-white/5 border border-white/5 text-zinc-400 hover:text-white font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] cursor-pointer"
+              className="px-6 py-4 bg-black/40 hover:bg-white/5 border border-white/5 text-zinc-400 hover:text-white font-extrabold text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] cursor-pointer"
             >
               Отмена
             </button>

@@ -23,6 +23,7 @@ export default function UserProfilePage({ params }) {
   const resolvedParams = use(params);
   const rawUsername = resolvedParams?.username || "";
   const router = useRouter();
+  const [isDark, setIsDark] = useState(true);
 
   const [loading, setLoading] = useState(true);
   const [profile, setProfile] = useState(null);
@@ -38,13 +39,36 @@ export default function UserProfilePage({ params }) {
 
   // User details state (for local updates)
   const [myUsername, setMyUsername] = useState("");
-  const [myAvatarColor, setMyAvatarColor] = useState("#FF5500");
+  const [myAvatarColor, setMyAvatarColor] = useState("#007aff");
   const [myAvatarUrl, setMyAvatarUrl] = useState("🎧");
   const [myBannerUrl, setMyBannerUrl] = useState("sunset");
   const [myBio, setMyBio] = useState("");
   const [myCustomBadge, setMyCustomBadge] = useState("");
 
   // Check auth user and load profile
+  useEffect(() => {
+    const saved = localStorage.getItem("xyi_theme");
+    if (saved === "light") {
+      setIsDark(false);
+      document.documentElement.classList.add("light-theme");
+    } else {
+      setIsDark(true);
+      document.documentElement.classList.remove("light-theme");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (isDark) {
+      setIsDark(false);
+      localStorage.setItem("xyi_theme", "light");
+      document.documentElement.classList.add("light-theme");
+    } else {
+      setIsDark(true);
+      localStorage.setItem("xyi_theme", "dark");
+      document.documentElement.classList.remove("light-theme");
+    }
+  };
+
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
       setCurrentUser(user);
@@ -96,7 +120,7 @@ export default function UserProfilePage({ params }) {
         if (guestName && guestName.toLowerCase() === targetUsername.toLowerCase()) {
           const guestProfile = {
             username: guestName,
-            avatar_color: localStorage.getItem("xyi_guest_avatar_color") || "#FF5500",
+            avatar_color: localStorage.getItem("xyi_guest_avatar_color") || "#007aff",
             avatar_url: localStorage.getItem("xyi_guest_avatar_url") || "🎧",
             banner_url: localStorage.getItem("xyi_guest_banner_url") || "sunset",
             bio: localStorage.getItem("xyi_guest_bio") || "",
@@ -116,7 +140,7 @@ export default function UserProfilePage({ params }) {
       if (guestName && guestName.toLowerCase() === targetUsername.toLowerCase()) {
         const guestProfile = {
           username: guestName,
-          avatar_color: localStorage.getItem("xyi_guest_avatar_color") || "#FF5500",
+          avatar_color: localStorage.getItem("xyi_guest_avatar_color") || "#007aff",
           avatar_url: localStorage.getItem("xyi_guest_avatar_url") || "🎧",
           banner_url: localStorage.getItem("xyi_guest_banner_url") || "sunset",
           bio: localStorage.getItem("xyi_guest_bio") || "",
@@ -135,7 +159,7 @@ export default function UserProfilePage({ params }) {
 
   const updateLocalStates = (data) => {
     setMyUsername(data.username || "");
-    setMyAvatarColor(data.avatar_color || "#FF5500");
+    setMyAvatarColor(data.avatar_color || "#007aff");
     setMyAvatarUrl(data.avatar_url || "🎧");
     setMyBannerUrl(data.banner_url || "sunset");
     setMyBio(data.bio || "");
@@ -217,8 +241,8 @@ export default function UserProfilePage({ params }) {
     <main className="min-h-screen bg-[#09090b] text-white flex flex-col relative select-none overflow-x-hidden pb-16">
       
       {/* Subtle Background Glowing elements - classic iMessage blue theme */}
-      <div className="absolute top-[20%] left-[-10%] w-[50%] h-[50%] bg-[#007aff]/3 rounded-full blur-[160px] pointer-events-none z-0"></div>
-      <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-zinc-800/5 rounded-full blur-[160px] pointer-events-none z-0"></div>
+      <div className="absolute top-[20%] left-[-10%] w-[50%] h-[50%] bg-[#007aff]/3 rounded-none blur-[160px] pointer-events-none z-0"></div>
+      <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-[#007aff]/5 rounded-none blur-[160px] pointer-events-none z-0"></div>
 
       {/* LOADING SCREEN */}
       {loading && (
@@ -241,7 +265,7 @@ export default function UserProfilePage({ params }) {
             
             {/* Embedded Floating Transparent Navbar */}
             <div className="absolute top-0 left-0 right-0 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between z-20">
-              <div className="flex items-center gap-1.5 cursor-pointer bg-black/40 backdrop-blur-md px-3.5 py-2 border border-white/5 rounded-xl hover:bg-black/60 transition-all" onClick={() => router.push("/")}>
+              <div className="flex items-center gap-1.5 cursor-pointer bg-black/40 backdrop-blur-md px-3.5 py-2 border border-white/5 rounded-none hover:bg-black/60 transition-all" onClick={() => router.push("/")}>
                 <span className="text-xl font-black tracking-tighter text-white">xyi</span>
                 <span className="w-4 h-4 rounded bg-[#007aff] flex items-center justify-center text-[8px] font-black text-black select-none">▶</span>
               </div>
@@ -249,7 +273,7 @@ export default function UserProfilePage({ params }) {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyProfileLink}
-                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#007aff]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#007aff]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-none transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   {copiedLink ? (
                     <>
@@ -264,8 +288,15 @@ export default function UserProfilePage({ params }) {
                   )}
                 </button>
                 <button
+                  onClick={toggleTheme}
+                  className="w-10 h-10 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#007aff]/25 text-xs font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-none transition-all flex items-center justify-center cursor-pointer"
+                  title="Переключить тему"
+                >
+                  {isDark ? "☀️" : "🌙"}
+                </button>
+                <button
                   onClick={() => router.push("/")}
-                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#007aff]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#007aff]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-none transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Home className="w-3.5 h-3.5 text-[#007aff]" /> Выйти в плеер
                 </button>
@@ -284,7 +315,7 @@ export default function UserProfilePage({ params }) {
               
               {/* Massive Custom Strict Avatar (Rounded Square!) */}
               <div 
-                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-4 border-[#09090b] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden bg-zinc-950 flex-shrink-0"
+                className="w-32 h-32 md:w-40 md:h-40 rounded-none border-4 border-[#09090b] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden bg-zinc-950 flex-shrink-0"
                 style={{ backgroundColor: myAvatarColor }}
               >
                 {myAvatarUrl && myAvatarUrl.startsWith("data:image") ? (
@@ -294,7 +325,7 @@ export default function UserProfilePage({ params }) {
                 )}
                 
                 {/* Active Tech Indicator */}
-                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#09090b] live-pulse-dot shadow-md"></div>
+                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-none bg-emerald-500 border-2 border-[#09090b] live-pulse-dot shadow-md"></div>
               </div>
 
               {/* Text Meta Info */}
@@ -304,7 +335,7 @@ export default function UserProfilePage({ params }) {
                     {myUsername}
                   </h1>
                   {myCustomBadge && (
-                    <span className="px-3 py-1 bg-[#007aff]/10 text-[#007aff] border border-[#007aff]/25 text-[9px] font-black uppercase tracking-widest rounded-md shadow-sm">
+                    <span className="px-3 py-1 bg-[#007aff]/10 text-[#007aff] border border-[#007aff]/25 text-[9px] font-black uppercase tracking-widest rounded-none shadow-sm">
                       {myCustomBadge}
                     </span>
                   )}
@@ -321,7 +352,7 @@ export default function UserProfilePage({ params }) {
               {/* Left Bio and Status Column (8/12 cols) */}
               <div className="lg:col-span-8 flex flex-col gap-6 w-full">
                 <div className="minimal-panel p-8 text-left flex flex-col gap-4 relative overflow-hidden bg-[#121214]">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#007aff]/2 rounded-full blur-2xl pointer-events-none"></div>
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#007aff]/2 rounded-none blur-2xl pointer-events-none"></div>
                   
                   <div className="flex items-center justify-between pb-2.5 border-b border-white/5">
                     <span className="text-[10px] font-black uppercase tracking-widest text-[#007aff]">Манифест / Статус</span>
@@ -335,17 +366,17 @@ export default function UserProfilePage({ params }) {
 
                 {/* Additional Tech Stats panel for club vibe */}
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 bg-[#121214] border border-white/5 rounded-2xl text-left">
+                  <div className="p-4 bg-[#121214] border border-white/5 rounded-none text-left">
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Статус сессии</span>
                     <p className="text-xs font-bold text-emerald-450 uppercase mt-1 flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 live-pulse-dot"></span> В сети
+                      <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 live-pulse-dot"></span> В сети
                     </p>
                   </div>
-                  <div className="p-4 bg-[#121214] border border-white/5 rounded-2xl text-left">
+                  <div className="p-4 bg-[#121214] border border-white/5 rounded-none text-left">
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Права доступа</span>
                     <p className="text-xs font-bold text-zinc-200 mt-1 uppercase">Резидент</p>
                   </div>
-                  <div className="p-4 bg-[#121214] border border-white/5 rounded-2xl text-left">
+                  <div className="p-4 bg-[#121214] border border-white/5 rounded-none text-left">
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Зона чилла</span>
                     <p className="text-xs font-bold text-[#007aff] mt-1 uppercase flex items-center gap-1">
                       <Radio className="w-3.5 h-3.5 animate-pulse" /> SoundCloud
@@ -359,33 +390,33 @@ export default function UserProfilePage({ params }) {
                 {isOwnProfile ? (
                   <button
                     onClick={() => setShowCustomizer(true)}
-                    className="w-full py-4 bg-[#007aff] hover:bg-[#0066d6] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer border border-transparent"
+                    className="w-full py-4 bg-[#007aff] hover:bg-[#0066d6] text-white font-black text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer border border-transparent"
                   >
                     <Sparkles className="w-4 h-4 text-white" /> Настроить Профиль
                   </button>
                 ) : (
                   <button
                     onClick={handleStartCoListening}
-                    className="w-full py-4 bg-[#007aff] hover:bg-[#0066d6] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-[#007aff]/10 flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-4 bg-[#007aff] hover:bg-[#0066d6] text-white font-black text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] shadow-lg shadow-[#007aff]/10 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Radio className="w-4 h-4 animate-pulse" /> Слушать Вместе
                   </button>
                 )}
 
-                <div className="flex flex-col gap-2.5 w-full bg-[#121214] border border-white/5 p-4 rounded-xl">
+                <div className="flex flex-col gap-2.5 w-full bg-[#121214] border border-white/5 p-4 rounded-none">
                   <span className="text-[8px] text-zinc-550 font-black uppercase tracking-widest text-center block mb-1">
                     Клубные Действия
                   </span>
                   
                   <button
                     onClick={handleCopyProfileLink}
-                    className="w-full py-3.5 bg-black/40 hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 bg-black/40 hover:bg-white/5 border border-white/5 rounded-none text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Copy className="w-3.5 h-3.5" /> Копировать ссылку
                   </button>
                   <button
                     onClick={() => router.push("/")}
-                    className="w-full py-3.5 bg-black/40 hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 bg-black/40 hover:bg-white/5 border border-white/5 rounded-none text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Compass className="w-3.5 h-3.5 text-[#007aff]" /> Обзор комнат
                   </button>
@@ -401,7 +432,7 @@ export default function UserProfilePage({ params }) {
       {/* NOT FOUND SCREEN */}
       {!loading && !profile && (
         <div className="flex-1 max-w-md mx-auto w-full px-6 flex flex-col items-center justify-center z-10 py-16 animate-fadeIn text-center">
-          <div className="w-20 h-20 rounded-xl bg-zinc-950 border border-white/5 flex items-center justify-center mb-6">
+          <div className="w-20 h-20 rounded-none bg-zinc-950 border border-white/5 flex items-center justify-center mb-6">
             <HelpCircle className="w-10 h-10 text-zinc-650" />
           </div>
           
@@ -412,16 +443,16 @@ export default function UserProfilePage({ params }) {
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 w-full bg-[#121214] border border-white/5 p-6 rounded-xl">
+          <div className="flex flex-col gap-2.5 w-full bg-[#121214] border border-white/5 p-6 rounded-none">
             <button
               onClick={() => router.push("/")}
-              className="w-full py-4 bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-widest rounded-lg transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full py-4 bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] cursor-pointer"
             >
               На главную
             </button>
             <button
               onClick={() => router.push("/?auth=open")}
-              className="w-full py-4 bg-transparent border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white font-extrabold text-xs uppercase tracking-widest rounded-lg transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full py-4 bg-transparent border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white font-extrabold text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] cursor-pointer"
             >
               Зарегистрировать аккаунт
             </button>

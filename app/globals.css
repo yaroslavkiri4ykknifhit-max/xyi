@@ -2,22 +2,47 @@
 
 @theme {
   --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --color-imessage-blue: #007aff;
-  --color-imessage-grey: #262629;
 }
 
 :root {
-  --background: #09090b;
-  --foreground: #ffffff;
+  /* Default Theme Variables: Dark Tech Blue */
+  --bg: #030712;             /* Deep indigo-black */
+  --panel-bg: #0a0f1d;       /* Deep slate-blue card */
+  --text: #f9fafb;           /* Pure white-zinc */
+  --border: rgba(59, 130, 246, 0.15); /* Soft electric-blue border */
+  --accent: #007aff;         /* Classic iOS iMessage blue */
+  --accent-hover: #0056b3;
+  --muted-text: #9ca3af;
+  --imessage-received-bg: #1f2937;
+  --input-bg: #111827;
+  --shadow: rgba(0, 0, 0, 0.5);
+  
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+/* Light Theme Variables */
+.light-theme {
+  --bg: #f3f4f6;             /* Cool light grey-blue background */
+  --panel-bg: #ffffff;       /* Crisp white cards */
+  --text: #111827;           /* Deep charcoal text */
+  --border: rgba(59, 130, 246, 0.22); /* Soft blue border */
+  --accent: #0066d6;         /* Deeper blue accent for light contrast */
+  --accent-hover: #004da3;
+  --muted-text: #4b5563;     /* Darker grey secondary text */
+  --imessage-received-bg: #e5e7eb; /* Light grey received bubbles */
+  --input-bg: #ffffff;
+  --shadow: rgba(0, 0, 0, 0.04);
 }
 
 body {
-  background-color: #09090b;
-  color: #ffffff;
+  background-color: var(--bg);
+  color: var(--text);
   font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Custom premium iMessage slim scrollbar */
@@ -31,12 +56,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 99px;
+  background: rgba(59, 130, 246, 0.18);
+  border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(59, 130, 246, 0.35);
 }
 
 /* Hide SoundCloud default standard widget element but keep API working */
@@ -51,48 +76,52 @@ body {
   border: 0;
 }
 
-/* Elegant Muted Minimalist Panels */
+/* Strictly Sharp Cyber Panels & Hover state */
 .minimal-panel {
-  background-color: #121214;
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: 24px;
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 0px; /* STRICT SQUARE */
+  box-shadow: 0 4px 24px var(--shadow);
+  transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .minimal-panel-hover:hover {
-  border-color: rgba(255, 255, 255, 0.08);
-  background-color: #161619;
+  border-color: rgba(59, 130, 246, 0.3);
+  background-color: var(--panel-bg);
 }
 
-/* Authentic iMessage-style speech bubbles */
+/* Authentic iMessage-style sharp speech bubbles */
 .imessage-bubble-sent {
-  background-color: #007aff;
+  background-color: var(--accent);
   color: #ffffff;
-  border-radius: 18px 18px 4px 18px;
+  border-radius: 4px 4px 0px 4px; /* Crisp square corner visual signature */
   padding: 8px 14px;
   font-size: 13px;
   line-height: 1.4;
   position: relative;
   word-break: break-word;
+  transition: background-color 0.2s ease;
 }
 
 .imessage-bubble-received {
-  background-color: #242428;
-  color: #ffffff;
-  border-radius: 18px 18px 18px 4px;
+  background-color: var(--imessage-received-bg);
+  color: var(--text);
+  border-radius: 4px 4px 4px 0px; /* Crisp square corner visual signature */
   padding: 8px 14px;
   font-size: 13px;
   line-height: 1.4;
   position: relative;
   word-break: break-word;
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--border);
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 /* Custom premium range slider */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(255, 255, 255, 0.08);
-  border-radius: 99px;
+  background: var(--border);
+  border-radius: 0px; /* STRICT SQUARE SLIDER TRACK */
   outline: none;
   height: 4px;
 }
@@ -102,15 +131,15 @@ input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   width: 12px;
   height: 12px;
-  border-radius: 50%;
-  background: #ffffff;
+  border-radius: 0px; /* STRICT SQUARE GRABBER */
+  background: var(--text);
   cursor: pointer;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   transition: transform 0.1s ease;
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
+  transform: scale(1.25);
 }
 
 /* Fade In Keyframes */

@@ -44,7 +44,7 @@ const NICKNAMES = [
 
 // Harmonious custom colors for avatars
 const AVATAR_COLORS = [
-  "#FF5500", "#00B4D8", "#8A2BE2", "#10B981", "#EC4899",
+  "#007aff", "#00B4D8", "#00c6ff", "#10B981", "#EC4899",
   "#F59E0B", "#3B82F6", "#EF4444", "#6366F1", "#14B8A6"
 ];
 
@@ -53,7 +53,7 @@ function PageLoading() {
   return (
     <div className="min-h-screen bg-[#050508] flex flex-col items-center justify-center text-white px-4">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 rounded-full border-t-2 border-[#ff5500] border-r-2 border-r-transparent animate-spin"></div>
+        <div className="w-12 h-12 rounded-none border-t-2 border-[#007aff] border-r-2 border-r-transparent animate-spin"></div>
         <p className="text-zinc-400 text-xs tracking-widest font-light animate-pulse uppercase">
           Загрузка XYI...
         </p>
@@ -67,6 +67,30 @@ function SyncPlayerApp() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const roomCode = searchParams.get("room") || "";
+  const [isDark, setIsDark] = useState(true);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("xyi_theme");
+    if (saved === "light") {
+      setIsDark(false);
+      document.documentElement.classList.add("light-theme");
+    } else {
+      setIsDark(true);
+      document.documentElement.classList.remove("light-theme");
+    }
+  }, []);
+
+  const toggleTheme = () => {
+    if (isDark) {
+      setIsDark(false);
+      localStorage.setItem("xyi_theme", "light");
+      document.documentElement.classList.add("light-theme");
+    } else {
+      setIsDark(true);
+      localStorage.setItem("xyi_theme", "dark");
+      document.documentElement.classList.remove("light-theme");
+    }
+  };
 
   // User details state (Realtime Presence)
   const [myUsername, setMyUsername] = useState("");
@@ -177,14 +201,14 @@ function SyncPlayerApp() {
 
         if (profile) {
           setMyUsername(profile.username || user.email.split("@")[0]);
-          setMyAvatarColor(profile.avatar_color || "#FF5500");
+          setMyAvatarColor(profile.avatar_color || "#007aff");
           setMyAvatarUrl(profile.avatar_url || "🎧");
           setMyBannerUrl(profile.banner_url || "sunset");
           setMyBio(profile.bio || "");
           setMyCustomBadge(profile.custom_badge || "");
 
           sessionStorage.setItem("xyi_username", profile.username || user.email.split("@")[0]);
-          sessionStorage.setItem("xyi_avatar_color", profile.avatar_color || "#FF5500");
+          sessionStorage.setItem("xyi_avatar_color", profile.avatar_color || "#007aff");
         } else {
           const defaultNick = user.email.split("@")[0];
           const defaultColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
@@ -320,8 +344,8 @@ function SyncPlayerApp() {
 
   const getBannerStyle = (url) => {
     const BANNER_GRADIENTS = [
-      { id: "sunset", name: "Sunset Pulse", style: "linear-gradient(135deg, #ff5500 0%, #ff007f 100%)" },
-      { id: "cyberpunk", name: "Cyber Neon", style: "linear-gradient(135deg, #8a2be2 0%, #00b4d8 100%)" },
+      { id: "sunset", name: "Sunset Pulse", style: "linear-gradient(135deg, #007aff 0%, #ff007f 100%)" },
+      { id: "cyberpunk", name: "Cyber Neon", style: "linear-gradient(135deg, #00c6ff 0%, #00b4d8 100%)" },
       { id: "emerald", name: "Emerald Dusk", style: "linear-gradient(135deg, #10b981 0%, #064e3b 100%)" },
       { id: "gold", name: "Liquid Gold", style: "linear-gradient(135deg, #f59e0b 0%, #ec4899 100%)" },
       { id: "darkmatter", name: "Dark Matter", style: "linear-gradient(135deg, #1e1b4b 0%, #030712 100%)" },
@@ -355,7 +379,7 @@ function SyncPlayerApp() {
       {
         id: "sys_1",
         username: "🎧 XYI BOT",
-        avatarColor: "#ff5500",
+        avatarColor: "#007aff",
         avatarUrl: "🎧",
         text: "Добро пожаловать в комнату! Музыка играет синхронно для всех участников в реальном времени. Вставьте ссылку на SoundCloud-трек в центре, чтобы добавить его в очередь!",
         timestamp: "Система",
@@ -748,7 +772,7 @@ function SyncPlayerApp() {
 
       const cid = sessionStorage.getItem("xyi_client_id") || "client_anon";
       const name = sessionStorage.getItem("xyi_username") || "Guest";
-      const color = sessionStorage.getItem("xyi_avatar_color") || "#FF5500";
+      const color = sessionStorage.getItem("xyi_avatar_color") || "#007aff";
 
       // Setup Supabase Channel with Presence support
       roomChannel = supabase.channel(`room-state-${code}`, {
@@ -1115,7 +1139,7 @@ function SyncPlayerApp() {
         {
           id: "sys_sync_" + Math.random().toString(36).substring(2, 9),
           username: "⚡ Синхронизация",
-          avatarColor: "#ff5500",
+          avatarColor: "#007aff",
           text: `${senderName || "Друг"} притянул ваш плеер к своей позиции!`,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
           isSystem: true
@@ -1914,21 +1938,21 @@ function SyncPlayerApp() {
   return (
     <main className="min-h-screen bg-[#050508] text-white flex flex-col relative select-none pb-28 overflow-x-hidden">
       {/* Background glowing soft elements */}
-      <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-[#ff5500]/5 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute bottom-[10%] right-[10%] w-[35%] h-[35%] bg-[#00b4d8]/5 rounded-full blur-[140px] pointer-events-none"></div>
+      <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-[#007aff]/5 rounded-none blur-[140px] pointer-events-none"></div>
+      <div className="absolute bottom-[10%] right-[10%] w-[35%] h-[35%] bg-[#00b4d8]/5 rounded-none blur-[140px] pointer-events-none"></div>
 
       {!roomCode ? (
         /* ==================== LANDING PAGE CONTENT ==================== */
         <div className="flex flex-col flex-1 relative z-10 w-full min-h-screen">
           {/* Glow Auras */}
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#ff5500]/10 rounded-full blur-[120px] pointer-events-none"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/10 rounded-full blur-[120px] pointer-events-none"></div>
+          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#007aff]/10 rounded-none blur-[120px] pointer-events-none"></div>
+          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/10 rounded-none blur-[120px] pointer-events-none"></div>
 
           {/* Global Nav */}
           <nav className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between z-10">
             <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => router.push("/")}>
               <span className="text-3xl font-black tracking-tighter text-white">xyi</span>
-              <span className="w-5 h-5 rounded-md bg-[#ff5500] flex items-center justify-center text-[10px] font-black text-black select-none">▶</span>
+              <span className="w-5 h-5 rounded-none bg-[#007aff] flex items-center justify-center text-[10px] font-black text-black select-none">▶</span>
             </div>
             <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
               <span className="hover:text-white transition-colors cursor-pointer">Home</span>
@@ -1936,25 +1960,33 @@ function SyncPlayerApp() {
               <span className="hover:text-white transition-colors cursor-pointer">Features</span>
               <span className="hover:text-white transition-colors cursor-pointer">Support</span>
             </div>
-            {currentUser ? (
+            <div className="flex items-center gap-3">
+              <button
+                onClick={toggleTheme}
+                className="w-10 h-10 border border-white/10 hover:border-[#007aff]/30 text-xs font-semibold flex items-center justify-center bg-zinc-900/60 hover:bg-[#007aff]/5 transition-all text-white cursor-pointer rounded-none"
+                title="Переключить тему"
+              >
+                {isDark ? "☀️" : "🌙"}
+              </button>
+              {currentUser ? (
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleGoToMyRoom}
-                  className="px-4 py-2 rounded-full bg-zinc-900 border border-white/10 hover:border-[#ff5500]/50 text-xs font-bold tracking-wider hover:bg-[#ff5500]/5 text-white transition-all active:scale-[0.98] cursor-pointer"
+                  className="px-4 py-2 rounded-none bg-zinc-900 border border-white/10 hover:border-[#007aff]/50 text-xs font-bold tracking-wider hover:bg-[#007aff]/5 text-white transition-all active:scale-[0.98] cursor-pointer"
                 >
                   Моя комната
                 </button>
                 <button
                   onClick={() => setShowProfileCustomizer(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#ff5500]/30 rounded-full cursor-pointer hover:bg-white/5 transition-all group overflow-hidden"
+                  className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#007aff]/30 rounded-none cursor-pointer hover:bg-white/5 transition-all group overflow-hidden"
                   title="Настроить профиль"
                 >
                   <div 
-                    className="w-5 h-5 rounded-full bg-[#ff5500] text-black text-[10px] font-black flex items-center justify-center flex-shrink-0 overflow-hidden"
+                    className="w-5 h-5 rounded-none bg-[#007aff] text-black text-[10px] font-black flex items-center justify-center flex-shrink-0 overflow-hidden"
                     style={{ backgroundColor: myAvatarColor }}
                   >
                     {myAvatarUrl && myAvatarUrl.startsWith("data:image") ? (
-                      <img src={myAvatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                      <img src={myAvatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-none" />
                     ) : myAvatarUrl ? (
                       <span className="text-xs">{myAvatarUrl}</span>
                     ) : (
@@ -1965,7 +1997,7 @@ function SyncPlayerApp() {
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="px-3 py-1.5 rounded-full border border-red-500/10 hover:border-red-500/30 text-[10px] font-bold text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
+                  className="px-3 py-1.5 rounded-none border border-red-500/10 hover:border-red-500/30 text-[10px] font-bold text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
                 >
                   Выйти
                 </button>
@@ -1973,38 +2005,39 @@ function SyncPlayerApp() {
             ) : (
               <button
                 onClick={() => { setAuthTab("login"); setAuthError(""); setShowAuthModal(true); }}
-                className="px-5 py-2.5 rounded-full border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
+                className="px-5 py-2.5 rounded-none border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
               >
                 Sign In
               </button>
             )}
+            </div>
           </nav>
 
           {/* Hero & Join Card Panel */}
           <section className="flex-1 max-w-7xl mx-auto w-full px-6 flex flex-col lg:flex-row items-center justify-center gap-16 py-12 z-10">
             <div className="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start max-w-xl">
-              <span className="px-3.5 py-1.5 rounded-full bg-[#ff5500]/10 text-[#ff5500] text-xs font-bold uppercase tracking-widest mb-6 border border-[#ff5500]/15">
+              <span className="px-3.5 py-1.5 rounded-none bg-[#007aff]/10 text-[#007aff] text-xs font-bold uppercase tracking-widest mb-6 border border-[#007aff]/15">
                 Na leg. All vibe.
               </span>
               <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight leading-none mb-6">
                 XYI: Listen <br className="hidden md:block"/>
-                <span className="bg-gradient-to-r from-[#ff5500] via-[#ff7733] to-[#8A2BE2] bg-clip-text text-transparent">Together, Live</span>
+                <span className="bg-gradient-to-r from-[#007aff] via-[#4364f7] to-[#00c6ff] bg-clip-text text-transparent">Together, Live</span>
               </h1>
               <p className="text-zinc-400 text-base md:text-lg mb-8 font-light leading-relaxed max-w-md">
                 Синхронизируйте музыку в реальном времени с друзьями. Нажмите кнопку, чтобы мгновенно создать приватную аудиосессию без задержек.
               </p>
               <button
                 onClick={handleCreateRoomAction}
-                className="px-8 py-4 bg-[#ff5500] hover:bg-[#ff661a] text-black font-extrabold text-sm uppercase tracking-widest rounded-full transition-all active:scale-[0.97] hover:shadow-[0_8px_30px_rgba(255,85,0,0.3)]"
+                className="px-8 py-4 bg-[#007aff] hover:bg-[#0056b3] text-black font-extrabold text-sm uppercase tracking-widest rounded-none transition-all active:scale-[0.97] hover:shadow-[0_8px_30px_rgba(255,85,0,0.3)]"
               >
                 Create a Session
               </button>
             </div>
 
             {/* Glass Card Input Box */}
-            <div className="w-full max-w-md glass-panel p-8 rounded-[36px] border-white/10 shadow-2xl flex flex-col gap-6 relative">
+            <div className="w-full max-w-md glass-panel p-8 rounded-none border-white/10 shadow-2xl flex flex-col gap-6 relative">
               <div className="absolute top-4 right-4 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+                <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-ping"></span>
                 <span className="text-[9px] font-bold text-emerald-400 tracking-widest uppercase">Online</span>
               </div>
               
@@ -2019,13 +2052,13 @@ function SyncPlayerApp() {
                   placeholder="НАПРИМЕР: XYI-8LP2"
                   value={roomCodeInput}
                   onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
-                  className="w-full bg-black/60 border border-white/8 rounded-2xl px-4 py-4 text-white text-center text-lg font-bold tracking-widest focus:outline-none focus:border-[#ff5500] focus:ring-1 focus:ring-[#ff5500]/30 transition-all uppercase placeholder:text-zinc-700"
+                  className="w-full bg-black/60 border border-white/8 rounded-none px-4 py-4 text-white text-center text-lg font-bold tracking-widest focus:outline-none focus:border-[#007aff] focus:ring-1 focus:ring-[#007aff]/30 transition-all uppercase placeholder:text-zinc-700"
                   maxLength={12}
                 />
                 <button
                   type="submit"
                   disabled={!roomCodeInput.trim()}
-                  className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-2xl transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                  className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-none transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
                 >
                   Подключиться
                 </button>
@@ -2039,7 +2072,7 @@ function SyncPlayerApp() {
 
               <button
                 onClick={handleCreateRoomAction}
-                className="w-full py-4 bg-zinc-950 border border-white/10 hover:border-[#ff5500]/50 hover:bg-[#ff5500]/5 text-white font-bold text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-[0.98] cursor-pointer"
+                className="w-full py-4 bg-zinc-950 border border-white/10 hover:border-[#007aff]/50 hover:bg-[#007aff]/5 text-white font-bold text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] cursor-pointer"
               >
                 Создать новую сессию
               </button>
@@ -2050,7 +2083,7 @@ function SyncPlayerApp() {
           <section className="w-full max-w-7xl mx-auto px-6 py-12 z-10 flex flex-col gap-6 text-left pb-24">
             <div className="flex items-center justify-between pb-2 border-b border-white/5">
               <div className="flex items-center gap-2.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 live-pulse-dot"></span>
+                <span className="w-2 h-2 rounded-none bg-emerald-500 live-pulse-dot"></span>
                 <h2 className="text-xl font-black tracking-tight">Публичные комнаты</h2>
               </div>
               <button 
@@ -2063,10 +2096,10 @@ function SyncPlayerApp() {
 
             {loadingPublicRooms ? (
               <div className="w-full py-16 flex items-center justify-center">
-                <div className="w-6 h-6 rounded-full border-2 border-[#ff5500] border-r-transparent animate-spin"></div>
+                <div className="w-6 h-6 rounded-none border-2 border-[#007aff] border-r-transparent animate-spin"></div>
               </div>
             ) : publicRooms.length === 0 ? (
-              <div className="w-full py-16 bg-zinc-950/40 border border-dashed border-white/5 rounded-3xl flex flex-col items-center justify-center gap-3 px-6 text-center shadow-inner">
+              <div className="w-full py-16 bg-zinc-950/40 border border-dashed border-white/5 rounded-none flex flex-col items-center justify-center gap-3 px-6 text-center shadow-inner">
                 <Radio className="w-8 h-8 text-zinc-700 animate-pulse" />
                 <h3 className="text-sm font-bold text-zinc-400">Нет активных публичных комнат</h3>
                 <p className="text-zinc-600 text-xs max-w-sm">
@@ -2076,10 +2109,10 @@ function SyncPlayerApp() {
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {publicRooms.map((room) => (
-                  <div key={room.id} className="glass-panel p-6 rounded-[28px] flex flex-col justify-between gap-4 shadow-xl border-white/8 hover:border-[#ff5500]/30 transition-all hover:shadow-[0_8px_30px_rgba(255,85,0,0.03)] glass-panel-hover">
+                  <div key={room.id} className="glass-panel p-6 rounded-none flex flex-col justify-between gap-4 shadow-xl border-white/8 hover:border-[#007aff]/30 transition-all hover:shadow-[0_8px_30px_rgba(255,85,0,0.03)] glass-panel-hover">
                     <div className="flex flex-col gap-1.5">
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-bold text-[#ff5500] uppercase tracking-widest pl-0.5">Live Broadcast</span>
+                        <span className="text-[9px] font-bold text-[#007aff] uppercase tracking-widest pl-0.5">Live Broadcast</span>
                         <span className="text-[9px] font-mono text-zinc-500 font-bold uppercase">{room.id}</span>
                       </div>
                       <h3 className="text-base font-black text-white truncate">{room.room_name || `Комната ${room.id}`}</h3>
@@ -2091,7 +2124,7 @@ function SyncPlayerApp() {
                       </div>
                       <button 
                         onClick={() => router.push(`/?room=${room.id}`)}
-                        className="px-4 py-2 bg-white text-black font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all hover:bg-zinc-200 active:scale-[0.97] cursor-pointer"
+                        className="px-4 py-2 bg-white text-black font-extrabold text-[10px] uppercase tracking-wider rounded-none transition-all hover:bg-zinc-200 active:scale-[0.97] cursor-pointer"
                       >
                         Войти
                       </button>
@@ -2110,10 +2143,10 @@ function SyncPlayerApp() {
       {/* Autoplay Unlock banner */}
       {needInteractionSync && (
         <div className="fixed top-[90px] left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4 animate-bounce">
-          <div className="w-full bg-[#ff5500]/20 backdrop-blur-xl border border-[#ff5500]/40 rounded-2xl py-3 px-4 text-center text-xs font-bold text-white shadow-xl shadow-black/40 flex items-center justify-center gap-2">
+          <div className="w-full bg-[#007aff]/20 backdrop-blur-xl border border-[#007aff]/40 rounded-none py-3 px-4 text-center text-xs font-bold text-white shadow-xl shadow-black/40 flex items-center justify-center gap-2">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#ff5500] opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-[#ff5500]"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-none bg-[#007aff] opacity-75"></span>
+              <span className="relative inline-flex rounded-none h-2 w-2 bg-[#007aff]"></span>
             </span>
             <span>🔊 Кликните в любом месте для синхронизации звука!</span>
           </div>
@@ -2133,20 +2166,27 @@ function SyncPlayerApp() {
       <header className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between z-10 border-b border-white/5 bg-[#050508]/30 backdrop-blur-md sticky top-0">
         <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => router.push("/")}>
           <span className="text-2xl font-black tracking-tighter text-white">xyi</span>
-          <span className="w-4 h-4 rounded bg-[#ff5500] flex items-center justify-center text-[9px] font-black text-black select-none">▶</span>
+          <span className="w-4 h-4 rounded-none bg-[#007aff] flex items-center justify-center text-[9px] font-black text-black select-none">▶</span>
         </div>
         <div className="hidden md:flex items-center gap-4 text-xs font-semibold text-zinc-400">
           <span className="text-zinc-500 uppercase tracking-widest text-[9px] font-bold">Сессия:</span>
-          <span className="text-white text-sm font-black tracking-tight bg-[#ff5500]/10 border border-[#ff5500]/20 px-3 py-1.5 rounded-xl">
+          <span className="text-white text-sm font-black tracking-tight bg-[#007aff]/10 border border-[#007aff]/20 px-3 py-1.5 rounded-none">
             {roomSettings.room_name || `Комната ${roomCode}`}
           </span>
         </div>
 
         <div className="flex items-center gap-3">
+          <button
+            onClick={toggleTheme}
+            className="w-9 h-9 border border-white/10 hover:border-[#007aff]/30 text-xs font-semibold flex items-center justify-center bg-zinc-900/60 hover:bg-[#007aff]/5 transition-all text-white cursor-pointer rounded-none"
+            title="Переключить тему"
+          >
+            {isDark ? "☀️" : "🌙"}
+          </button>
           {/* Room Code Display with Quick Copy */}
           <button
             onClick={handleCopyLink}
-            className="flex items-center gap-2 px-4 py-2 bg-zinc-900/60 border border-white/8 hover:border-[#ff5500]/40 rounded-full transition-colors cursor-pointer glass-panel-hover"
+            className="flex items-center gap-2 px-4 py-2 bg-zinc-900/60 border border-white/8 hover:border-[#007aff]/40 rounded-none transition-colors cursor-pointer glass-panel-hover"
           >
             <span className="text-xs font-bold text-zinc-200 tracking-wider">
               {roomCode.toUpperCase()}
@@ -2154,7 +2194,7 @@ function SyncPlayerApp() {
             {copied ? (
               <Check className="w-3.5 h-3.5 text-emerald-500" />
             ) : (
-              <Copy className="w-3.5 h-3.5 text-[#ff5500]" />
+              <Copy className="w-3.5 h-3.5 text-[#007aff]" />
             )}
           </button>
 
@@ -2163,15 +2203,15 @@ function SyncPlayerApp() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowProfileCustomizer(true)}
-                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#ff5500]/30 rounded-full cursor-pointer hover:bg-white/5 transition-all group overflow-hidden"
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#007aff]/30 rounded-none cursor-pointer hover:bg-white/5 transition-all group overflow-hidden"
                 title="Настроить профиль"
               >
                 <div 
-                  className="w-4.5 h-4.5 rounded-full bg-[#ff5500] text-black text-[9px] font-black flex items-center justify-center flex-shrink-0 overflow-hidden"
+                  className="w-4.5 h-4.5 rounded-none bg-[#007aff] text-black text-[9px] font-black flex items-center justify-center flex-shrink-0 overflow-hidden"
                   style={{ backgroundColor: myAvatarColor }}
                 >
                   {myAvatarUrl && myAvatarUrl.startsWith("data:image") ? (
-                    <img src={myAvatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                    <img src={myAvatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-none" />
                   ) : myAvatarUrl ? (
                     <span className="text-[10px]">{myAvatarUrl}</span>
                   ) : (
@@ -2182,7 +2222,7 @@ function SyncPlayerApp() {
               </button>
               <button
                 onClick={handleLogout}
-                className="px-3 py-1.5 rounded-full border border-red-500/10 hover:border-red-500/30 text-[9px] font-bold text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
+                className="px-3 py-1.5 rounded-none border border-red-500/10 hover:border-red-500/30 text-[9px] font-bold text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
               >
                 Выйти
               </button>
@@ -2191,14 +2231,14 @@ function SyncPlayerApp() {
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowProfileCustomizer(true)}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#ff5500]/30 rounded-full cursor-pointer hover:bg-white/5 transition-all text-[10px] font-bold text-zinc-300"
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#007aff]/30 rounded-none cursor-pointer hover:bg-white/5 transition-all text-[10px] font-bold text-zinc-300"
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#ff5500]" />
+                <Sparkles className="w-3.5 h-3.5 text-[#007aff]" />
                 Профиль
               </button>
               <button
                 onClick={() => { setAuthTab("login"); setAuthError(""); setShowAuthModal(true); }}
-                className="px-4 py-1.5 rounded-full border border-white/10 hover:border-white/20 text-[10px] font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
+                className="px-4 py-1.5 rounded-none border border-white/10 hover:border-white/20 text-[10px] font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
               >
                 Sign In
               </button>
@@ -2229,7 +2269,7 @@ function SyncPlayerApp() {
                     <button
                       key={idx}
                       onClick={() => setSelectedUserProfile(p)}
-                      className="flex-shrink-0 w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[10px] font-black text-black overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer relative"
+                      className="flex-shrink-0 w-8 h-8 rounded-none border border-white/10 flex items-center justify-center text-[10px] font-black text-black overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer relative"
                       style={{ backgroundColor: p.avatarColor || "#007aff" }}
                       title={p.username}
                     >
@@ -2238,7 +2278,7 @@ function SyncPlayerApp() {
                       ) : (
                         p.username ? p.username.charAt(0).toUpperCase() : "?"
                       )}
-                      <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-zinc-900 shadow"></span>
+                      <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-none border border-zinc-900 shadow"></span>
                     </button>
                   ))}
                 </div>
@@ -2276,7 +2316,7 @@ function SyncPlayerApp() {
                             joinedAt: msg.joinedAt || new Date().toISOString(),
                             latency: "Chat"
                           })}
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 overflow-hidden hover:scale-105 transition-all border border-white/5 cursor-pointer"
+                          className="w-7 h-7 rounded-none flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 overflow-hidden hover:scale-105 transition-all border border-white/5 cursor-pointer"
                           style={{ backgroundColor: msg.avatarColor || "#007aff" }}
                         >
                           {msg.avatarUrl && msg.avatarUrl.startsWith("data:image") ? (
@@ -2315,12 +2355,12 @@ function SyncPlayerApp() {
                   placeholder="iMessage..."
                   value={newChatMessage}
                   onChange={(e) => setNewChatMessage(e.target.value)}
-                  className="flex-1 bg-[#1a1a1e] border border-white/5 rounded-full px-5 py-3 text-xs text-white placeholder:text-zinc-650 focus:outline-none focus:border-[#007aff]/60 transition-all font-semibold"
+                  className="flex-1 bg-[#1a1a1e] border border-white/5 rounded-none px-5 py-3 text-xs text-white placeholder:text-zinc-650 focus:outline-none focus:border-[#007aff]/60 transition-all font-semibold"
                 />
                 <button
                   type="submit"
                   disabled={!newChatMessage.trim()}
-                  className="w-9 h-9 bg-[#007aff] hover:bg-[#0066d6] active:scale-95 disabled:opacity-30 rounded-full transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0"
+                  className="w-9 h-9 bg-[#007aff] hover:bg-[#0066d6] active:scale-95 disabled:opacity-30 rounded-none transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0"
                 >
                   <Send className="w-4 h-4 text-white fill-current" />
                 </button>
@@ -2334,12 +2374,12 @@ function SyncPlayerApp() {
             {/* Minimal Now Playing Card */}
             <div className="minimal-panel p-6 flex flex-col gap-4 text-left">
               <span className="text-[9px] font-black uppercase tracking-widest text-[#007aff] flex items-center gap-1.5 pl-1 font-sans">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#007aff] animate-pulse"></span>
+                <span className="w-1.5 h-1.5 rounded-none bg-[#007aff] animate-pulse"></span>
                 Currently Playing
               </span>
               
-              <div className="flex items-center gap-4 bg-black/20 p-4 rounded-2xl border border-white/5 relative overflow-hidden group">
-                <div className="relative w-14 h-14 rounded-xl bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
+              <div className="flex items-center gap-4 bg-black/20 p-4 rounded-none border border-white/5 relative overflow-hidden group">
+                <div className="relative w-14 h-14 rounded-none bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
                   {currentTrack && currentTrack.thumbnail ? (
                     <img src={currentTrack.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   ) : (
@@ -2390,7 +2430,7 @@ function SyncPlayerApp() {
                   <button
                     onClick={handlePlayPauseToggle}
                     disabled={!currentTrack}
-                    className="w-10 h-10 bg-white hover:bg-zinc-200 text-black rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer flex-shrink-0"
+                    className="w-10 h-10 bg-white hover:bg-zinc-200 text-black rounded-none flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer flex-shrink-0"
                     title={isPlaying ? "Пауза" : "Воспроизвести"}
                   >
                     {isPlaying ? (
@@ -2419,7 +2459,7 @@ function SyncPlayerApp() {
                 </div>
                 
                 {/* Volume slider */}
-                <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border border-white/5 max-w-[120px] w-full">
+                <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-none border border-white/5 max-w-[120px] w-full">
                   <button
                     onClick={toggleMute}
                     className="text-zinc-400 hover:text-white transition-colors cursor-pointer flex-shrink-0"
@@ -2442,10 +2482,10 @@ function SyncPlayerApp() {
             <div className="minimal-panel p-6 flex flex-col gap-4 text-left">
               
               {/* Segmented Tab Row */}
-              <div className="grid grid-cols-4 bg-black/40 p-1 rounded-xl border border-white/5">
+              <div className="grid grid-cols-4 bg-black/40 p-1 rounded-none border border-white/5">
                 <button
                   onClick={() => setActiveLibraryTab("favorites")}
-                  className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
+                  className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                     activeLibraryTab === "favorites"
                       ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
                       : "text-zinc-500 hover:text-zinc-300"
@@ -2455,7 +2495,7 @@ function SyncPlayerApp() {
                 </button>
                 <button
                   onClick={() => setActiveLibraryTab("playlist")}
-                  className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
+                  className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                     activeLibraryTab === "playlist"
                       ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
                       : "text-zinc-550 hover:text-zinc-300"
@@ -2465,7 +2505,7 @@ function SyncPlayerApp() {
                 </button>
                 <button
                   onClick={() => setActiveLibraryTab("bulk")}
-                  className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
+                  className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                     activeLibraryTab === "bulk"
                       ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
                       : "text-zinc-550 hover:text-zinc-300"
@@ -2475,7 +2515,7 @@ function SyncPlayerApp() {
                 </button>
                 <button
                   onClick={() => setActiveLibraryTab("queue")}
-                  className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
+                  className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                     activeLibraryTab === "queue" || activeLibraryTab === undefined
                       ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
                       : "text-zinc-550 hover:text-zinc-300"
@@ -2495,15 +2535,15 @@ function SyncPlayerApp() {
                       value={newPersonalUrl}
                       onChange={(e) => setNewPersonalUrl(e.target.value)}
                       disabled={addingPersonal}
-                      className="flex-1 bg-black/40 border border-white/5 rounded-xl px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors"
+                      className="flex-1 bg-black/40 border border-white/5 rounded-none px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors"
                     />
                     <button
                       type="submit"
                       disabled={!newPersonalUrl.trim() || addingPersonal}
-                      className="p-2 bg-[#007aff] hover:bg-[#0066d6] text-white active:scale-[0.98] disabled:opacity-30 rounded-xl transition-all flex items-center justify-center cursor-pointer flex-shrink-0"
+                      className="p-2 bg-[#007aff] hover:bg-[#0066d6] text-white active:scale-[0.98] disabled:opacity-30 rounded-none transition-all flex items-center justify-center cursor-pointer flex-shrink-0"
                     >
                       {addingPersonal ? (
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-r-transparent animate-spin"></div>
+                        <div className="w-3.5 h-3.5 rounded-none border-2 border-white border-r-transparent animate-spin"></div>
                       ) : (
                         <Plus className="w-4 h-4 stroke-[3]" />
                       )}
@@ -2511,7 +2551,7 @@ function SyncPlayerApp() {
                   </form>
 
                   {personalLibrary.length === 0 ? (
-                    <div className="w-full py-8 bg-black/10 border border-dashed border-white/5 rounded-xl flex flex-col items-center justify-center gap-2 px-4 text-center">
+                    <div className="w-full py-8 bg-black/10 border border-dashed border-white/5 rounded-none flex flex-col items-center justify-center gap-2 px-4 text-center">
                       <p className="text-zinc-650 text-[10px] leading-normal font-medium">Медиатека пуста. Добавьте SoundCloud треки!</p>
                     </div>
                   ) : (
@@ -2519,13 +2559,13 @@ function SyncPlayerApp() {
                       {personalLibrary.map((track, idx) => (
                         <div
                           key={track.id}
-                          className="w-full p-2 bg-black/20 border border-white/5 hover:border-[#007aff]/30 rounded-xl flex items-center gap-3 transition-all duration-300 hover:bg-black/40 group/track"
+                          className="w-full p-2 bg-black/20 border border-white/5 hover:border-[#007aff]/30 rounded-none flex items-center gap-3 transition-all duration-300 hover:bg-black/40 group/track"
                         >
                           <span className="text-[9px] font-mono font-bold text-zinc-600 group-hover/track:text-[#007aff] transition-colors pl-1">
                             {String(idx + 1).padStart(2, '0')}
                           </span>
                           
-                          <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                          <div className="w-8 h-8 rounded-none bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
                             {track.thumbnail ? (
                               <img src={track.thumbnail} alt="" className="w-full h-full object-cover" />
                             ) : (
@@ -2542,21 +2582,21 @@ function SyncPlayerApp() {
                           <div className="flex items-center gap-1 flex-shrink-0">
                             <button
                               onClick={(e) => handlePlayPersonalTrackNow(track, e)}
-                              className="w-6.5 h-6.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-455 hover:text-black flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
+                              className="w-6.5 h-6.5 rounded-none bg-emerald-500/10 hover:bg-emerald-500 text-emerald-455 hover:text-black flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                               title="Запустить сейчас для всех"
                             >
                               <Play className="w-2.5 h-2.5 fill-current" />
                             </button>
                             <button
                               onClick={(e) => handleQueuePersonalTrack(track, e)}
-                              className="w-6.5 h-6.5 rounded-lg bg-white/5 hover:bg-[#007aff] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
+                              className="w-6.5 h-6.5 rounded-none bg-white/5 hover:bg-[#007aff] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                               title="Добавить в очередь"
                             >
                               <Plus className="w-3 h-3 stroke-[2.5]" />
                             </button>
                             <button
                               onClick={(e) => handleDeletePersonalTrack(track.id, e)}
-                              className="w-6.5 h-6.5 rounded-lg bg-red-500/5 hover:bg-red-500/90 text-zinc-600 hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
+                              className="w-6.5 h-6.5 rounded-none bg-red-500/5 hover:bg-red-500/90 text-zinc-600 hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                               title="Удалить из медиатеки"
                             >
                               <Trash2 className="w-2.5 h-2.5" />
@@ -2582,15 +2622,15 @@ function SyncPlayerApp() {
                       value={importUrl}
                       onChange={(e) => setImportUrl(e.target.value)}
                       disabled={importingPlaylist}
-                      className="flex-1 bg-black/45 border border-white/5 rounded-xl px-3 py-2 text-xs text-zinc-250 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors"
+                      className="flex-1 bg-black/45 border border-white/5 rounded-none px-3 py-2 text-xs text-zinc-250 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors"
                     />
                     <button
                       type="submit"
                       disabled={!importUrl.trim() || importingPlaylist}
-                      className="px-4 py-2 bg-[#007aff] text-white hover:bg-[#0066d6] active:scale-[0.98] disabled:opacity-30 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer"
+                      className="px-4 py-2 bg-[#007aff] text-white hover:bg-[#0066d6] active:scale-[0.98] disabled:opacity-30 rounded-none font-bold text-[10px] uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer"
                     >
                       {importingPlaylist ? (
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-r-transparent animate-spin"></div>
+                        <div className="w-3.5 h-3.5 rounded-none border-2 border-white border-r-transparent animate-spin"></div>
                       ) : (
                         "Импорт"
                       )}
@@ -2598,7 +2638,7 @@ function SyncPlayerApp() {
                   </form>
                   {importingPlaylist && (
                     <div className="w-full p-2 flex items-center justify-center gap-2">
-                      <div className="w-3.5 h-3.5 rounded-full border-2 border-[#007aff] border-r-transparent animate-spin"></div>
+                      <div className="w-3.5 h-3.5 rounded-none border-2 border-[#007aff] border-r-transparent animate-spin"></div>
                       <span className="text-[9px] font-bold text-[#007aff] uppercase animate-pulse">Идет разбор плейлиста...</span>
                     </div>
                   )}
@@ -2618,15 +2658,15 @@ function SyncPlayerApp() {
                       value={bulkText}
                       onChange={(e) => setBulkText(e.target.value)}
                       disabled={importingBulk}
-                      className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-[#007aff] transition-colors resize-none leading-normal font-mono"
+                      className="w-full bg-black/40 border border-white/5 rounded-none p-3 text-[10px] text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-[#007aff] transition-colors resize-none leading-normal font-mono"
                     />
                     <button
                       type="submit"
                       disabled={!bulkText.trim() || importingBulk}
-                      className="w-full py-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center cursor-pointer"
+                      className="w-full py-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-none font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center cursor-pointer"
                     >
                       {importingBulk ? (
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                        <div className="w-3.5 h-3.5 rounded-none border-2 border-black border-r-transparent animate-spin"></div>
                       ) : (
                         "Импортировать список"
                       )}
@@ -2645,15 +2685,15 @@ function SyncPlayerApp() {
                       value={newTrackUrl}
                       onChange={(e) => setNewTrackUrl(e.target.value)}
                       disabled={addingTrack}
-                      className="flex-1 bg-black/40 border border-white/5 rounded-xl px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors disabled:opacity-50"
+                      className="flex-1 bg-black/40 border border-white/5 rounded-none px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors disabled:opacity-50"
                     />
                     <button
                       type="submit"
                       disabled={!newTrackUrl.trim() || addingTrack}
-                      className="p-2 bg-[#007aff] hover:bg-[#0066d6] text-white active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none rounded-xl transition-all flex items-center justify-center cursor-pointer"
+                      className="p-2 bg-[#007aff] hover:bg-[#0066d6] text-white active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none rounded-none transition-all flex items-center justify-center cursor-pointer"
                     >
                       {addingTrack ? (
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-r-transparent animate-spin"></div>
+                        <div className="w-3.5 h-3.5 rounded-none border-2 border-white border-r-transparent animate-spin"></div>
                       ) : (
                         <Plus className="w-4 h-4" />
                       )}
@@ -2661,7 +2701,7 @@ function SyncPlayerApp() {
                   </form>
 
                   {playlist.length === 0 ? (
-                    <div className="w-full py-8 bg-black/10 border border-dashed border-white/5 rounded-xl flex flex-col items-center justify-center gap-2 text-center">
+                    <div className="w-full py-8 bg-black/10 border border-dashed border-white/5 rounded-none flex flex-col items-center justify-center gap-2 text-center">
                       <p className="text-zinc-600 text-[10px] leading-normal font-medium">Очередь воспроизведения пуста.</p>
                     </div>
                   ) : (
@@ -2672,13 +2712,13 @@ function SyncPlayerApp() {
                           <div
                             key={track.id}
                             onClick={() => playTrack(track)}
-                            className={`w-full p-2 bg-black/20 hover:bg-[#007aff]/5 border rounded-xl flex items-center gap-3 cursor-pointer transition-all duration-300 ${
+                            className={`w-full p-2 bg-black/20 hover:bg-[#007aff]/5 border rounded-none flex items-center gap-3 cursor-pointer transition-all duration-300 ${
                               isCurrent
                                 ? "border-[#007aff]/30 bg-black/45 shadow-[0_4px_12px_rgba(0,122,255,0.05)]"
                                 : "border-white/5 hover:border-white/10"
                             }`}
                           >
-                            <div className="relative w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                            <div className="relative w-8 h-8 rounded-none bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
                               {track.thumbnail ? (
                                 <img src={track.thumbnail} alt="" className="w-full h-full object-cover" />
                               ) : (
@@ -2727,10 +2767,10 @@ function SyncPlayerApp() {
 
           {/* Owner Room Settings Control Panel */}
           {currentUser && roomSettings.owner_id === currentUser.id && (
-            <div className="glass-panel p-6 rounded-xl text-left flex flex-col gap-4 border-[#ff5500]/20 shadow-[0_8px_30px_rgba(255,85,0,0.04)]">
+            <div className="glass-panel p-6 rounded-none text-left flex flex-col gap-4 border-[#007aff]/20 shadow-[0_8px_30px_rgba(255,85,0,0.04)]">
               <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                <h3 className="text-sm font-black uppercase tracking-widest text-[#ff5500]">Настройки комнаты</h3>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 live-pulse-dot"></span>
+                <h3 className="text-sm font-black uppercase tracking-widest text-[#007aff]">Настройки комнаты</h3>
+                <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 live-pulse-dot"></span>
               </div>
               
               {/* Room name form */}
@@ -2742,11 +2782,11 @@ function SyncPlayerApp() {
                     value={newRoomNameInput}
                     onChange={(e) => setNewRoomNameInput(e.target.value)}
                     placeholder="Название сессии..."
-                    className="flex-1 bg-black/60 border border-white/8 rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-[#ff5500] transition-colors"
+                    className="flex-1 bg-black/60 border border-white/8 rounded-none px-3 py-2 text-xs text-white focus:outline-none focus:border-[#007aff] transition-colors"
                   />
                   <button
                     type="submit"
-                    className="px-3 py-2 bg-white text-black hover:bg-zinc-200 font-extrabold text-[10px] uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                    className="px-3 py-2 bg-white text-black hover:bg-zinc-200 font-extrabold text-[10px] uppercase tracking-wider rounded-none transition-all cursor-pointer"
                   >
                     OK
                   </button>
@@ -2761,12 +2801,12 @@ function SyncPlayerApp() {
                 </div>
                 <button
                   onClick={handleToggleRoomPublicity}
-                  className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 cursor-pointer ${
-                    roomSettings.is_public ? "bg-[#ff5500]" : "bg-zinc-800"
+                  className={`w-12 h-6 rounded-none p-1 transition-colors duration-300 cursor-pointer ${
+                    roomSettings.is_public ? "bg-[#007aff]" : "bg-zinc-800"
                   }`}
                 >
                   <div
-                    className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${
+                    className={`bg-white w-4 h-4 rounded-none shadow-md transform transition-transform duration-300 ${
                       roomSettings.is_public ? "translate-x-6" : "translate-x-0"
                     }`}
                   ></div>
@@ -2777,8 +2817,8 @@ function SyncPlayerApp() {
           
           {/* Slogan details - Hidden when inside active room */}
           {!roomCode && (
-            <div className="glass-panel p-6 rounded-xl text-left flex flex-col items-start gap-4 animate-fadeIn">
-              <span className="text-[10px] font-bold text-[#ff5500] uppercase tracking-widest pl-1">
+            <div className="glass-panel p-6 rounded-none text-left flex flex-col items-start gap-4 animate-fadeIn">
+              <span className="text-[10px] font-bold text-[#007aff] uppercase tracking-widest pl-1">
                 Na leg. All vibe.
               </span>
               <h2 className="text-3xl font-black tracking-tight leading-tight">
@@ -2786,7 +2826,7 @@ function SyncPlayerApp() {
               </h2>
               <button
                 onClick={handleCreateRoomAction}
-                className="w-full py-3.5 bg-[#ff5500] hover:bg-[#ff661a] text-black font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg hover:shadow-[#ff5500]/15 cursor-pointer"
+                className="w-full py-3.5 bg-[#007aff] hover:bg-[#0056b3] text-black font-extrabold text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] shadow-lg hover:shadow-[#007aff]/15 cursor-pointer"
               >
                 Create a Session
               </button>
@@ -2794,7 +2834,7 @@ function SyncPlayerApp() {
           )}
 
           {/* Real-time Sync Status & SVG Waves - Strict radiuses */}
-          <div className="glass-panel p-6 rounded-xl text-left flex flex-col gap-5 relative overflow-hidden">
+          <div className="glass-panel p-6 rounded-none text-left flex flex-col gap-5 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-zinc-400">Sync Status</span>
@@ -2802,23 +2842,23 @@ function SyncPlayerApp() {
                   {participants.length} listeners online
                 </span>
               </div>
-              <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 live-pulse-dot flex items-center justify-center">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
+              <div className="w-2.5 h-2.5 rounded-none bg-emerald-500 live-pulse-dot flex items-center justify-center">
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-none"></span>
               </div>
             </div>
 
             {/* Glowing animated colorful sine-wave nodes */}
-            <div className="relative h-28 w-full bg-black/40 rounded-2xl border border-white/5 flex flex-col items-center justify-center p-4">
+            <div className="relative h-28 w-full bg-black/40 rounded-none border border-white/5 flex flex-col items-center justify-center p-4">
               <svg className="absolute inset-0 w-full h-full" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                   <linearGradient id="waveGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" stopColor="#ff5500" stopOpacity="0.4" />
-                    <stop offset="50%" stopColor="#8A2BE2" stopOpacity="0.4" />
+                    <stop offset="0%" stopColor="#007aff" stopOpacity="0.4" />
+                    <stop offset="50%" stopColor="#00c6ff" stopOpacity="0.4" />
                     <stop offset="100%" stopColor="#00b4d8" stopOpacity="0.4" />
                   </linearGradient>
                   <linearGradient id="waveGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
                     <stop offset="0%" stopColor="#EC4899" stopOpacity="0.2" />
-                    <stop offset="50%" stopColor="#FF5500" stopOpacity="0.3" />
+                    <stop offset="50%" stopColor="#007aff" stopOpacity="0.3" />
                     <stop offset="100%" stopColor="#10B981" stopOpacity="0.2" />
                   </linearGradient>
                 </defs>
@@ -2827,8 +2867,8 @@ function SyncPlayerApp() {
                 <path d="M 10,50 Q 60,80 120,50 T 230,50" stroke="url(#waveGrad2)" strokeWidth="2" fill="none" className="animate-wave-2" />
                 
                 {/* Dots on wave peaks */}
-                <circle cx="65" cy="30" r="4" fill="#ff5500" className="animate-pulse" />
-                <circle cx="120" cy="50" r="4" fill="#8A2BE2" className="animate-pulse" />
+                <circle cx="65" cy="30" r="4" fill="#007aff" className="animate-pulse" />
+                <circle cx="120" cy="50" r="4" fill="#00c6ff" className="animate-pulse" />
                 <circle cx="175" cy="70" r="4" fill="#00b4d8" className="animate-pulse" />
               </svg>
               
@@ -2841,12 +2881,12 @@ function SyncPlayerApp() {
                     className="flex flex-col items-center gap-0.5 group cursor-pointer hover:scale-105 active:scale-95 transition-all outline-none"
                   >
                     <div
-                      className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center text-[10px] font-black text-black shadow-md shadow-black/50 overflow-hidden"
-                      style={{ backgroundColor: p.avatarColor || "#ff5500" }}
+                      className="w-7 h-7 rounded-none border border-white/20 flex items-center justify-center text-[10px] font-black text-black shadow-md shadow-black/50 overflow-hidden"
+                      style={{ backgroundColor: p.avatarColor || "#007aff" }}
                       title={p.username}
                     >
                       {p.avatarUrl && p.avatarUrl.startsWith("data:image") ? (
-                        <img src={p.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                        <img src={p.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-none" />
                       ) : p.avatarUrl ? (
                         <span className="text-sm">{p.avatarUrl}</span>
                       ) : (
@@ -2857,7 +2897,7 @@ function SyncPlayerApp() {
                   </button>
                 ))}
                 {participants.length > 4 && (
-                  <div className="w-7 h-7 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] font-bold text-zinc-400">
+                  <div className="w-7 h-7 rounded-none bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] font-bold text-zinc-400">
                     +{participants.length - 4}
                   </div>
                 )}
@@ -2866,22 +2906,22 @@ function SyncPlayerApp() {
           </div>
 
           {/* Personal Library Card (Saved Favorite tracks / SoundCloud accounts) */}
-          <div className="glass-panel p-6 rounded-xl text-left flex flex-col gap-4">
+          <div className="glass-panel p-6 rounded-none text-left flex flex-col gap-4">
             <div className="flex items-center justify-between pb-2 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <Music className="w-4 h-4 text-[#ff5500] animate-pulse" />
+                <Music className="w-4 h-4 text-[#007aff] animate-pulse" />
                 <h3 className="text-xs font-black uppercase tracking-widest text-white">Моя Медиатека</h3>
               </div>
-              <span className="text-[8px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2.5 py-1 rounded-md border border-[#ff5500]/25 shadow-sm">
+              <span className="text-[8px] uppercase font-black tracking-widest text-[#007aff] bg-[#007aff]/10 px-2.5 py-1 rounded-none border border-[#007aff]/25 shadow-sm">
                 SoundCloud
               </span>
             </div>
 
             {/* Gorgeous Segmented Tab Bar */}
-            <div className="grid grid-cols-3 bg-[#0e0e12] p-1 rounded-xl border border-white/5">
+            <div className="grid grid-cols-3 bg-[#0e0e12] p-1 rounded-none border border-white/5">
               <button
                 onClick={() => setActiveLibraryTab("favorites")}
-                className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
+                className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                   activeLibraryTab === "favorites"
                     ? "bg-white/10 text-white shadow-md border border-white/5"
                     : "text-zinc-550 hover:text-zinc-300"
@@ -2891,7 +2931,7 @@ function SyncPlayerApp() {
               </button>
               <button
                 onClick={() => setActiveLibraryTab("playlist")}
-                className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
+                className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                   activeLibraryTab === "playlist"
                     ? "bg-white/10 text-white shadow-md border border-white/5"
                     : "text-zinc-550 hover:text-zinc-300"
@@ -2901,7 +2941,7 @@ function SyncPlayerApp() {
               </button>
               <button
                 onClick={() => setActiveLibraryTab("bulk")}
-                className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
+                className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                   activeLibraryTab === "bulk"
                     ? "bg-white/10 text-white shadow-md border border-white/5"
                     : "text-zinc-550 hover:text-zinc-300"
@@ -2926,15 +2966,15 @@ function SyncPlayerApp() {
                     value={newPersonalUrl}
                     onChange={(e) => setNewPersonalUrl(e.target.value)}
                     disabled={addingPersonal}
-                    className="flex-1 bg-black/60 border border-white/8 rounded-xl px-3.5 py-3 text-xs text-zinc-250 placeholder:text-zinc-650 focus:outline-none focus:border-[#ff5500] transition-colors"
+                    className="flex-1 bg-black/60 border border-white/8 rounded-none px-3.5 py-3 text-xs text-zinc-250 placeholder:text-zinc-650 focus:outline-none focus:border-[#007aff] transition-colors"
                   />
                   <button
                     type="submit"
                     disabled={!newPersonalUrl.trim() || addingPersonal}
-                    className="p-3 bg-white hover:bg-[#ff5500] text-black hover:text-white active:scale-[0.98] disabled:opacity-30 rounded-xl transition-all flex items-center justify-center cursor-pointer flex-shrink-0"
+                    className="p-3 bg-white hover:bg-[#007aff] text-black hover:text-white active:scale-[0.98] disabled:opacity-30 rounded-none transition-all flex items-center justify-center cursor-pointer flex-shrink-0"
                   >
                     {addingPersonal ? (
-                      <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                      <div className="w-3.5 h-3.5 rounded-none border-2 border-black border-r-transparent animate-spin"></div>
                     ) : (
                       <Plus className="w-4 h-4 stroke-[3]" />
                     )}
@@ -2943,7 +2983,7 @@ function SyncPlayerApp() {
 
                 {/* Scrollable Favorites list */}
                 {personalLibrary.length === 0 ? (
-                  <div className="w-full py-8 bg-black/20 border border-dashed border-white/5 rounded-xl flex flex-col items-center justify-center gap-2 px-4 text-center">
+                  <div className="w-full py-8 bg-black/20 border border-dashed border-white/5 rounded-none flex flex-col items-center justify-center gap-2 px-4 text-center">
                     <p className="text-zinc-600 text-[10px] leading-normal font-medium">Медиатека пуста. Добавьте трек выше или импортируйте плейлист!</p>
                   </div>
                 ) : (
@@ -2951,15 +2991,15 @@ function SyncPlayerApp() {
                     {personalLibrary.map((track, idx) => (
                       <div
                         key={track.id}
-                        className="w-full p-2.5 bg-black/30 border border-white/5 hover:border-[#ff5500]/25 rounded-xl flex items-center gap-3 transition-all duration-300 hover:bg-black/55 group/track"
+                        className="w-full p-2.5 bg-black/30 border border-white/5 hover:border-[#007aff]/25 rounded-none flex items-center gap-3 transition-all duration-300 hover:bg-black/55 group/track"
                       >
                         {/* Index Number */}
-                        <span className="text-[9px] font-mono font-bold text-zinc-650 group-hover/track:text-[#ff5500] transition-colors pl-1">
+                        <span className="text-[9px] font-mono font-bold text-zinc-650 group-hover/track:text-[#007aff] transition-colors pl-1">
                           {String(idx + 1).padStart(2, '0')}
                         </span>
                         
                         {/* Thumbnail with slight zoom effect */}
-                        <div className="w-9 h-9 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center relative">
+                        <div className="w-9 h-9 rounded-none bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center relative">
                           {track.thumbnail ? (
                             <img src={track.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover/track:scale-110" />
                           ) : (
@@ -2973,28 +3013,28 @@ function SyncPlayerApp() {
                           <p className="text-[11px] font-black text-zinc-350 uppercase tracking-tight truncate group-hover/track:text-white transition-colors" title={track.title}>
                             {track.title}
                           </p>
-                          <span className="text-[7.5px] text-[#ff5500]/65 font-bold uppercase tracking-widest mt-0.5">SoundCloud</span>
+                          <span className="text-[7.5px] text-[#007aff]/65 font-bold uppercase tracking-widest mt-0.5">SoundCloud</span>
                         </div>
 
                         {/* Action buttons */}
                         <div className="flex items-center gap-1.5 flex-shrink-0">
                           <button
                             onClick={(e) => handlePlayPersonalTrackNow(track, e)}
-                            className="w-7 h-7 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black flex items-center justify-center transition-all duration-300 cursor-pointer shadow-[0_2px_8px_rgba(16,185,129,0.05)] active:scale-90"
+                            className="w-7 h-7 rounded-none bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black flex items-center justify-center transition-all duration-300 cursor-pointer shadow-[0_2px_8px_rgba(16,185,129,0.05)] active:scale-90"
                             title="Запустить сейчас для всех"
                           >
                             <Play className="w-3 h-3 fill-current" />
                           </button>
                           <button
                             onClick={(e) => handleQueuePersonalTrack(track, e)}
-                            className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white hover:text-black text-zinc-400 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
+                            className="w-7 h-7 rounded-none bg-white/5 hover:bg-white hover:text-black text-zinc-400 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                             title="Добавить в очередь"
                           >
                             <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                           </button>
                           <button
                             onClick={(e) => handleDeletePersonalTrack(track.id, e)}
-                            className="w-7 h-7 rounded-lg bg-red-500/5 hover:bg-red-500/90 text-zinc-600 hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
+                            className="w-7 h-7 rounded-none bg-red-500/5 hover:bg-red-500/90 text-zinc-600 hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                             title="Удалить из медиатеки"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -3007,7 +3047,7 @@ function SyncPlayerApp() {
                 {personalLibrary.length > 0 && (
                   <div className="flex justify-between items-center text-[8.5px] text-zinc-600 font-mono uppercase tracking-widest pt-1 px-1">
                     <span>Всего резидентом сохранено</span>
-                    <span className="font-extrabold text-[#ff5500]">{personalLibrary.length} треков</span>
+                    <span className="font-extrabold text-[#007aff]">{personalLibrary.length} треков</span>
                   </div>
                 )}
               </>
@@ -3028,15 +3068,15 @@ function SyncPlayerApp() {
                       value={importUrl}
                       onChange={(e) => setImportUrl(e.target.value)}
                       disabled={importingPlaylist}
-                      className="flex-1 bg-black/60 border border-white/8 rounded-2xl px-3 py-2.5 text-[10px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors"
+                      className="flex-1 bg-black/60 border border-white/8 rounded-none px-3 py-2.5 text-[10px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#007aff] transition-colors"
                     />
                     <button
                       type="submit"
                       disabled={!importUrl.trim() || importingPlaylist}
-                      className="px-4 py-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-2xl font-bold text-[10px] uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer"
+                      className="px-4 py-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-none font-bold text-[10px] uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer"
                     >
                       {importingPlaylist ? (
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                        <div className="w-3.5 h-3.5 rounded-none border-2 border-black border-r-transparent animate-spin"></div>
                       ) : (
                         "Импорт"
                       )}
@@ -3045,15 +3085,15 @@ function SyncPlayerApp() {
                 </form>
 
                 {importingPlaylist && (
-                  <div className="w-full p-4 bg-[#ff5500]/5 border border-[#ff5500]/10 rounded-2xl flex items-center justify-center gap-3">
-                    <div className="w-4 h-4 rounded-full border-2 border-[#ff5500] border-r-transparent animate-spin"></div>
-                    <span className="text-[10px] font-bold text-[#ff5500] tracking-wide animate-pulse uppercase">
+                  <div className="w-full p-4 bg-[#007aff]/5 border border-[#007aff]/10 rounded-none flex items-center justify-center gap-3">
+                    <div className="w-4 h-4 rounded-none border-2 border-[#007aff] border-r-transparent animate-spin"></div>
+                    <span className="text-[10px] font-bold text-[#007aff] tracking-wide animate-pulse uppercase">
                       Разбираем плейлист, пожалуйста подождите...
                     </span>
                   </div>
                 )}
 
-                <div className="p-3 bg-black/20 rounded-2xl border border-white/5 flex flex-col gap-1.5">
+                <div className="p-3 bg-black/20 rounded-none border border-white/5 flex flex-col gap-1.5">
                   <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Как импортировать Лайки?</span>
                   <p className="text-[9px] text-zinc-500 leading-normal">
                     1. Перейдите в SoundCloud, зайдите во вкладку <span className="text-zinc-300">Likes</span>.<br />
@@ -3078,15 +3118,15 @@ function SyncPlayerApp() {
                     value={bulkText}
                     onChange={(e) => setBulkText(e.target.value)}
                     disabled={importingBulk}
-                    className="w-full bg-black/60 border border-white/8 rounded-2xl p-3 text-[10px] text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-[#ff5500] transition-colors resize-none leading-normal"
+                    className="w-full bg-black/60 border border-white/8 rounded-none p-3 text-[10px] text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-[#007aff] transition-colors resize-none leading-normal"
                   />
                   <button
                     type="submit"
                     disabled={!bulkText.trim() || importingBulk}
-                    className="w-full py-3 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-2xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center cursor-pointer"
+                    className="w-full py-3 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-none font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center cursor-pointer"
                   >
                     {importingBulk ? (
-                      <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                      <div className="w-3.5 h-3.5 rounded-none border-2 border-black border-r-transparent animate-spin"></div>
                     ) : (
                       "Импортировать список"
                     )}
@@ -3102,11 +3142,11 @@ function SyncPlayerApp() {
         <div className="col-span-1 lg:col-span-5 flex flex-col gap-6">
           
           {/* Main Visual Artwork Card (Static) */}
-          <div className="glass-panel p-6 rounded-xl flex flex-col shadow-2xl relative">
+          <div className="glass-panel p-6 rounded-none flex flex-col shadow-2xl relative">
             
             {/* Album Cover Container (Static) */}
             <div 
-              className={`relative w-full aspect-square bg-zinc-950/60 rounded-lg border border-white/5 overflow-hidden flex items-center justify-center group mb-6 transition-all duration-500 animate-beat`}
+              className={`relative w-full aspect-square bg-zinc-950/60 rounded-none border border-white/5 overflow-hidden flex items-center justify-center group mb-6 transition-all duration-500 animate-beat`}
             >
               {currentTrack && currentTrack.thumbnail ? (
                 <img
@@ -3116,7 +3156,7 @@ function SyncPlayerApp() {
                 />
               ) : (
                 <div className="flex flex-col items-center gap-4 text-zinc-600 animate-pulse">
-                  <div className="w-16 h-16 rounded-full border border-dashed border-zinc-700 flex items-center justify-center">
+                  <div className="w-16 h-16 rounded-none border border-dashed border-zinc-700 flex items-center justify-center">
                     <Music className="w-8 h-8 text-zinc-500" />
                   </div>
                   <span className="text-xs uppercase tracking-widest font-semibold">Очередь пуста</span>
@@ -3127,7 +3167,7 @@ function SyncPlayerApp() {
               {currentTrack && (
                 <button
                   onClick={() => setIsHearted(!isHearted)}
-                  className="absolute top-4 right-4 w-9 h-9 bg-black/60 backdrop-blur-md rounded-full flex items-center justify-center border border-white/10 hover:border-red-500/40 text-zinc-300 hover:text-red-500 active:scale-90 transition-all cursor-pointer z-20"
+                  className="absolute top-4 right-4 w-9 h-9 bg-black/60 backdrop-blur-md rounded-none flex items-center justify-center border border-white/10 hover:border-red-500/40 text-zinc-300 hover:text-red-500 active:scale-90 transition-all cursor-pointer z-20"
                 >
                   <Heart className={`w-4.5 h-4.5 ${isHearted ? "fill-red-500 text-red-500" : ""}`} />
                 </button>
@@ -3145,7 +3185,7 @@ function SyncPlayerApp() {
                 </span>
               </div>
               <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-[9px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2.5 py-1.5 rounded-full border border-[#ff5500]/15">
+                <span className="text-[9px] uppercase font-black tracking-widest text-[#007aff] bg-[#007aff]/10 px-2.5 py-1.5 rounded-none border border-[#007aff]/15">
                   {isPlaying ? "Live" : "Pause"}
                 </span>
               </div>
@@ -3154,7 +3194,7 @@ function SyncPlayerApp() {
           </div>
 
           {/* Add Track Input glass-form */}
-          <div className="glass-panel p-5 rounded-xl flex flex-col gap-3">
+          <div className="glass-panel p-5 rounded-none flex flex-col gap-3">
             <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-400 text-left pl-1">Добавить новый трек</h3>
             <form onSubmit={handleAddTrack} className="w-full flex gap-2">
               <input
@@ -3163,15 +3203,15 @@ function SyncPlayerApp() {
                 value={newTrackUrl}
                 onChange={(e) => setNewTrackUrl(e.target.value)}
                 disabled={addingTrack}
-                className="flex-1 bg-black/60 border border-white/8 rounded-lg px-4 py-3.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors disabled:opacity-50"
+                className="flex-1 bg-black/60 border border-white/8 rounded-none px-4 py-3.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#007aff] transition-colors disabled:opacity-50"
               />
               <button
                 type="submit"
                 disabled={!newTrackUrl.trim() || addingTrack}
-                className="p-3.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none rounded-2xl transition-all flex items-center justify-center cursor-pointer"
+                className="p-3.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none rounded-none transition-all flex items-center justify-center cursor-pointer"
               >
                 {addingTrack ? (
-                  <div className="w-4 h-4 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                  <div className="w-4 h-4 rounded-none border-2 border-black border-r-transparent animate-spin"></div>
                 ) : (
                   <Plus className="w-4 h-4" />
                 )}
@@ -3180,16 +3220,16 @@ function SyncPlayerApp() {
           </div>
 
           {/* Playlist Queue Section (Under Player) */}
-          <div className="glass-panel p-6 rounded-xl flex flex-col gap-4">
+          <div className="glass-panel p-6 rounded-none flex flex-col gap-4">
             <div className="flex items-center gap-2">
-              <List className="w-4 h-4 text-[#ff5500]" />
+              <List className="w-4 h-4 text-[#007aff]" />
               <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-400">
                 Очередь воспроизведения ({playlist.length})
               </h3>
             </div>
 
             {playlist.length === 0 ? (
-              <div className="w-full py-10 bg-black/20 border border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-3 px-6 text-center">
+              <div className="w-full py-10 bg-black/20 border border-dashed border-white/5 rounded-none flex flex-col items-center justify-center gap-3 px-6 text-center">
                 <Music className="w-6 h-6 text-zinc-700 animate-bounce" />
                 <p className="text-zinc-500 text-xs font-semibold">Очередь пуста</p>
                 <p className="text-zinc-600 text-[10px] max-w-[200px]">
@@ -3204,14 +3244,14 @@ function SyncPlayerApp() {
                     <div
                       key={track.id}
                       onClick={() => playTrack(track)}
-                      className={`w-full p-2.5 bg-black/30 hover:bg-zinc-900/50 border rounded-2xl flex items-center gap-3 cursor-pointer transition-all ${
+                      className={`w-full p-2.5 bg-black/30 hover:bg-zinc-900/50 border rounded-none flex items-center gap-3 cursor-pointer transition-all ${
                         isCurrent
-                          ? "border-[#ff5500]/40 bg-black/60 shadow-md shadow-[#ff5500]/5"
+                          ? "border-[#007aff]/40 bg-black/60 shadow-md shadow-[#007aff]/5"
                           : "border-white/5 hover:border-white/10"
                       }`}
                     >
                       {/* Track Thumbnail */}
-                      <div className="relative w-9 h-9 rounded-xl bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                      <div className="relative w-9 h-9 rounded-none bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
                         {track.thumbnail ? (
                           <img
                             src={track.thumbnail}
@@ -3224,9 +3264,9 @@ function SyncPlayerApp() {
                         {isCurrent && isPlaying && (
                           <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                             <div className="flex gap-0.5 items-end h-2.5 w-3.5">
-                              <span className="w-0.5 bg-[#ff5500] rounded-full animate-bounce h-2" style={{ animationDelay: '0.1s' }}></span>
-                              <span className="w-0.5 bg-[#ff5500] rounded-full animate-bounce h-3" style={{ animationDelay: '0.3s' }}></span>
-                              <span className="w-0.5 bg-[#ff5500] rounded-full animate-bounce h-1" style={{ animationDelay: '0.5s' }}></span>
+                              <span className="w-0.5 bg-[#007aff] rounded-none animate-bounce h-2" style={{ animationDelay: '0.1s' }}></span>
+                              <span className="w-0.5 bg-[#007aff] rounded-none animate-bounce h-3" style={{ animationDelay: '0.3s' }}></span>
+                              <span className="w-0.5 bg-[#007aff] rounded-none animate-bounce h-1" style={{ animationDelay: '0.5s' }}></span>
                             </div>
                           </div>
                         )}
@@ -3237,7 +3277,7 @@ function SyncPlayerApp() {
                         <p className={`text-xs font-bold truncate ${isCurrent ? "text-white" : "text-zinc-300"}`}>
                           {track.title}
                         </p>
-                        <p className="text-[9px] text-[#ff5500] font-semibold mt-0.5 uppercase tracking-wider">
+                        <p className="text-[9px] text-[#007aff] font-semibold mt-0.5 uppercase tracking-wider">
                           Трек #{idx + 1}
                         </p>
                       </div>
@@ -3245,17 +3285,17 @@ function SyncPlayerApp() {
                       {/* Play Action / Delete */}
                       <div className="flex items-center gap-1.5">
                         {isCurrent ? (
-                          <span className="text-[8px] uppercase font-extrabold tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2 py-1 rounded-md border border-[#ff5500]/20">
+                          <span className="text-[8px] uppercase font-extrabold tracking-widest text-[#007aff] bg-[#007aff]/10 px-2 py-1 rounded-none border border-[#007aff]/20">
                             Эфир
                           </span>
                         ) : (
-                          <button className="p-1.5 hover:bg-white/5 rounded-lg transition-colors">
+                          <button className="p-1.5 hover:bg-white/5 rounded-none transition-colors">
                             <Play className="w-3 h-3 text-zinc-500 hover:text-white" />
                           </button>
                         )}
                         <button
                           onClick={(e) => handleDeleteTrack(track.id, e)}
-                          className="p-1.5 hover:bg-red-500/10 rounded-lg transition-colors group"
+                          className="p-1.5 hover:bg-red-500/10 rounded-none transition-colors group"
                           title="Удалить из очереди"
                         >
                           <Trash2 className="w-3 h-3 text-zinc-600 group-hover:text-red-500 transition-colors" />
@@ -3274,13 +3314,13 @@ function SyncPlayerApp() {
         <div className="col-span-1 lg:col-span-4 flex flex-col gap-6 h-full lg:sticky lg:top-[90px]">
           
           {/* Real-time Session Chat Card */}
-          <div className="glass-panel p-6 rounded-xl flex flex-col min-h-[360px] h-[400px] shadow-2xl relative">
+          <div className="glass-panel p-6 rounded-none flex flex-col min-h-[360px] h-[400px] shadow-2xl relative">
             <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-4">
               <div className="flex items-center gap-2">
-                <MessageSquare className="w-4 h-4 text-[#ff5500]" />
+                <MessageSquare className="w-4 h-4 text-[#007aff]" />
                 <h3 className="text-sm font-bold">Session Chat</h3>
               </div>
-              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+              <span className="w-1.5 h-1.5 bg-emerald-500 rounded-none"></span>
             </div>
 
             {/* Messages body scrolling */}
@@ -3305,8 +3345,8 @@ function SyncPlayerApp() {
                   }}
                 >
                   <div
-                    className="w-7 h-7 rounded-md flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 mt-0.5 overflow-hidden transition-transform group-hover:scale-105 border border-white/5"
-                    style={{ backgroundColor: msg.avatarColor || "#ff5500" }}
+                    className="w-7 h-7 rounded-none flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 mt-0.5 overflow-hidden transition-transform group-hover:scale-105 border border-white/5"
+                    style={{ backgroundColor: msg.avatarColor || "#007aff" }}
                   >
                     {msg.avatarUrl && msg.avatarUrl.startsWith("data:image") ? (
                       <img src={msg.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-none" />
@@ -3318,15 +3358,15 @@ function SyncPlayerApp() {
                   </div>
                   <div className="flex flex-col min-w-0 leading-tight">
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-[10px] font-bold text-zinc-300 group-hover:text-[#ff5500] transition-colors">{msg.username}</span>
+                      <span className="text-[10px] font-bold text-zinc-300 group-hover:text-[#007aff] transition-colors">{msg.username}</span>
                       {msg.customBadge && (
-                        <span className="px-1.5 py-0.5 rounded-[3px] bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/20 text-[6px] font-black uppercase tracking-wider scale-90 origin-left">
+                        <span className="px-1.5 py-0.5 rounded-[3px] bg-[#007aff]/10 text-[#007aff] border border-[#007aff]/20 text-[6px] font-black uppercase tracking-wider scale-90 origin-left">
                           {msg.customBadge}
                         </span>
                       )}
                       <span className="text-[8px] text-zinc-600 font-medium">{msg.timestamp}</span>
                     </div>
-                    <div className={`mt-1.5 px-3.5 py-2.5 rounded-2xl text-[11px] leading-relaxed break-words ${msg.isSystem ? "bg-white/5 border border-white/5 text-zinc-400 italic" : "bg-black/40 border border-white/5 text-white"}`}>
+                    <div className={`mt-1.5 px-3.5 py-2.5 rounded-none text-[11px] leading-relaxed break-words ${msg.isSystem ? "bg-white/5 border border-white/5 text-zinc-400 italic" : "bg-black/40 border border-white/5 text-white"}`}>
                       {msg.text}
                     </div>
                   </div>
@@ -3341,12 +3381,12 @@ function SyncPlayerApp() {
                 placeholder="Напишите сообщение..."
                 value={newChatMessage}
                 onChange={(e) => setNewChatMessage(e.target.value)}
-                className="flex-1 bg-black/60 border border-white/8 rounded-2xl px-4 py-3.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors"
+                className="flex-1 bg-black/60 border border-white/8 rounded-none px-4 py-3.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#007aff] transition-colors"
               />
               <button
                 type="submit"
                 disabled={!newChatMessage.trim()}
-                className="p-3 bg-white text-black hover:bg-[#ff5500] hover:text-white active:scale-95 disabled:opacity-30 disabled:pointer-events-none rounded-2xl transition-all flex items-center justify-center cursor-pointer"
+                className="p-3 bg-white text-black hover:bg-[#007aff] hover:text-white active:scale-95 disabled:opacity-30 disabled:pointer-events-none rounded-none transition-all flex items-center justify-center cursor-pointer"
               >
                 <Send className="w-3.5 h-3.5" />
               </button>
@@ -3354,10 +3394,10 @@ function SyncPlayerApp() {
           </div>
 
           {/* Active Participants List */}
-          <div className="glass-panel p-6 rounded-xl flex flex-col gap-4 text-left shadow-2xl">
+          <div className="glass-panel p-6 rounded-none flex flex-col gap-4 text-left shadow-2xl">
             <div className="flex items-center justify-between pb-2 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <Users className="w-4 h-4 text-[#ff5500]" />
+                <Users className="w-4 h-4 text-[#007aff]" />
                 <h3 className="text-sm font-bold">Participants</h3>
               </div>
               <span className="text-[10px] text-zinc-500 font-bold">{participants.length}</span>
@@ -3368,13 +3408,13 @@ function SyncPlayerApp() {
                 <div 
                   key={idx} 
                   onClick={() => setSelectedUserProfile(p)}
-                  className="w-full p-2.5 bg-black/30 border border-[#ff5500]/10 rounded-xl flex items-center justify-between hover:bg-white/5 cursor-pointer transition-all active:scale-[0.99] select-none"
+                  className="w-full p-2.5 bg-black/30 border border-[#007aff]/10 rounded-none flex items-center justify-between hover:bg-white/5 cursor-pointer transition-all active:scale-[0.99] select-none"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {/* Avatar */}
                     <div
-                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black text-black flex-shrink-0 overflow-hidden border border-white/5"
-                      style={{ backgroundColor: p.avatarColor || "#ff5500" }}
+                      className="w-8 h-8 rounded-none flex items-center justify-center text-xs font-black text-black flex-shrink-0 overflow-hidden border border-white/5"
+                      style={{ backgroundColor: p.avatarColor || "#007aff" }}
                     >
                       {p.avatarUrl && p.avatarUrl.startsWith("data:image") ? (
                         <img src={p.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-none" />
@@ -3389,7 +3429,7 @@ function SyncPlayerApp() {
                       <div className="flex items-center gap-1.5 min-w-0">
                         <span className="text-xs font-bold text-white truncate max-w-[80px]">{p.username}</span>
                         {p.customBadge && (
-                          <span className="px-1 py-0.5 rounded-[3px] bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/25 text-[6.5px] font-black uppercase tracking-wider scale-90 origin-left flex-shrink-0">
+                          <span className="px-1 py-0.5 rounded-[3px] bg-[#007aff]/10 text-[#007aff] border border-[#007aff]/25 text-[6.5px] font-black uppercase tracking-wider scale-90 origin-left flex-shrink-0">
                             {p.customBadge}
                           </span>
                         )}
@@ -3416,7 +3456,7 @@ function SyncPlayerApp() {
           /* Landing/Idle Inactive State */
           <div className="w-full flex items-center justify-between gap-4 px-2 text-left">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-white/5 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-none bg-zinc-950 border border-white/5 flex items-center justify-center flex-shrink-0">
                 <Radio className="w-5 h-5 text-zinc-650 animate-pulse" />
               </div>
               <div className="flex flex-col min-w-0">
@@ -3429,7 +3469,7 @@ function SyncPlayerApp() {
             </div>
             <button 
               onClick={handleCreateRoomAction}
-              className="px-4 py-2.5 bg-white text-black hover:bg-[#ff3366] hover:text-white rounded-full text-[9px] font-black uppercase tracking-widest transition-all active:scale-[0.98] cursor-pointer"
+              className="px-4 py-2.5 bg-white text-black hover:bg-[#ff3366] hover:text-white rounded-none text-[9px] font-black uppercase tracking-widest transition-all active:scale-[0.98] cursor-pointer"
             >
               Создать сессию
             </button>
@@ -3439,7 +3479,7 @@ function SyncPlayerApp() {
           <div className="w-full grid grid-cols-12 items-center gap-4 px-2">
             {/* LEFT SECTION (3/12 cols): Track details & Like */}
             <div className="col-span-4 lg:col-span-3 flex items-center gap-3 min-w-0 text-left">
-              <div className="w-10 h-10 rounded-xl bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
+              <div className="w-10 h-10 rounded-none bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
                 {currentTrack && currentTrack.thumbnail ? (
                   <img src={currentTrack.thumbnail} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -3457,7 +3497,7 @@ function SyncPlayerApp() {
               {currentTrack && (
                 <button
                   onClick={() => setIsHearted(!isHearted)}
-                  className="p-1 hover:bg-white/5 rounded-full text-zinc-400 hover:text-red-500 transition-colors cursor-pointer flex-shrink-0"
+                  className="p-1 hover:bg-white/5 rounded-none text-zinc-400 hover:text-red-500 transition-colors cursor-pointer flex-shrink-0"
                 >
                   <Heart className={`w-3.5 h-3.5 ${isHearted ? "fill-red-500 text-red-500" : ""}`} />
                 </button>
@@ -3489,7 +3529,7 @@ function SyncPlayerApp() {
                 <button
                   onClick={handlePlayPauseToggle}
                   disabled={!currentTrack}
-                  className="w-9 h-9 bg-white hover:bg-zinc-200 disabled:opacity-40 disabled:pointer-events-none active:scale-95 text-black rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer flex-shrink-0"
+                  className="w-9 h-9 bg-white hover:bg-zinc-200 disabled:opacity-40 disabled:pointer-events-none active:scale-95 text-black rounded-none flex items-center justify-center shadow-md transition-all cursor-pointer flex-shrink-0"
                   title={isPlaying ? "Пауза" : "Воспроизвести"}
                 >
                   {isPlaying ? (
@@ -3510,7 +3550,7 @@ function SyncPlayerApp() {
 
                 <button
                   onClick={() => setIsRepeat(!isRepeat)}
-                  className={`p-1 rounded transition-colors cursor-pointer ${isRepeat ? "text-[#ff5500]" : "text-zinc-500 hover:text-white"}`}
+                  className={`p-1 rounded transition-colors cursor-pointer ${isRepeat ? "text-[#007aff]" : "text-zinc-500 hover:text-white"}`}
                   title="Повторять трек"
                 >
                   <Repeat className="w-4 h-4" />
@@ -3529,7 +3569,7 @@ function SyncPlayerApp() {
                   value={progressMs}
                   onChange={handleSeek}
                   disabled={!currentTrack}
-                  className="flex-1 cursor-pointer accent-[#ff5500] h-1 bg-white/10 rounded-full"
+                  className="flex-1 cursor-pointer accent-[#007aff] h-1 bg-white/10 rounded-none"
                 />
                 <span className="text-[9px] font-mono text-zinc-500 min-w-[28px] text-left">
                   {formatTime(durationMs)}
@@ -3540,7 +3580,7 @@ function SyncPlayerApp() {
             {/* RIGHT SECTION (3/12 cols): Volume & Latency/Presence status */}
             <div className="col-span-3 lg:col-span-3 flex items-center justify-end gap-4">
               {/* Volume block */}
-              <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border border-white/5 max-w-[140px] w-full">
+              <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-none border border-white/5 max-w-[140px] w-full">
                 <button
                   onClick={toggleMute}
                   className="text-zinc-400 hover:text-white transition-colors cursor-pointer flex-shrink-0"
@@ -3558,7 +3598,7 @@ function SyncPlayerApp() {
               </div>
 
               {/* Room indicator status */}
-              <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-emerald-400">
+              <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500/10 border border-emerald-500/20 rounded-none text-emerald-400">
                 <Wifi className="w-3 h-3 animate-pulse" />
                 <span className="text-[9px] font-bold uppercase tracking-wider">Sync</span>
               </div>
@@ -3605,7 +3645,7 @@ function SyncPlayerApp() {
       {/* ==================== SUPABASE AUTH MODAL ==================== */}
       {showAuthModal && (
         <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 select-text">
-          <div className="w-full max-w-sm glass-panel p-8 rounded-[36px] border-white/10 shadow-2xl relative flex flex-col gap-6">
+          <div className="w-full max-w-sm glass-panel p-8 rounded-none border-white/10 shadow-2xl relative flex flex-col gap-6">
             <button
               onClick={() => setShowAuthModal(false)}
               className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors cursor-pointer text-sm font-bold"
@@ -3625,10 +3665,10 @@ function SyncPlayerApp() {
             </div>
 
             {/* Segmented Modal Tabs */}
-            <div className="grid grid-cols-2 bg-black/40 p-1 rounded-2xl border border-white/5">
+            <div className="grid grid-cols-2 bg-black/40 p-1 rounded-none border border-white/5">
               <button
                 onClick={() => { setAuthTab("login"); setAuthError(""); }}
-                className={`py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                className={`py-2 rounded-none text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                   authTab === "login"
                     ? "bg-white/10 text-white shadow-sm border border-white/5"
                     : "text-zinc-500 hover:text-zinc-300"
@@ -3638,7 +3678,7 @@ function SyncPlayerApp() {
               </button>
               <button
                 onClick={() => { setAuthTab("register"); setAuthError(""); }}
-                className={`py-2 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                className={`py-2 rounded-none text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
                   authTab === "register"
                     ? "bg-white/10 text-white shadow-sm border border-white/5"
                     : "text-zinc-500 hover:text-zinc-300"
@@ -3656,7 +3696,7 @@ function SyncPlayerApp() {
                   placeholder="name@example.com"
                   value={authEmail}
                   onChange={(e) => setAuthEmail(e.target.value)}
-                  className="w-full bg-black/60 border border-white/8 rounded-2xl px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#ff5500] transition-all"
+                  className="w-full bg-black/60 border border-white/8 rounded-none px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#007aff] transition-all"
                   required
                 />
               </div>
@@ -3668,7 +3708,7 @@ function SyncPlayerApp() {
                   placeholder="••••••••"
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
-                  className="w-full bg-black/60 border border-white/8 rounded-2xl px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#ff5500] transition-all"
+                  className="w-full bg-black/60 border border-white/8 rounded-none px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#007aff] transition-all"
                   required
                 />
               </div>
@@ -3682,7 +3722,7 @@ function SyncPlayerApp() {
               <button
                 type="submit"
                 disabled={authLoading}
-                className="w-full py-4 bg-white text-black font-extrabold text-xs uppercase tracking-widest rounded-2xl transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer mt-2"
+                className="w-full py-4 bg-white text-black font-extrabold text-xs uppercase tracking-widest rounded-none transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer mt-2"
               >
                 {authLoading ? "Пожалуйста, подождите..." : authTab === "login" ? "Войти" : "Зарегистрироваться"}
               </button>
@@ -3716,21 +3756,21 @@ function SyncPlayerApp() {
         <div className="fixed inset-0 z-55 bg-[#020204] text-white flex flex-col overflow-y-auto select-text animate-fadeIn pb-16">
           
           {/* Dynamic Background Glowing elements */}
-          <div className="absolute top-[20%] left-[-10%] w-[50%] h-[50%] bg-[#ff5500]/5 rounded-full blur-[160px] pointer-events-none z-0"></div>
-          <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/4 rounded-full blur-[160px] pointer-events-none z-0"></div>
+          <div className="absolute top-[20%] left-[-10%] w-[50%] h-[50%] bg-[#007aff]/5 rounded-none blur-[160px] pointer-events-none z-0"></div>
+          <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/4 rounded-none blur-[160px] pointer-events-none z-0"></div>
 
           {/* 1. Page-Wide Hero Banner (Stretches 100% Edge-to-Edge) */}
           <div 
-            className="w-full h-[280px] md:h-[380px] relative transition-all duration-500 border-b border-[#ff5500]/25 shadow-2xl flex-shrink-0"
+            className="w-full h-[280px] md:h-[380px] relative transition-all duration-500 border-b border-[#007aff]/25 shadow-2xl flex-shrink-0"
             style={getBannerStyle(selectedUserProfile.bannerUrl)}
           >
             <div className="absolute inset-0 bg-gradient-to-t from-[#020204] via-[#020204]/30 to-transparent"></div>
             
             {/* Embedded Floating Transparent Navbar */}
             <div className="absolute top-0 left-0 right-0 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between z-20">
-              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3.5 py-2 border border-white/5 rounded-xl">
+              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3.5 py-2 border border-white/5 rounded-none">
                 <span className="text-xl font-black tracking-tighter text-white">xyi</span>
-                <span className="w-4 h-4 rounded bg-[#ff5500] flex items-center justify-center text-[8px] font-black text-black select-none">▶</span>
+                <span className="w-4 h-4 rounded bg-[#007aff] flex items-center justify-center text-[8px] font-black text-black select-none">▶</span>
                 <span className="text-[9px] text-zinc-500 font-mono uppercase tracking-widest pl-2 border-l border-white/10">Профиль резидента</span>
               </div>
 
@@ -3742,14 +3782,14 @@ function SyncPlayerApp() {
                       alert("Ссылка на профиль резидента скопирована!");
                     }
                   }}
-                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#ff5500]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#007aff]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-none transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   <Copy className="w-3.5 h-3.5" />
                   Ссылка
                 </button>
                 <button
                   onClick={() => setSelectedUserProfile(null)}
-                  className="px-5 py-2.5 bg-white text-black hover:bg-[#ff5500] hover:text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg active:scale-95"
+                  className="px-5 py-2.5 bg-white text-black hover:bg-[#007aff] hover:text-white text-[10px] font-black uppercase tracking-wider rounded-none transition-all cursor-pointer shadow-lg active:scale-95"
                 >
                   Вернуться в плеер ✕
                 </button>
@@ -3768,8 +3808,8 @@ function SyncPlayerApp() {
               
               {/* Massive Custom Strict Avatar (Rounded Square!) */}
               <div 
-                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-4 border-[#020204] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden bg-zinc-950 flex-shrink-0"
-                style={{ backgroundColor: selectedUserProfile.avatarColor || "#ff5500" }}
+                className="w-32 h-32 md:w-40 md:h-40 rounded-none border-4 border-[#020204] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden bg-zinc-950 flex-shrink-0"
+                style={{ backgroundColor: selectedUserProfile.avatarColor || "#007aff" }}
               >
                 {selectedUserProfile.avatarUrl && selectedUserProfile.avatarUrl.startsWith("data:image") ? (
                   <img src={selectedUserProfile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
@@ -3778,7 +3818,7 @@ function SyncPlayerApp() {
                 )}
                 
                 {/* Active Tech Indicator */}
-                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#020204] live-pulse-dot shadow-md"></div>
+                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-none bg-emerald-500 border-2 border-[#020204] live-pulse-dot shadow-md"></div>
               </div>
 
               {/* Text Meta Info */}
@@ -3788,7 +3828,7 @@ function SyncPlayerApp() {
                     {selectedUserProfile.username || "Guest"}
                   </h1>
                   {selectedUserProfile.customBadge && (
-                    <span className="px-3 py-1 bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/25 text-[9px] font-black uppercase tracking-widest rounded-md shadow-sm">
+                    <span className="px-3 py-1 bg-[#007aff]/10 text-[#007aff] border border-[#007aff]/25 text-[9px] font-black uppercase tracking-widest rounded-none shadow-sm">
                       {selectedUserProfile.customBadge}
                     </span>
                   )}
@@ -3804,11 +3844,11 @@ function SyncPlayerApp() {
               
               {/* Left Bio and Status Column (8/12 cols) */}
               <div className="lg:col-span-8 flex flex-col gap-6 w-full">
-                <div className="glass-panel p-8 rounded-xl text-left flex flex-col gap-4 border-[#ff5500]/10 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff5500]/2 rounded-full blur-2xl pointer-events-none"></div>
+                <div className="glass-panel p-8 rounded-none text-left flex flex-col gap-4 border-[#007aff]/10 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#007aff]/2 rounded-none blur-2xl pointer-events-none"></div>
                   
                   <div className="flex items-center justify-between pb-2.5 border-b border-white/5">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#ff5500]">Манифест / Статус</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#007aff]">Манифест / Статус</span>
                     <span className="text-[9px] text-zinc-500 font-mono font-bold">STRICT CHILL VIBE</span>
                   </div>
                   
@@ -3819,17 +3859,17 @@ function SyncPlayerApp() {
 
                 {/* Additional Tech Stats panel for club vibe */}
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-none text-left">
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Пинг / Сеть</span>
                     <p className="text-xs font-mono font-bold text-emerald-450 mt-1 uppercase">{selectedUserProfile.latency || "25ms"}</p>
                   </div>
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-none text-left">
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Статус сессии</span>
                     <p className="text-xs font-bold text-zinc-200 mt-1 uppercase">Подключен</p>
                   </div>
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-none text-left">
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">В сети с</span>
-                    <p className="text-xs font-bold text-[#ff5500] mt-1 uppercase truncate">
+                    <p className="text-xs font-bold text-[#007aff] mt-1 uppercase truncate">
                       {selectedUserProfile.joinedAt ? new Date(selectedUserProfile.joinedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Только что"}
                     </p>
                   </div>
@@ -3840,12 +3880,12 @@ function SyncPlayerApp() {
               <div className="lg:col-span-4 flex flex-col gap-4 w-full">
                 <button
                   onClick={() => setSelectedUserProfile(null)}
-                  className="w-full py-4.5 bg-white hover:bg-zinc-200 text-black font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer border border-transparent"
+                  className="w-full py-4.5 bg-white hover:bg-zinc-200 text-black font-black text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer border border-transparent"
                 >
                   Вернуться в плеер
                 </button>
 
-                <div className="flex flex-col gap-2.5 w-full bg-black/30 border border-white/5 p-4 rounded-xl">
+                <div className="flex flex-col gap-2.5 w-full bg-black/30 border border-white/5 p-4 rounded-none">
                   <span className="text-[8px] text-zinc-500 font-black uppercase tracking-widest text-center block mb-1">
                     Клубные Действия
                   </span>
@@ -3857,7 +3897,7 @@ function SyncPlayerApp() {
                         alert("Ссылка на профиль резидента скопирована!");
                       }
                     }}
-                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-none text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Copy className="w-3.5 h-3.5" /> Копировать ссылку
                   </button>
@@ -3866,9 +3906,9 @@ function SyncPlayerApp() {
                       setSelectedUserProfile(null);
                       // Already in player
                     }}
-                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-none text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Radio className="w-3.5 h-3.5 text-[#ff5500]" /> Чат комнаты
+                    <Radio className="w-3.5 h-3.5 text-[#007aff]" /> Чат комнаты
                   </button>
                 </div>
               </div>
