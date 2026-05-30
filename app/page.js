@@ -143,7 +143,7 @@ function SyncPlayerApp() {
   const widgetRef = useRef(null);
   const currentTrackIdRef = useRef(null);
   const isSyncingRef = useRef(false);
-  const chatEndRef = useRef(null);
+  const chatContainerRef = useRef(null);
   const channelRef = useRef(null);
   const iframeRef = useRef(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
@@ -645,10 +645,10 @@ function SyncPlayerApp() {
     };
   }, [tempIframeUrl, myUsername]);
 
-  // 4. Scroll to bottom of chat
+  // 4. Scroll to bottom of chat without jumping the browser window
   useEffect(() => {
-    if (chatEndRef.current) {
-      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   }, [chatMessages]);
 
@@ -2259,24 +2259,26 @@ function SyncPlayerApp() {
             </div>
           )}
           
-          {/* Slogan details */}
-          <div className="glass-panel p-6 rounded-[28px] text-left flex flex-col items-start gap-4">
-            <span className="text-[10px] font-bold text-[#ff5500] uppercase tracking-widest pl-1">
-              Na leg. All vibe.
-            </span>
-            <h2 className="text-3xl font-black tracking-tight leading-tight">
-              XYI: Listen Together, Live
-            </h2>
-            <button
-              onClick={handleCreateRoomAction}
-              className="w-full py-3.5 bg-[#ff5500] hover:bg-[#ff661a] text-black font-extrabold text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-[0.98] shadow-lg hover:shadow-[#ff5500]/15"
-            >
-              Create a Session
-            </button>
-          </div>
+          {/* Slogan details - Hidden when inside active room */}
+          {!roomCode && (
+            <div className="glass-panel p-6 rounded-xl text-left flex flex-col items-start gap-4 animate-fadeIn">
+              <span className="text-[10px] font-bold text-[#ff5500] uppercase tracking-widest pl-1">
+                Na leg. All vibe.
+              </span>
+              <h2 className="text-3xl font-black tracking-tight leading-tight">
+                XYI: Listen Together, Live
+              </h2>
+              <button
+                onClick={handleCreateRoomAction}
+                className="w-full py-3.5 bg-[#ff5500] hover:bg-[#ff661a] text-black font-extrabold text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg hover:shadow-[#ff5500]/15 cursor-pointer"
+              >
+                Create a Session
+              </button>
+            </div>
+          )}
 
-          {/* Real-time Sync Status & SVG Waves */}
-          <div className="glass-panel p-6 rounded-[28px] text-left flex flex-col gap-5 relative overflow-hidden">
+          {/* Real-time Sync Status & SVG Waves - Strict radiuses */}
+          <div className="glass-panel p-6 rounded-xl text-left flex flex-col gap-5 relative overflow-hidden">
             <div className="flex items-center justify-between">
               <div className="flex flex-col">
                 <span className="text-xs font-bold text-zinc-400">Sync Status</span>
@@ -2351,42 +2353,42 @@ function SyncPlayerApp() {
           <div className="glass-panel p-6 rounded-xl text-left flex flex-col gap-4">
             <div className="flex items-center justify-between pb-2 border-b border-white/5">
               <div className="flex items-center gap-2">
-                <Music className="w-4 h-4 text-[#ff5500]" />
-                <h3 className="text-sm font-bold">Мой SoundCloud</h3>
+                <Music className="w-4 h-4 text-[#ff5500] animate-pulse" />
+                <h3 className="text-xs font-black uppercase tracking-widest text-white">Моя Медиатека</h3>
               </div>
-              <span className="text-[9px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2 py-0.5 rounded-full border border-[#ff5500]/20 animate-pulse">
-                Свободно
+              <span className="text-[8px] uppercase font-black tracking-widest text-[#ff5500] bg-[#ff5500]/10 px-2.5 py-1 rounded-md border border-[#ff5500]/25 shadow-sm">
+                SoundCloud
               </span>
             </div>
 
             {/* Gorgeous Segmented Tab Bar */}
-            <div className="grid grid-cols-3 bg-black/40 p-1 rounded-2xl border border-white/5">
+            <div className="grid grid-cols-3 bg-[#0e0e12] p-1 rounded-xl border border-white/5">
               <button
                 onClick={() => setActiveLibraryTab("favorites")}
-                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                   activeLibraryTab === "favorites"
-                    ? "bg-white/10 text-white shadow-sm border border-white/5"
-                    : "text-zinc-500 hover:text-zinc-300"
+                    ? "bg-white/10 text-white shadow-md border border-white/5"
+                    : "text-zinc-550 hover:text-zinc-300"
                 }`}
               >
                 Мои Треки
               </button>
               <button
                 onClick={() => setActiveLibraryTab("playlist")}
-                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                   activeLibraryTab === "playlist"
-                    ? "bg-white/10 text-white shadow-sm border border-white/5"
-                    : "text-zinc-500 hover:text-zinc-300"
+                    ? "bg-white/10 text-white shadow-md border border-white/5"
+                    : "text-zinc-550 hover:text-zinc-300"
                 }`}
               >
                 Импорт
               </button>
               <button
                 onClick={() => setActiveLibraryTab("bulk")}
-                className={`py-2 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                   activeLibraryTab === "bulk"
-                    ? "bg-white/10 text-white shadow-sm border border-white/5"
-                    : "text-zinc-500 hover:text-zinc-300"
+                    ? "bg-white/10 text-white shadow-md border border-white/5"
+                    : "text-zinc-550 hover:text-zinc-300"
                 }`}
               >
                 Списком
@@ -2396,78 +2398,87 @@ function SyncPlayerApp() {
             {/* TAB CONTENT: FAVORITES */}
             {activeLibraryTab === "favorites" && (
               <>
-                <p className="text-[10px] text-zinc-500 font-medium leading-relaxed">
-                  Ваша личная медиатека. Добавьте трек поштучно, либо импортируйте плейлист из других вкладок. Запускайте треки синхронно для всех!
+                <p className="text-[9.5px] text-zinc-500 font-medium leading-relaxed">
+                  Ваша личная медиатека в клубе. Добавляйте треки поштучно или импортируйте плейлисты. Запускайте треки синхронно для всех!
                 </p>
                 
                 {/* Input to add personal tracks */}
                 <form onSubmit={handleAddPersonalTrack} className="w-full flex gap-2">
                   <input
                     type="text"
-                    placeholder="Вставьте SoundCloud ссылку на трек..."
+                    placeholder="Вставьте ссылку на SoundCloud..."
                     value={newPersonalUrl}
                     onChange={(e) => setNewPersonalUrl(e.target.value)}
                     disabled={addingPersonal}
-                    className="flex-1 bg-black/60 border border-white/8 rounded-2xl px-3 py-2.5 text-[10px] text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors"
+                    className="flex-1 bg-black/60 border border-white/8 rounded-xl px-3.5 py-3 text-xs text-zinc-250 placeholder:text-zinc-650 focus:outline-none focus:border-[#ff5500] transition-colors"
                   />
                   <button
                     type="submit"
                     disabled={!newPersonalUrl.trim() || addingPersonal}
-                    className="p-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-2xl transition-all flex items-center justify-center cursor-pointer"
+                    className="p-3 bg-white hover:bg-[#ff5500] text-black hover:text-white active:scale-[0.98] disabled:opacity-30 rounded-xl transition-all flex items-center justify-center cursor-pointer flex-shrink-0"
                   >
                     {addingPersonal ? (
                       <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
                     ) : (
-                      <Plus className="w-3.5 h-3.5" />
+                      <Plus className="w-4 h-4 stroke-[3]" />
                     )}
                   </button>
                 </form>
 
                 {/* Scrollable Favorites list */}
                 {personalLibrary.length === 0 ? (
-                  <div className="w-full py-6 bg-black/20 border border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 px-4 text-center">
-                    <p className="text-zinc-600 text-[10px] leading-normal">Медиатека пуста. Добавьте трек выше или импортируйте плейлист!</p>
+                  <div className="w-full py-8 bg-black/20 border border-dashed border-white/5 rounded-xl flex flex-col items-center justify-center gap-2 px-4 text-center">
+                    <p className="text-zinc-600 text-[10px] leading-normal font-medium">Медиатека пуста. Добавьте трек выше или импортируйте плейлист!</p>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1">
-                    {personalLibrary.map((track) => (
+                  <div className="flex flex-col gap-2 max-h-[260px] overflow-y-auto pr-1.5 custom-slim-scrollbar">
+                    {personalLibrary.map((track, idx) => (
                       <div
                         key={track.id}
-                        className="w-full p-2 bg-black/30 border border-white/5 hover:border-[#ff5500]/20 rounded-xl flex items-center gap-2.5 transition-all hover:bg-black/50"
+                        className="w-full p-2.5 bg-black/30 border border-white/5 hover:border-[#ff5500]/25 rounded-xl flex items-center gap-3 transition-all duration-300 hover:bg-black/55 group/track"
                       >
-                        {/* Thumbnail */}
-                        <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                        {/* Index Number */}
+                        <span className="text-[9px] font-mono font-bold text-zinc-650 group-hover/track:text-[#ff5500] transition-colors pl-1">
+                          {String(idx + 1).padStart(2, '0')}
+                        </span>
+                        
+                        {/* Thumbnail with slight zoom effect */}
+                        <div className="w-9 h-9 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center relative">
                           {track.thumbnail ? (
-                            <img src={track.thumbnail} alt="" className="w-full h-full object-cover" />
+                            <img src={track.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover/track:scale-110" />
                           ) : (
-                            <Music className="w-3.5 h-3.5 text-zinc-600" />
+                            <Music className="w-4 h-4 text-zinc-600" />
                           )}
+                          <div className="absolute inset-0 bg-black/15 group-hover/track:bg-transparent transition-colors"></div>
                         </div>
-                        {/* Title */}
+
+                        {/* Title & SoundCloud Tag */}
                         <div className="flex-1 min-w-0 flex flex-col text-left">
-                          <p className="text-[10px] font-bold text-zinc-300 truncate" title={track.title}>
+                          <p className="text-[11px] font-black text-zinc-350 uppercase tracking-tight truncate group-hover/track:text-white transition-colors" title={track.title}>
                             {track.title}
                           </p>
+                          <span className="text-[7.5px] text-[#ff5500]/65 font-bold uppercase tracking-widest mt-0.5">SoundCloud</span>
                         </div>
+
                         {/* Action buttons */}
-                        <div className="flex items-center gap-1 flex-shrink-0">
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
                           <button
                             onClick={(e) => handlePlayPersonalTrackNow(track, e)}
-                            className="p-1.5 hover:bg-white/5 rounded text-zinc-400 hover:text-[#ff5500] transition-colors cursor-pointer"
+                            className="w-7 h-7 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black flex items-center justify-center transition-all duration-300 cursor-pointer shadow-[0_2px_8px_rgba(16,185,129,0.05)] active:scale-90"
                             title="Запустить сейчас для всех"
                           >
                             <Play className="w-3 h-3 fill-current" />
                           </button>
                           <button
                             onClick={(e) => handleQueuePersonalTrack(track, e)}
-                            className="p-1.5 hover:bg-white/5 rounded text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                            className="w-7 h-7 rounded-lg bg-white/5 hover:bg-white hover:text-black text-zinc-400 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                             title="Добавить в очередь"
                           >
-                            <Plus className="w-3 h-3" />
+                            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
                           </button>
                           <button
                             onClick={(e) => handleDeletePersonalTrack(track.id, e)}
-                            className="p-1.5 hover:bg-red-500/10 rounded text-zinc-600 hover:text-red-500 transition-colors cursor-pointer"
+                            className="w-7 h-7 rounded-lg bg-red-500/5 hover:bg-red-500/90 text-zinc-600 hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                             title="Удалить из медиатеки"
                           >
                             <Trash2 className="w-3 h-3" />
@@ -2475,6 +2486,12 @@ function SyncPlayerApp() {
                         </div>
                       </div>
                     ))}
+                  </div>
+                )}
+                {personalLibrary.length > 0 && (
+                  <div className="flex justify-between items-center text-[8.5px] text-zinc-600 font-mono uppercase tracking-widest pt-1 px-1">
+                    <span>Всего резидентом сохранено</span>
+                    <span className="font-extrabold text-[#ff5500]">{personalLibrary.length} треков</span>
                   </div>
                 )}
               </>
@@ -2751,7 +2768,7 @@ function SyncPlayerApp() {
             </div>
 
             {/* Messages body scrolling */}
-            <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1.5 select-text mb-4 text-left">
+            <div ref={chatContainerRef} className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1.5 select-text mb-4 text-left">
                {chatMessages.map((msg) => (
                 <div 
                   key={msg.id} 
@@ -2799,7 +2816,6 @@ function SyncPlayerApp() {
                   </div>
                 </div>
               ))}
-              <div ref={chatEndRef}></div>
             </div>
 
             {/* Message input bar */}
