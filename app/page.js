@@ -4,6 +4,8 @@ import { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Script from "next/script";
 import { supabase } from "@/lib/supabase";
+import ProfileCustomizer from "./components/ProfileCustomizer";
+import UserProfileCard from "./components/UserProfileCard";
 import {
   Play,
   Pause,
@@ -128,6 +130,15 @@ function SyncPlayerApp() {
   });
   const [newRoomNameInput, setNewRoomNameInput] = useState("");
 
+  // Profile Customization States
+  const [myBio, setMyBio] = useState("");
+  const [myCustomBadge, setMyCustomBadge] = useState("");
+  const [myAvatarUrl, setMyAvatarUrl] = useState("🎧");
+  const [myBannerUrl, setMyBannerUrl] = useState("sunset");
+  const [isDbTableMissing, setIsDbTableMissing] = useState(false);
+  const [showProfileCustomizer, setShowProfileCustomizer] = useState(false);
+  const [selectedUserProfile, setSelectedUserProfile] = useState(null);
+
   // Refs to handle realtime synchronization and prevent circular feedback loops
   const widgetRef = useRef(null);
   const currentTrackIdRef = useRef(null);
@@ -142,6 +153,167 @@ function SyncPlayerApp() {
     playlistRef.current = playlist;
   }, [playlist]);
 
+  const loadAndSyncProfile = async (user, cidToUse) => {
+    const finalCid = cidToUse || clientId;
+    if (user) {
+      try {
+        const { data: profile, error } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (error) {
+          if (error.code === "42P01" || (error.message && error.message.includes("relation") && error.message.includes("does not exist"))) {
+            setIsDbTableMissing(true);
+            throw new Error("Table missing");
+          }
+          throw error;
+        }
+
+        if (profile) {
+          setMyUsername(profile.username || user.email.split("@")[0]);
+          setMyAvatarColor(profile.avatar_color || "#FF5500");
+          setMyAvatarUrl(profile.avatar_url || "🎧");
+          setMyBannerUrl(profile.banner_url || "sunset");
+          setMyBio(profile.bio || "");
+          setMyCustomBadge(profile.custom_badge || "");
+
+          sessionStorage.setItem("xyi_username", profile.username || user.email.split("@")[0]);
+          sessionStorage.setItem("xyi_avatar_color", profile.avatar_color || "#FF5500");
+        } else {
+          const defaultNick = user.email.split("@")[0];
+          const defaultColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+          const newProfile = {
+            id: user.id,
+            username: defaultNick,
+            avatar_color: defaultColor,
+            avatar_url: "🎧",
+            banner_url: "sunset",
+            bio: "",
+            custom_badge: ""
+          };
+
+          const { error: insertError } = await supabase
+            .from("profiles")
+            .upsert(newProfile);
+
+          if (!insertError) {
+            setMyUsername(defaultNick);
+            setMyAvatarColor(defaultColor);
+            setMyAvatarUrl("🎧");
+            setMyBannerUrl("sunset");
+            setMyBio("");
+            setMyCustomBadge("");
+
+            sessionStorage.setItem("xyi_username", defaultNick);
+            sessionStorage.setItem("xyi_avatar_color", defaultColor);
+          }
+        }
+      } catch (err) {
+        console.warn("Failed to load user profile from database, falling back to local storage:", err);
+        loadGuestProfile(finalCid);
+      }
+    } else {
+      loadGuestProfile(finalCid);
+    }
+  };
+
+  const loadGuestProfile = (finalCid) => {
+    let guestName = localStorage.getItem("xyi_guest_username");
+    let guestColor = localStorage.getItem("xyi_guest_avatar_color");
+    let guestAvatar = localStorage.getItem("xyi_guest_avatar_url");
+    let guestBanner = localStorage.getItem("xyi_guest_banner_url");
+    let guestBio = localStorage.getItem("xyi_guest_bio");
+    let guestBadge = localStorage.getItem("xyi_guest_custom_badge");
+
+    if (!guestName) {
+      guestName = sessionStorage.getItem("xyi_username") || (NICKNAMES[Math.floor(Math.random() * NICKNAMES.length)] + "_" + Math.floor(100 + Math.random() * 900));
+      localStorage.setItem("xyi_guest_username", guestName);
+    }
+    if (!guestColor) {
+      guestColor = sessionStorage.getItem("xyi_avatar_color") || AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
+      localStorage.setItem("xyi_guest_avatar_color", guestColor);
+    }
+    if (!guestAvatar) {
+      guestAvatar = "🎧";
+      localStorage.setItem("xyi_guest_avatar_url", guestAvatar);
+    }
+    if (!guestBanner) {
+      guestBanner = "sunset";
+      localStorage.setItem("xyi_guest_banner_url", guestBanner);
+    }
+    if (!guestBio) {
+      guestBio = "";
+      localStorage.setItem("xyi_guest_bio", guestBio);
+    }
+    if (!guestBadge) {
+      guestBadge = "";
+      localStorage.setItem("xyi_guest_custom_badge", guestBadge);
+    }
+
+    setMyUsername(guestName);
+    setMyAvatarColor(guestColor);
+    setMyAvatarUrl(guestAvatar);
+    setMyBannerUrl(guestBanner);
+    setMyBio(guestBio);
+    setMyCustomBadge(guestBadge);
+
+    sessionStorage.setItem("xyi_username", guestName);
+    sessionStorage.setItem("xyi_avatar_color", guestColor);
+  };
+
+  const handleSaveProfile = async (data) => {
+    if (currentUser && !isDbTableMissing) {
+      const { error } = await supabase
+        .from("profiles")
+        .upsert({
+          id: currentUser.id,
+          username: data.username,
+          avatar_color: data.avatar_color,
+          avatar_url: data.avatar_url,
+          banner_url: data.banner_url,
+          bio: data.bio,
+          custom_badge: data.custom_badge,
+          updated_at: new Date().toISOString()
+        });
+      if (error) throw error;
+    } else {
+      localStorage.setItem("xyi_guest_username", data.username);
+      localStorage.setItem("xyi_guest_avatar_color", data.avatar_color);
+      localStorage.setItem("xyi_guest_avatar_url", data.avatar_url);
+      localStorage.setItem("xyi_guest_banner_url", data.banner_url);
+      localStorage.setItem("xyi_guest_bio", data.bio);
+      localStorage.setItem("xyi_guest_custom_badge", data.custom_badge);
+    }
+
+    setMyUsername(data.username);
+    setMyAvatarColor(data.avatar_color);
+    setMyAvatarUrl(data.avatar_url);
+    setMyBannerUrl(data.banner_url);
+    setMyBio(data.bio);
+    setMyCustomBadge(data.custom_badge);
+
+    sessionStorage.setItem("xyi_username", data.username);
+    sessionStorage.setItem("xyi_avatar_color", data.avatar_color);
+
+    if (channelRef.current) {
+      await channelRef.current.track({
+        id: clientId,
+        username: data.username,
+        avatarColor: data.avatar_color,
+        avatarUrl: data.avatar_url,
+        bannerUrl: data.banner_url,
+        bio: data.bio,
+        customBadge: data.custom_badge,
+        joinedAt: new Date().toISOString(),
+        latency: "15ms"
+      });
+    }
+
+    sendChatSystemMessage(`👤 ${data.username} обновил свой профиль!`);
+  };
+
   // 3. Initialize unique client session ID, username, and avatar color
   useEffect(() => {
     let cid = sessionStorage.getItem("xyi_client_id");
@@ -151,27 +323,13 @@ function SyncPlayerApp() {
     }
     setClientId(cid);
 
-    let storedName = sessionStorage.getItem("xyi_username");
-    let storedColor = sessionStorage.getItem("xyi_avatar_color");
-    
-    if (!storedName) {
-      storedName = NICKNAMES[Math.floor(Math.random() * NICKNAMES.length)] + "_" + Math.floor(100 + Math.random() * 900);
-      sessionStorage.setItem("xyi_username", storedName);
-    }
-    if (!storedColor) {
-      storedColor = AVATAR_COLORS[Math.floor(Math.random() * AVATAR_COLORS.length)];
-      sessionStorage.setItem("xyi_avatar_color", storedColor);
-    }
-    
-    setMyUsername(storedName);
-    setMyAvatarColor(storedColor);
-
     // Initial Chat messages
     setChatMessages([
       {
         id: "sys_1",
         username: "🎧 XYI BOT",
         avatarColor: "#ff5500",
+        avatarUrl: "🎧",
         text: "Добро пожаловать в комнату! Музыка играет синхронно для всех участников в реальном времени. Вставьте ссылку на SoundCloud-трек в центре, чтобы добавить его в очередь!",
         timestamp: "Система",
         isSystem: true
@@ -193,6 +351,11 @@ function SyncPlayerApp() {
         console.error(e);
       }
     }
+
+    // Load custom profile
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      loadAndSyncProfile(user, cid);
+    });
   }, []);
 
   // ==================== SUPABASE AUTH & ROOMS ACTIONS ====================
@@ -200,30 +363,20 @@ function SyncPlayerApp() {
     // Check initial user session
     supabase.auth.getUser().then(({ data: { user } }) => {
       setCurrentUser(user);
-      if (user) {
-        const emailNick = user.email.split("@")[0];
-        if (!sessionStorage.getItem("xyi_username")) {
-          setMyUsername(emailNick);
-          sessionStorage.setItem("xyi_username", emailNick);
-        }
-      }
+      loadAndSyncProfile(user);
     });
 
     // Listen for real-time authentication events
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       const user = session?.user || null;
       setCurrentUser(user);
-      if (user) {
-        const emailNick = user.email.split("@")[0];
-        setMyUsername(emailNick);
-        sessionStorage.setItem("xyi_username", emailNick);
-      }
+      loadAndSyncProfile(user);
     });
 
     return () => {
       subscription?.unsubscribe();
     };
-  }, []);
+  }, [clientId]);
 
   // Fetch Public Rooms List periodically
   const fetchPublicRooms = async () => {
@@ -292,12 +445,9 @@ function SyncPlayerApp() {
     await supabase.auth.signOut();
     setCurrentUser(null);
     sessionStorage.removeItem("xyi_username");
+    sessionStorage.removeItem("xyi_avatar_color");
     
-    // Fallback to random nickname
-    const guestNick = NICKNAMES[Math.floor(Math.random() * NICKNAMES.length)] + "_" + Math.floor(100 + Math.random() * 900);
-    setMyUsername(guestNick);
-    sessionStorage.setItem("xyi_username", guestNick);
-    
+    loadGuestProfile();
     router.push("/");
   };
 
@@ -636,10 +786,42 @@ function SyncPlayerApp() {
       // E. Subscribe and Track
       roomChannel.subscribe(async (status) => {
         if (status === "SUBSCRIBED") {
+          const user = (await supabase.auth.getUser()).data?.user;
+          let currentAvatarUrl = "🎧";
+          let currentBannerUrl = "sunset";
+          let currentBio = "";
+          let currentCustomBadge = "";
+
+          if (user) {
+            try {
+              const { data: profile } = await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", user.id)
+                .maybeSingle();
+
+              if (profile) {
+                currentAvatarUrl = profile.avatar_url || "🎧";
+                currentBannerUrl = profile.banner_url || "sunset";
+                currentBio = profile.bio || "";
+                currentCustomBadge = profile.custom_badge || "";
+              }
+            } catch (e) {}
+          } else {
+            currentAvatarUrl = localStorage.getItem("xyi_guest_avatar_url") || "🎧";
+            currentBannerUrl = localStorage.getItem("xyi_guest_banner_url") || "sunset";
+            currentBio = localStorage.getItem("xyi_guest_bio") || "";
+            currentCustomBadge = localStorage.getItem("xyi_guest_custom_badge") || "";
+          }
+
           await roomChannel.track({
             id: cid,
             username: name,
             avatarColor: color,
+            avatarUrl: currentAvatarUrl,
+            bannerUrl: currentBannerUrl,
+            bio: currentBio,
+            customBadge: currentCustomBadge,
             joinedAt: new Date().toISOString(),
             latency: Math.floor(15 + Math.random() * 30) + "ms"
           });
@@ -1331,6 +1513,11 @@ function SyncPlayerApp() {
       id: "msg_" + Math.random().toString(36).substring(2, 9),
       username: myUsername,
       avatarColor: myAvatarColor,
+      avatarUrl: myAvatarUrl,
+      bannerUrl: myBannerUrl,
+      bio: myBio,
+      customBadge: myCustomBadge,
+      joinedAt: new Date().toISOString(),
       text: newChatMessage.trim(),
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       isSystem: false
@@ -1730,12 +1917,25 @@ function SyncPlayerApp() {
                 >
                   Моя комната
                 </button>
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-full">
-                  <div className="w-5 h-5 rounded-full bg-[#ff5500] text-black text-[10px] font-black flex items-center justify-center">
-                    {myUsername ? myUsername.charAt(0).toUpperCase() : "?"}
+                <button
+                  onClick={() => setShowProfileCustomizer(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#ff5500]/30 rounded-full cursor-pointer hover:bg-white/5 transition-all group overflow-hidden"
+                  title="Настроить профиль"
+                >
+                  <div 
+                    className="w-5 h-5 rounded-full bg-[#ff5500] text-black text-[10px] font-black flex items-center justify-center flex-shrink-0 overflow-hidden"
+                    style={{ backgroundColor: myAvatarColor }}
+                  >
+                    {myAvatarUrl && myAvatarUrl.startsWith("data:image") ? (
+                      <img src={myAvatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                    ) : myAvatarUrl ? (
+                      <span className="text-xs">{myAvatarUrl}</span>
+                    ) : (
+                      myUsername ? myUsername.charAt(0).toUpperCase() : "?"
+                    )}
                   </div>
-                  <span className="text-xs font-bold text-zinc-300 max-w-[100px] truncate">{myUsername}</span>
-                </div>
+                  <span className="text-xs font-bold text-zinc-300 max-w-[100px] truncate group-hover:text-white transition-colors">{myUsername}</span>
+                </button>
                 <button
                   onClick={handleLogout}
                   className="px-3 py-1.5 rounded-full border border-red-500/10 hover:border-red-500/30 text-[10px] font-bold text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
@@ -1934,12 +2134,25 @@ function SyncPlayerApp() {
           {/* User profile controls inside Room Header */}
           {currentUser ? (
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 rounded-full">
-                <div className="w-4.5 h-4.5 rounded-full bg-[#ff5500] text-black text-[9px] font-black flex items-center justify-center">
-                  {myUsername ? myUsername.charAt(0).toUpperCase() : "?"}
+              <button
+                onClick={() => setShowProfileCustomizer(true)}
+                className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#ff5500]/30 rounded-full cursor-pointer hover:bg-white/5 transition-all group overflow-hidden"
+                title="Настроить профиль"
+              >
+                <div 
+                  className="w-4.5 h-4.5 rounded-full bg-[#ff5500] text-black text-[9px] font-black flex items-center justify-center flex-shrink-0 overflow-hidden"
+                  style={{ backgroundColor: myAvatarColor }}
+                >
+                  {myAvatarUrl && myAvatarUrl.startsWith("data:image") ? (
+                    <img src={myAvatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                  ) : myAvatarUrl ? (
+                    <span className="text-[10px]">{myAvatarUrl}</span>
+                  ) : (
+                    myUsername ? myUsername.charAt(0).toUpperCase() : "?"
+                  )}
                 </div>
-                <span className="text-[10px] font-bold text-zinc-300 max-w-[80px] truncate">{myUsername}</span>
-              </div>
+                <span className="text-[10px] font-bold text-zinc-300 max-w-[80px] truncate group-hover:text-white transition-colors">{myUsername}</span>
+              </button>
               <button
                 onClick={handleLogout}
                 className="px-3 py-1.5 rounded-full border border-red-500/10 hover:border-red-500/30 text-[9px] font-bold text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
@@ -1948,12 +2161,21 @@ function SyncPlayerApp() {
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => { setAuthTab("login"); setAuthError(""); setShowAuthModal(true); }}
-              className="px-4 py-2 rounded-full border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
-            >
-              Sign In
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowProfileCustomizer(true)}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#ff5500]/30 rounded-full cursor-pointer hover:bg-white/5 transition-all text-[10px] font-bold text-zinc-300"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[#ff5500]" />
+                Профиль
+              </button>
+              <button
+                onClick={() => { setAuthTab("login"); setAuthError(""); setShowAuthModal(true); }}
+                className="px-4 py-1.5 rounded-full border border-white/10 hover:border-white/20 text-[10px] font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
+              >
+                Sign In
+              </button>
+            </div>
           )}
         </div>
       </header>
@@ -2072,16 +2294,26 @@ function SyncPlayerApp() {
               {/* Dynamic user avatars along the bottom of the card */}
               <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-1.5 z-10 px-2 overflow-x-auto">
                 {participants.slice(0, 4).map((p, idx) => (
-                  <div key={idx} className="flex flex-col items-center gap-0.5 group">
+                  <button 
+                    key={idx} 
+                    onClick={() => setSelectedUserProfile(p)}
+                    className="flex flex-col items-center gap-0.5 group cursor-pointer hover:scale-105 active:scale-95 transition-all outline-none"
+                  >
                     <div
-                      className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center text-[10px] font-black text-black shadow-md shadow-black/50"
+                      className="w-7 h-7 rounded-full border border-white/20 flex items-center justify-center text-[10px] font-black text-black shadow-md shadow-black/50 overflow-hidden"
                       style={{ backgroundColor: p.avatarColor || "#ff5500" }}
                       title={p.username}
                     >
-                      {p.username ? p.username.charAt(0).toUpperCase() : "?"}
+                      {p.avatarUrl && p.avatarUrl.startsWith("data:image") ? (
+                        <img src={p.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                      ) : p.avatarUrl ? (
+                        <span className="text-sm">{p.avatarUrl}</span>
+                      ) : (
+                        p.username ? p.username.charAt(0).toUpperCase() : "?"
+                      )}
                     </div>
-                    <span className="text-[8px] text-zinc-500 font-bold truncate max-w-[40px]">{p.username}</span>
-                  </div>
+                    <span className="text-[8px] text-zinc-500 font-bold truncate max-w-[40px] group-hover:text-white transition-colors">{p.username}</span>
+                  </button>
                 ))}
                 {participants.length > 4 && (
                   <div className="w-7 h-7 rounded-full bg-zinc-800 border border-white/10 flex items-center justify-center text-[9px] font-bold text-zinc-400">
@@ -2497,17 +2729,45 @@ function SyncPlayerApp() {
 
             {/* Messages body scrolling */}
             <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1.5 select-text mb-4 text-left">
-              {chatMessages.map((msg) => (
-                <div key={msg.id} className="flex gap-2.5 items-start">
+               {chatMessages.map((msg) => (
+                <div 
+                  key={msg.id} 
+                  className={`flex gap-2.5 items-start ${!msg.isSystem ? "cursor-pointer group" : ""}`}
+                  onClick={() => {
+                    if (!msg.isSystem) {
+                      setSelectedUserProfile({
+                        username: msg.username,
+                        avatarColor: msg.avatarColor,
+                        avatarUrl: msg.avatarUrl,
+                        bannerUrl: msg.bannerUrl,
+                        bio: msg.bio,
+                        customBadge: msg.customBadge,
+                        joinedAt: msg.joinedAt || new Date().toISOString(),
+                        latency: "Chat"
+                      });
+                    }
+                  }}
+                >
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 mt-0.5"
+                    className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 mt-0.5 overflow-hidden transition-transform group-hover:scale-105"
                     style={{ backgroundColor: msg.avatarColor || "#ff5500" }}
                   >
-                    {msg.username.charAt(0).toUpperCase()}
+                    {msg.avatarUrl && msg.avatarUrl.startsWith("data:image") ? (
+                      <img src={msg.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                    ) : msg.avatarUrl ? (
+                      <span className="text-sm">{msg.avatarUrl}</span>
+                    ) : (
+                      msg.username ? msg.username.charAt(0).toUpperCase() : "?"
+                    )}
                   </div>
                   <div className="flex flex-col min-w-0 leading-tight">
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-[10px] font-bold text-zinc-300">{msg.username}</span>
+                      <span className="text-[10px] font-bold text-zinc-300 group-hover:text-[#ff5500] transition-colors">{msg.username}</span>
+                      {msg.customBadge && (
+                        <span className="px-1.5 py-0.5 rounded-[3px] bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/20 text-[6px] font-black uppercase tracking-wider scale-90 origin-left">
+                          {msg.customBadge}
+                        </span>
+                      )}
                       <span className="text-[8px] text-zinc-600 font-medium">{msg.timestamp}</span>
                     </div>
                     <div className={`mt-1.5 px-3.5 py-2.5 rounded-2xl text-[11px] leading-relaxed break-words ${msg.isSystem ? "bg-white/5 border border-white/5 text-zinc-400 italic" : "bg-black/40 border border-white/5 text-white"}`}>
@@ -2550,18 +2810,35 @@ function SyncPlayerApp() {
 
             <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1">
               {participants.map((p, idx) => (
-                <div key={idx} className="w-full p-2.5 bg-black/30 border border-white/5 rounded-2xl flex items-center justify-between">
+                <div 
+                  key={idx} 
+                  onClick={() => setSelectedUserProfile(p)}
+                  className="w-full p-2.5 bg-black/30 border border-white/5 rounded-2xl flex items-center justify-between hover:bg-white/5 cursor-pointer transition-all active:scale-[0.99] select-none"
+                >
                   <div className="flex items-center gap-3 min-w-0">
                     {/* Avatar */}
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-black flex-shrink-0"
+                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-black flex-shrink-0 overflow-hidden"
                       style={{ backgroundColor: p.avatarColor || "#ff5500" }}
                     >
-                      {p.username ? p.username.charAt(0).toUpperCase() : "?"}
+                      {p.avatarUrl && p.avatarUrl.startsWith("data:image") ? (
+                        <img src={p.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                      ) : p.avatarUrl ? (
+                        <span className="text-base">{p.avatarUrl}</span>
+                      ) : (
+                        p.username ? p.username.charAt(0).toUpperCase() : "?"
+                      )}
                     </div>
                     {/* Info */}
                     <div className="flex flex-col min-w-0">
-                      <span className="text-xs font-bold text-white truncate">{p.username}</span>
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-xs font-bold text-white truncate max-w-[80px]">{p.username}</span>
+                        {p.customBadge && (
+                          <span className="px-1 py-0.5 rounded-[3px] bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/25 text-[6.5px] font-black uppercase tracking-wider scale-90 origin-left flex-shrink-0">
+                            {p.customBadge}
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[9px] text-zinc-500 font-medium">@{p.username ? p.username.toLowerCase() : "guest"}</span>
                     </div>
                   </div>
@@ -2856,6 +3133,32 @@ function SyncPlayerApp() {
             </form>
           </div>
         </div>
+      )}
+
+      {/* ==================== USER PROFILE CUSTOMIZER MODAL ==================== */}
+      {showProfileCustomizer && (
+        <ProfileCustomizer
+          currentUser={currentUser}
+          currentProfile={{
+            username: myUsername,
+            avatarColor: myAvatarColor,
+            avatarUrl: myAvatarUrl,
+            bannerUrl: myBannerUrl,
+            bio: myBio,
+            customBadge: myCustomBadge
+          }}
+          onSave={handleSaveProfile}
+          onClose={() => setShowProfileCustomizer(false)}
+          isDbTableMissing={isDbTableMissing}
+        />
+      )}
+
+      {/* ==================== USER PROFILE CARD POPUP ==================== */}
+      {selectedUserProfile && (
+        <UserProfileCard
+          userProfile={selectedUserProfile}
+          onClose={() => setSelectedUserProfile(null)}
+        />
       )}
 
     </main>

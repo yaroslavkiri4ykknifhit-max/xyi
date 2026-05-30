@@ -92,3 +92,43 @@ END $$;
 -- ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS owner_id TEXT UNIQUE;
 -- ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE NOT NULL;
 -- ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS room_name TEXT;
+
+-- 8. Create profiles table for internal accounts customization
+CREATE TABLE IF NOT EXISTS public.profiles (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    username TEXT UNIQUE,
+    avatar_color TEXT,
+    avatar_url TEXT, -- Base64 encoded optimized custom avatar image or emoji/preset identifier
+    banner_url TEXT, -- Base64 encoded optimized custom banner image or gradient preset name
+    bio TEXT,
+    custom_badge TEXT,
+    updated_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+);
+
+-- Enable RLS for profiles
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Add policies for secure profile management
+DROP POLICY IF EXISTS "Allow public select on profiles" ON public.profiles;
+CREATE POLICY "Allow public select on profiles" ON public.profiles FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow user insert own profile" ON public.profiles;
+CREATE POLICY "Allow user insert own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
+
+DROP POLICY IF EXISTS "Allow user update own profile" ON public.profiles;
+CREATE POLICY "Allow user update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+
+-- Enable Realtime for profiles
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_publication_rel pr
+    JOIN pg_class c ON pr.prrelid = c.oid
+    JOIN pg_namespace n ON c.relnamespace = n.oid
+    JOIN pg_publication p ON pr.prpubid = p.oid
+    WHERE p.pubname = 'supabase_realtime' AND c.relname = 'profiles' AND n.nspname = 'public'
+  ) THEN
+    ALTER PUBLICATION supabase_realtime ADD TABLE public.profiles;
+  END IF;
+END $$;
+
