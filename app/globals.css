@@ -11,35 +11,35 @@
    ============================================================ */
 :root {
   /* Surfaces */
-  --bg: #04040a;
-  --bg-elevated: #09090f;
-  --panel-bg: #0e0e16;
+  --bg: #111111;
+  --bg-elevated: #1a1a1a;
+  --panel-bg: #222222;
 
   /* Borders */
-  --border: rgba(255, 255, 255, 0.055);
-  --border-active: rgba(0, 122, 255, 0.3);
+  --border: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(255, 85, 0, 0.4);
 
   /* Text */
-  --text: #ededf2;
-  --muted-text: #868694;
-  --dim-text: #46464f;
+  --text: #ffffff;
+  --muted-text: #a0a0a0;
+  --dim-text: #666666;
 
-  /* Accent — iOS blue, consistent with the music sync concept */
-  --accent: #007aff;
-  --accent-hover: #0063d1;
-  --accent-dim: rgba(0, 122, 255, 0.1);
-  --accent-glow: rgba(0, 122, 255, 0.14);
+  /* Accent — SoundCloud Orange */
+  --accent: #FF5500;
+  --accent-hover: #e04b00;
+  --accent-dim: rgba(255, 85, 0, 0.15);
+  --accent-glow: rgba(255, 85, 0, 0.2);
 
   /* Messaging */
-  --imessage-received-bg: #1a1a24;
+  --imessage-received-bg: #2a2a2a;
 
   /* Inputs */
-  --input-bg: rgba(0, 0, 0, 0.45);
+  --input-bg: #1f1f1f;
 
   /* Shadows */
-  --shadow: rgba(0, 0, 0, 0.55);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
-  --shadow-md: 0 4px 28px rgba(0, 0, 0, 0.65);
+  --shadow: rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.7);
 
   background-color: var(--bg);
   color: var(--text);
@@ -49,23 +49,23 @@
    DESIGN TOKENS — Light
    ============================================================ */
 .light-theme {
-  --bg: #f2f2f7;
+  --bg: #f5f5f5;
   --bg-elevated: #ffffff;
   --panel-bg: #ffffff;
-  --border: rgba(0, 0, 0, 0.08);
-  --border-active: rgba(0, 100, 210, 0.28);
-  --text: #1c1c1e;
-  --muted-text: #636369;
-  --dim-text: #b0b0b8;
-  --accent: #0064d2;
-  --accent-hover: #0050a8;
-  --accent-dim: rgba(0, 100, 210, 0.08);
-  --accent-glow: rgba(0, 100, 210, 0.12);
-  --imessage-received-bg: #e5e5ea;
-  --input-bg: #ffffff;
-  --shadow: rgba(0, 0, 0, 0.06);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
-  --shadow-md: 0 4px 28px rgba(0, 0, 0, 0.1);
+  --border: rgba(0, 0, 0, 0.1);
+  --border-active: rgba(255, 85, 0, 0.4);
+  --text: #111111;
+  --muted-text: #666666;
+  --dim-text: #999999;
+  --accent: #FF5500;
+  --accent-hover: #e04b00;
+  --accent-dim: rgba(255, 85, 0, 0.1);
+  --accent-glow: rgba(255, 85, 0, 0.15);
+  --imessage-received-bg: #eaeaea;
+  --input-bg: #f9f9f9;
+  --shadow: rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.1);
 }
 
 /* ============================================================
@@ -96,12 +96,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.07);
-  border-radius: 0;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 122, 255, 0.35);
+  background: rgba(255, 85, 0, 0.5);
 }
 
 /* ============================================================
@@ -112,7 +112,7 @@ body {
 .minimal-panel {
   background-color: var(--panel-bg);
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: 20px;
   box-shadow: var(--shadow-md);
   transition: border-color 0.2s ease, background-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -126,14 +126,14 @@ body {
 .glass-panel {
   background: var(--bg-elevated);
   border: 1px solid var(--border);
-  border-radius: 0;
+  border-radius: 24px;
   box-shadow: var(--shadow-md);
   transition: border-color 0.22s ease, box-shadow 0.22s ease;
 }
 
 .glass-panel-hover:hover {
   border-color: var(--border-active);
-  box-shadow: 0 8px 40px rgba(0, 122, 255, 0.07);
+  box-shadow: 0 8px 40px rgba(255, 85, 0, 0.1);
 }
 
 /* ============================================================

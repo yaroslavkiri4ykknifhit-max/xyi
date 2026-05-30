@@ -1946,10 +1946,12 @@ function SyncPlayerApp() {
         <div className="flex flex-col flex-1 relative z-10 w-full min-h-[100dvh]">
 
           {/* Global Nav */}
-          <nav className="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between z-10 border-b border-white/[0.04]">
+          <nav className="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between z-10">
             <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/")}>
-              <span className="text-[22px] font-black tracking-tighter text-white leading-none">xyi</span>
-              <span className="w-[18px] h-[18px] bg-[#007aff] flex items-center justify-center text-[9px] font-black text-white select-none flex-shrink-0">▶</span>
+              <svg viewBox="0 0 100 60" className="w-8 h-5 text-[#FF5500] fill-current">
+                <path d="M41.7 15.6c-4.8 0-8.9 3.2-10 7.6-1.5-1.5-3.6-2.4-5.8-2.4-4.6 0-8.3 3.7-8.3 8.3 0 1.2.3 2.4.7 3.5-1.4-1.1-3.2-1.8-5.1-1.8-4.6 0-8.3 3.7-8.3 8.3 0 4.6 3.7 8.3 8.3 8.3h71.7c7.4 0 13.3-6 13.3-13.3 0-7.4-6-13.3-13.3-13.3-1.6 0-3.1.3-4.5.8-2.5-6.5-8.8-11-16.1-11-3.3 0-6.4 1-8.9 2.7-3.2-4.5-8.4-7.4-14.2-7.4z"/>
+              </svg>
+              <span className="text-[20px] font-black tracking-tight text-white leading-none">SoundWave</span>
             </div>
             <div className="hidden md:flex items-center gap-7 text-[13px] font-medium text-zinc-500">
               <span className="hover:text-white transition-colors cursor-pointer">Комнаты</span>
@@ -1964,173 +1966,148 @@ function SyncPlayerApp() {
                 {isDark ? "☀️" : "🌙"}
               </button>
               {currentUser ? (
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <button
                   onClick={handleGoToMyRoom}
-                  className="px-4 py-2 rounded-none bg-zinc-900 border border-white/10 hover:border-[#007aff]/50 text-xs font-bold tracking-wider hover:bg-[#007aff]/5 text-white transition-all active:scale-[0.98] cursor-pointer"
+                  className="text-[14px] text-zinc-400 hover:text-white transition-colors font-medium"
                 >
-                  Моя комната
+                  My Room
                 </button>
-                <button
-                  onClick={() => setShowProfileCustomizer(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-zinc-900 border border-white/10 hover:border-[#007aff]/30 rounded-none cursor-pointer hover:bg-white/5 transition-all group overflow-hidden"
-                  title="Настроить профиль"
-                >
-                  <div 
-                    className="w-5 h-5 rounded-none bg-[#007aff] text-black text-[10px] font-black flex items-center justify-center flex-shrink-0 overflow-hidden"
-                    style={{ backgroundColor: myAvatarColor }}
+                <div className="flex items-center gap-3 bg-[#1e1e1e] rounded-full p-1 pr-4">
+                  <button
+                    onClick={() => setShowProfileCustomizer(true)}
+                    className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 overflow-hidden"
+                    style={{ backgroundColor: myAvatarColor || "#FF5500" }}
                   >
                     {myAvatarUrl && myAvatarUrl.startsWith("data:image") ? (
-                      <img src={myAvatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-none" />
+                      <img src={myAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                     ) : myAvatarUrl ? (
                       <span className="text-xs">{myAvatarUrl}</span>
                     ) : (
-                      myUsername ? myUsername.charAt(0).toUpperCase() : "?"
+                      <span className="text-white font-bold text-xs">{myUsername ? myUsername.charAt(0).toUpperCase() : "?"}</span>
                     )}
-                  </div>
-                  <span className="text-xs font-bold text-zinc-300 max-w-[100px] truncate group-hover:text-white transition-colors">{myUsername}</span>
-                </button>
-                <button
-                  onClick={handleLogout}
-                  className="px-3 py-1.5 rounded-none border border-red-500/10 hover:border-red-500/30 text-[10px] font-bold text-zinc-500 hover:text-red-500 transition-colors cursor-pointer"
-                >
-                  Выйти
-                </button>
+                  </button>
+                  <span className="text-[13px] font-semibold text-white max-w-[100px] truncate">{myUsername}</span>
+                  <button
+                    onClick={handleLogout}
+                    className="ml-2 text-zinc-500 hover:text-[#FF5500] transition-colors"
+                  >
+                    ✕
+                  </button>
+                </div>
               </div>
             ) : (
               <button
                 onClick={() => { setAuthTab("login"); setAuthError(""); setShowAuthModal(true); }}
-                className="px-5 py-2.5 rounded-none border border-white/10 hover:border-white/20 text-xs font-semibold tracking-wider hover:bg-white/5 transition-all active:scale-[0.98] cursor-pointer"
+                className="px-6 py-2 rounded-full bg-[#FF5500] hover:bg-[#e04b00] text-white text-[13px] font-bold tracking-wide transition-all active:scale-[0.98] cursor-pointer"
               >
-                Sign In
+                Sign in / Register
               </button>
             )}
             </div>
           </nav>
 
           {/* Hero & Join Card Panel */}
-          <section className="flex-1 max-w-7xl mx-auto w-full px-6 flex flex-col lg:flex-row items-center justify-center gap-14 py-16 z-10">
-            <div className="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start max-w-[520px]">
-              <h1 className="text-5xl md:text-6xl lg:text-[64px] font-black tracking-[-0.03em] leading-[1.06] mb-5 text-white">
-                Слушайте музыку
-                <br />
-                <span className="text-[#007aff]">вместе, в реальном</span>
-                <br />
-                <span className="text-[#007aff]">времени.</span>
-              </h1>
-              <p className="text-[#868694] text-[15px] mb-9 font-normal leading-relaxed max-w-[420px]">
-                Создайте комнату и синхронизируйте SoundCloud с друзьями без задержек.
-              </p>
-              <button
-                onClick={handleCreateRoomAction}
-                className="px-7 py-3.5 bg-[#007aff] hover:bg-[#0063d1] text-white font-semibold text-sm tracking-wide transition-all active:scale-[0.97] active:-translate-y-[1px]"
-              >
-                Создать сессию
-              </button>
+          <section className="flex-1 w-full flex flex-col items-center justify-center relative py-20 z-10">
+            {/* Background waveform approximation */}
+            <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center opacity-30 overflow-hidden mix-blend-screen mt-24">
+               <div className="w-full h-64 bg-[url('https://w.soundcloud.com/player/assets/images/waveform-13b30bd.svg')] bg-repeat-x opacity-60 filter sepia saturate-[300%] hue-rotate-340 brightness-150"></div>
             </div>
 
-            {/* Join Card */}
-            <div className="w-full max-w-[400px] glass-panel p-7 flex flex-col gap-5 relative">
-              {/* Live indicator */}
-              <div className="absolute top-5 right-5 flex items-center gap-1.5">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full bg-emerald-500 opacity-60"></span>
-                  <span className="relative inline-flex h-1.5 w-1.5 bg-emerald-500"></span>
-                </span>
-                <span className="text-[10px] font-mono font-medium text-emerald-500 tracking-wider">LIVE</span>
-              </div>
-
-              <div className="flex flex-col gap-0.5">
-                <h2 className="text-base font-bold text-white">Войти в комнату</h2>
-                <p className="text-[13px] text-[#868694]">Введите код сессии</p>
-              </div>
-
-              <form onSubmit={handleJoinOrCreateRoomSubmit} className="flex flex-col gap-3">
-                <input
-                  type="text"
-                  placeholder="XYI-8LP2"
-                  value={roomCodeInput}
-                  onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
-                  className="w-full bg-black/50 border border-white/[0.07] px-4 py-3.5 text-white text-center font-mono text-base font-semibold tracking-[0.2em] focus:outline-none focus:border-[#007aff]/60 focus:ring-1 focus:ring-[#007aff]/20 transition-all uppercase placeholder:text-white/15 placeholder:tracking-[0.15em]"
-                  maxLength={12}
-                />
+            <div className="flex-1 text-center flex flex-col items-center max-w-[800px] z-10 px-6">
+              <h1 className="text-5xl md:text-6xl lg:text-[72px] font-bold tracking-tight leading-tight mb-4 text-white">
+                Listen Together
+              </h1>
+              <p className="text-zinc-400 text-lg mb-12 font-medium">
+                Listen to SoundCloud Music Together with Friends
+              </p>
+              
+              <div className="flex flex-col sm:flex-row items-center gap-6">
                 <button
-                  type="submit"
-                  disabled={!roomCodeInput.trim()}
-                  className="w-full py-3.5 bg-white hover:bg-zinc-100 text-black font-semibold text-[13px] tracking-wide transition-all active:scale-[0.98] active:-translate-y-[1px] disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
+                  onClick={handleCreateRoomAction}
+                  className="px-10 py-4 bg-gradient-to-r from-[#FF5500] to-[#FF7733] text-white font-bold text-[16px] rounded-full transition-all active:scale-[0.98] shadow-[0_8px_20px_rgba(255,85,0,0.3)] hover:shadow-[0_12px_28px_rgba(255,85,0,0.4)]"
                 >
-                  Подключиться
+                  Create Room
                 </button>
-              </form>
-
-              <div className="relative flex items-center gap-3">
-                <div className="flex-grow border-t border-white/[0.05]"></div>
-                <span className="text-[#46464f] text-[11px] font-mono tracking-widest">ИЛИ</span>
-                <div className="flex-grow border-t border-white/[0.05]"></div>
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-[#FF5500] to-[#FF7733] rounded-full blur opacity-40 group-hover:opacity-70 transition duration-200"></div>
+                  <form onSubmit={handleJoinOrCreateRoomSubmit} className="relative flex">
+                    <input
+                      type="text"
+                      placeholder="Room Code..."
+                      value={roomCodeInput}
+                      onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
+                      className="bg-[#1e1e1e] border-none px-6 py-4 text-white font-mono text-[15px] rounded-l-full focus:outline-none w-48 placeholder:text-zinc-500 uppercase"
+                      maxLength={12}
+                    />
+                    <button
+                      type="submit"
+                      disabled={!roomCodeInput.trim()}
+                      className="px-8 py-4 bg-[#2a2a2a] text-[#FF5500] font-bold text-[16px] rounded-r-full transition-all hover:bg-[#333333] active:scale-[0.98] disabled:opacity-50 border-l border-white/5"
+                    >
+                      Join Room
+                    </button>
+                  </form>
+                </div>
               </div>
-
-              <button
-                onClick={handleCreateRoomAction}
-                className="w-full py-3.5 border border-white/[0.07] hover:border-[#007aff]/40 hover:bg-[#007aff]/5 text-white/80 hover:text-white font-medium text-[13px] tracking-wide transition-all active:scale-[0.98] cursor-pointer"
-              >
-                Создать новую сессию
-              </button>
             </div>
           </section>
 
           {/* Public Rooms Section */}
-          <section className="w-full max-w-7xl mx-auto px-6 pb-24 z-10 flex flex-col gap-5 text-left">
-            <div className="flex items-center justify-between py-4 border-t border-b border-white/[0.05]">
-              <div className="flex items-center gap-2.5">
-                <span className="relative flex h-2 w-2">
-                  <span className="live-pulse-dot absolute inset-0 bg-emerald-500"></span>
-                  <span className="relative h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <h2 className="text-sm font-semibold tracking-wide text-white">Публичные комнаты</h2>
+          <section className="w-full max-w-7xl mx-auto px-6 pb-24 z-10 flex flex-col gap-8 text-center mt-12">
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex items-center gap-2 text-[#FF5500]">
+                <svg viewBox="0 0 100 60" className="w-6 h-4 fill-current">
+                  <path d="M41.7 15.6c-4.8 0-8.9 3.2-10 7.6-1.5-1.5-3.6-2.4-5.8-2.4-4.6 0-8.3 3.7-8.3 8.3 0 1.2.3 2.4.7 3.5-1.4-1.1-3.2-1.8-5.1-1.8-4.6 0-8.3 3.7-8.3 8.3 0 4.6 3.7 8.3 8.3 8.3h71.7c7.4 0 13.3-6 13.3-13.3 0-7.4-6-13.3-13.3-13.3-1.6 0-3.1.3-4.5.8-2.5-6.5-8.8-11-16.1-11-3.3 0-6.4 1-8.9 2.7-3.2-4.5-8.4-7.4-14.2-7.4z"/>
+                </svg>
+                <h2 className="text-[15px] font-bold tracking-wide text-white">Public Rooms</h2>
               </div>
               <button 
                 onClick={fetchPublicRooms} 
-                className="text-[12px] text-[#868694] hover:text-white transition-colors cursor-pointer font-mono"
+                className="text-[12px] text-zinc-500 hover:text-white transition-colors cursor-pointer font-mono"
               >
-                обновить
+                refresh
               </button>
             </div>
 
             {loadingPublicRooms ? (
               <div className="w-full py-14 flex items-center justify-center">
-                <div className="w-5 h-5 border border-[#007aff] border-r-transparent animate-spin"></div>
+                <div className="w-6 h-6 border-2 border-[#FF5500] border-t-transparent rounded-full animate-spin"></div>
               </div>
             ) : publicRooms.length === 0 ? (
-              <div className="w-full py-16 border border-dashed border-white/[0.06] flex flex-col items-center justify-center gap-2.5 px-6 text-center">
-                <Radio className="w-6 h-6 text-white/15" />
-                <p className="text-[13px] font-medium text-white/30">
-                  Нет активных публичных комнат
+              <div className="w-full max-w-2xl mx-auto py-16 bg-[#161616] rounded-3xl flex flex-col items-center justify-center gap-3 px-6 text-center">
+                <Radio className="w-8 h-8 text-zinc-600" />
+                <p className="text-[15px] font-bold text-white">
+                  No active public rooms
                 </p>
-                <p className="text-[12px] text-[#46464f] max-w-[300px]">
-                  Создайте комнату и сделайте её публичной в настройках.
+                <p className="text-[13px] text-zinc-400 max-w-[300px]">
+                  Create a room and make it public in settings to start co-listening.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.04]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 {publicRooms.map((room) => (
-                  <div key={room.id} className="bg-[#04040a] p-6 flex flex-col justify-between gap-5 hover:bg-[#0a0a12] transition-colors group cursor-default">
+                  <div key={room.id} className="bg-[#161616] p-6 rounded-3xl flex flex-col justify-between gap-5 hover:bg-[#1f1f1f] transition-colors group cursor-default text-left">
                     <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono text-[#007aff] tracking-widest">LIVE</span>
-                        <span className="text-[10px] font-mono text-[#46464f] tracking-widest">{room.id}</span>
+                        <span className="text-[10px] font-bold text-[#FF5500] uppercase tracking-wider flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#FF5500] animate-pulse"></span>
+                          LIVE
+                        </span>
+                        <span className="text-[10px] font-mono text-zinc-500 tracking-widest">{room.id}</span>
                       </div>
-                      <h3 className="text-[15px] font-semibold text-white truncate leading-snug">{room.room_name || `Комната ${room.id}`}</h3>
+                      <h3 className="text-[16px] font-bold text-white truncate leading-snug">{room.room_name || `Room ${room.id}`}</h3>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-[#46464f]">
-                        <Users className="w-3 h-3" />
-                        <span className="text-[11px] font-mono">co-listen</span>
+                    <div className="flex items-center justify-between mt-2">
+                      <div className="flex items-center gap-1.5 text-zinc-400">
+                        <Users className="w-3.5 h-3.5" />
+                        <span className="text-[11px] font-medium">co-listen</span>
                       </div>
                       <button 
                         onClick={() => router.push(`/?room=${room.id}`)}
-                        className="px-4 py-1.5 bg-[#007aff] hover:bg-[#0063d1] text-white font-medium text-[12px] tracking-wide transition-all active:scale-[0.97] cursor-pointer"
+                        className="px-4 py-2 bg-[#2a2a2a] hover:bg-[#FF5500] hover:text-white text-zinc-300 font-bold text-[11px] tracking-wide transition-all rounded-full cursor-pointer"
                       >
-                        Войти
+                        Join
                       </button>
                     </div>
                   </div>
@@ -2251,48 +2228,31 @@ function SyncPlayerApp() {
         </div>
       </header>
 
-                {/* ==================== REDESIGNED MINIMALIST TWO-COLUMN GRAPHITE DASHBOARD ==================== */}
-        <div className="w-full max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
+      {/* ==================== REDESIGNED SOUNDWAVE PLAYER DASHBOARD ==================== */}
+      <div className="w-full max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
           
-          {/* COLUMN 1: iMESSAGE CHAT COLUMN (7/12 cols) */}
-          <div className="col-span-1 lg:col-span-7 flex flex-col gap-4">
-            <div className="minimal-panel flex flex-col h-[650px] relative overflow-hidden bg-[#121214]">
-              
-              {/* iMessage Header with Horizontal Online User Bubbles */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#121214] z-10">
-                <div className="flex flex-col text-left">
-                  <span className="text-[9px] font-black uppercase tracking-widest text-[#007aff]">iMessage Chat</span>
-                  <h3 className="text-sm font-black truncate max-w-[140px] md:max-w-[200px]">
-                    {roomSettings.room_name || `Сессия ${roomCode}`}
-                  </h3>
-                </div>
-                
-                {/* Horizontal scroll of online participants */}
-                <div className="flex items-center gap-2 overflow-x-auto py-1 max-w-[180px] md:max-w-[320px] custom-slim-scrollbar">
-                  {participants.map((p, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setSelectedUserProfile(p)}
-                      className="flex-shrink-0 w-8 h-8 rounded-none border border-white/10 flex items-center justify-center text-[10px] font-black text-black overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer relative"
-                      style={{ backgroundColor: p.avatarColor || "#007aff" }}
-                      title={p.username}
-                    >
-                      {p.avatarUrl && p.avatarUrl.startsWith("data:image") ? (
-                        <img src={p.avatarUrl} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        p.username ? p.username.charAt(0).toUpperCase() : "?"
-                      )}
-                      <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-none border border-zinc-900 shadow"></span>
-                    </button>
-                  ))}
-                </div>
+        {/* COLUMN 1: CHAT & USERS (4/12 cols) - Now on Right */}
+        <div className="col-span-1 lg:col-span-4 lg:order-last flex flex-col gap-4">
+          <div className="bg-[#161616] rounded-3xl flex flex-col h-[650px] relative overflow-hidden shadow-[0_8px_32px_rgba(0,0,0,0.5)]">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-5 border-b border-white/5 bg-[#161616] z-10">
+              <div className="flex flex-col text-left">
+                <span className="text-[11px] font-bold tracking-wider text-[#FF5500]">LIVE CHAT</span>
+                <h3 className="text-[15px] font-bold text-white truncate max-w-[140px] md:max-w-[200px]">
+                  {roomSettings.room_name || `Room ${roomCode}`}
+                </h3>
               </div>
+              {/* Hidden avatars from chat header, they are now in main header */}
+              <div className="hidden">
+              </div>
+            </div>
 
-              {/* Dynamic Chat messages scrolling block */}
-              <div 
-                ref={chatContainerRef} 
-                className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 select-text custom-slim-scrollbar bg-[#09090b]"
-              >
+            {/* Dynamic Chat messages */}
+            <div 
+              ref={chatContainerRef} 
+              className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 select-text custom-slim-scrollbar bg-[#111111]"
+            >
                 {chatMessages.map((msg) => {
                   if (msg.isSystem) {
                     return (
@@ -2307,29 +2267,29 @@ function SyncPlayerApp() {
                       key={msg.id} 
                       className={`flex items-end gap-2.5 max-w-[85%] ${isMe ? "self-end flex-row-reverse" : "self-start flex-row"}`}
                     >
-                      {/* Avatar for received messages */}
-                      {!isMe && (
-                        <button
-                          onClick={() => setSelectedUserProfile({
-                            username: msg.username,
-                            avatarColor: msg.avatarColor,
-                            avatarUrl: msg.avatarUrl,
-                            bannerUrl: msg.bannerUrl,
-                            bio: msg.bio,
-                            customBadge: msg.customBadge,
-                            joinedAt: msg.joinedAt || new Date().toISOString(),
-                            latency: "Chat"
-                          })}
-                          className="w-7 h-7 rounded-none flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 overflow-hidden hover:scale-105 transition-all border border-white/5 cursor-pointer"
-                          style={{ backgroundColor: msg.avatarColor || "#007aff" }}
-                        >
-                          {msg.avatarUrl && msg.avatarUrl.startsWith("data:image") ? (
-                            <img src={msg.avatarUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            msg.username ? msg.username.charAt(0).toUpperCase() : "?"
-                          )}
-                        </button>
-                      )}
+                    {/* Avatar for received messages */}
+                    {!isMe && (
+                      <button
+                        onClick={() => setSelectedUserProfile({
+                          username: msg.username,
+                          avatarColor: msg.avatarColor,
+                          avatarUrl: msg.avatarUrl,
+                          bannerUrl: msg.bannerUrl,
+                          bio: msg.bio,
+                          customBadge: msg.customBadge,
+                          joinedAt: msg.joinedAt || new Date().toISOString(),
+                          latency: "Chat"
+                        })}
+                        className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-bold text-white flex-shrink-0 overflow-hidden hover:scale-105 transition-all cursor-pointer"
+                        style={{ backgroundColor: msg.avatarColor || "#FF5500" }}
+                      >
+                        {msg.avatarUrl && msg.avatarUrl.startsWith("data:image") ? (
+                          <img src={msg.avatarUrl} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          msg.username ? msg.username.charAt(0).toUpperCase() : "?"
+                        )}
+                      </button>
+                    )}
                       
                       <div className="flex flex-col gap-0.5 max-w-[260px] md:max-w-[360px]">
                         {/* Display Sender name above bubble for group visual validation */}
@@ -2338,11 +2298,11 @@ function SyncPlayerApp() {
                             {msg.username}
                           </span>
                         )}
-                        <div 
-                          className={isMe ? "imessage-bubble-sent text-left" : "imessage-bubble-received text-left"}
-                        >
-                          {msg.text}
-                        </div>
+                      <div 
+                        className={isMe ? "bg-[#FF5500] text-white rounded-2xl rounded-tr-sm px-4 py-2.5 text-[13px] text-left break-words shadow-sm" : "bg-[#222222] text-zinc-200 border border-white/5 rounded-2xl rounded-tl-sm px-4 py-2.5 text-[13px] text-left break-words"}
+                      >
+                        {msg.text}
+                      </div>
                         <span className={`text-[7.5px] text-zinc-600 font-mono mt-0.5 px-1 ${isMe ? "text-right" : "text-left"}`}>
                           {msg.timestamp}
                         </span>
@@ -2352,59 +2312,64 @@ function SyncPlayerApp() {
                 })}
               </div>
 
-              {/* Message input bar with circular blue submit */}
-              <form onSubmit={handleSendChatMessage} className="flex items-center gap-2 p-4 border-t border-white/5 bg-[#121214] z-10">
-                <input
-                  type="text"
-                  placeholder="iMessage..."
-                  value={newChatMessage}
-                  onChange={(e) => setNewChatMessage(e.target.value)}
-                  className="flex-1 bg-[#1a1a1e] border border-white/5 rounded-none px-5 py-3 text-xs text-white placeholder:text-zinc-650 focus:outline-none focus:border-[#007aff]/60 transition-all font-semibold"
-                />
-                <button
-                  type="submit"
-                  disabled={!newChatMessage.trim()}
-                  className="w-9 h-9 bg-[#007aff] hover:bg-[#0066d6] active:scale-95 disabled:opacity-30 rounded-none transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0"
-                >
-                  <Send className="w-4 h-4 text-white fill-current" />
-                </button>
-              </form>
-            </div>
+            {/* Message input bar */}
+            <form onSubmit={handleSendChatMessage} className="flex items-center gap-3 p-4 border-t border-white/5 bg-[#161616] z-10">
+              <input
+                type="text"
+                placeholder="Say something..."
+                value={newChatMessage}
+                onChange={(e) => setNewChatMessage(e.target.value)}
+                className="flex-1 bg-[#222] border border-transparent rounded-full px-5 py-3.5 text-[13px] text-white placeholder:text-zinc-500 focus:outline-none focus:border-[#FF5500]/50 transition-all font-medium"
+              />
+              <button
+                type="submit"
+                disabled={!newChatMessage.trim()}
+                className="w-11 h-11 bg-[#FF5500] hover:bg-[#e04b00] active:scale-95 disabled:opacity-30 rounded-full transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0 shadow-sm"
+              >
+                <Send className="w-4 h-4 ml-0.5 text-white fill-current" />
+              </button>
+            </form>
           </div>
+        </div>
 
-          {/* COLUMN 2: PLAYER & MEDIA CONTROLS COLUMN (5/12 cols) */}
-          <div className="col-span-1 lg:col-span-5 flex flex-col gap-6 h-[650px] overflow-y-auto pr-1 custom-slim-scrollbar">
+        {/* COLUMN 2: PLAYER & CONTROLS (8/12 cols) - Now on Left */}
+        <div className="col-span-1 lg:col-span-8 lg:order-first flex flex-col gap-6">
+          
+          {/* Main Player Display */}
+          <div className="bg-[#111] border border-white/5 p-8 rounded-3xl flex flex-col items-center shadow-lg relative overflow-hidden">
+            {/* Background blur of album art */}
+            {currentTrack && currentTrack.thumbnail && (
+              <div 
+                className="absolute inset-0 z-0 opacity-20 blur-[100px] pointer-events-none scale-150 transform-gpu"
+                style={{ backgroundImage: `url(${currentTrack.thumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+              />
+            )}
             
-            {/* Minimal Now Playing Card */}
-            <div className="minimal-panel p-6 flex flex-col gap-4 text-left">
-              <span className="text-[9px] font-black uppercase tracking-widest text-[#007aff] flex items-center gap-1.5 pl-1 font-sans">
-                <span className="w-1.5 h-1.5 rounded-none bg-[#007aff] animate-pulse"></span>
-                Currently Playing
-              </span>
-              
-              <div className="flex items-center gap-4 bg-black/20 p-4 rounded-none border border-white/5 relative overflow-hidden group">
-                <div className="relative w-14 h-14 rounded-none bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
-                  {currentTrack && currentTrack.thumbnail ? (
-                    <img src={currentTrack.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
-                  ) : (
-                    <Music className="w-5 h-5 text-zinc-650" />
-                  )}
-                </div>
-                <div className="flex flex-col min-w-0 flex-1 leading-tight">
-                  <h4 className="text-xs font-black text-white truncate max-w-full font-sans">
-                    {currentTrack ? currentTrack.title : "Ничего не проигрывается"}
-                  </h4>
-                  <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-wider mt-1 font-sans">
-                    {currentTrack ? "SoundCloud Realtime" : "Ожидание трека..."}
-                  </span>
-                </div>
-              </div>
-              
-              {/* Timeline Slider Progress */}
-              <div className="w-full flex items-center gap-3 px-1 mt-2">
-                <span className="text-[9px] font-mono text-zinc-500 min-w-[28px] text-right">
-                  {formatTime(progressMs)}
-                </span>
+            <div className="w-full max-w-md aspect-square rounded-2xl bg-black border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-10 flex items-center justify-center">
+              {currentTrack && currentTrack.thumbnail ? (
+                <img src={currentTrack.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-1000 hover:scale-105" />
+              ) : (
+                <Music className="w-16 h-16 text-zinc-700" />
+              )}
+            </div>
+            
+            {/* Track Info */}
+            <div className="mt-8 text-center z-10 w-full">
+              <h2 className="text-2xl font-bold text-white truncate mb-1">
+                {currentTrack ? currentTrack.title : "No track playing"}
+              </h2>
+              <p className="text-zinc-400 text-sm font-medium">
+                SoundWave Synchronized Playback
+              </p>
+            </div>
+            
+            {/* Waveform / Progress Bar */}
+            <div className="w-full max-w-2xl mt-8 flex flex-col gap-2 z-10">
+              <div className="relative h-2 w-full bg-[#222] rounded-full overflow-hidden group cursor-pointer">
+                <div 
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-[#FF5500] to-[#FF7733] rounded-full pointer-events-none"
+                  style={{ width: `${durationMs > 0 ? (progressMs / durationMs) * 100 : 0}%` }}
+                />
                 <input
                   type="range"
                   min="0"
@@ -2412,122 +2377,110 @@ function SyncPlayerApp() {
                   value={progressMs}
                   onChange={handleSeek}
                   disabled={!currentTrack}
-                  className="flex-1 cursor-pointer"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                 />
-                <span className="text-[9px] font-mono text-zinc-500 min-w-[28px] text-left">
-                  {formatTime(durationMs)}
-                </span>
               </div>
-              
-              {/* Playback controls row */}
-              <div className="flex items-center justify-between mt-1 px-1">
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={handleSkipPrev}
-                    disabled={playlist.length <= 1}
-                    className="p-1 text-zinc-400 hover:text-white disabled:opacity-20 disabled:pointer-events-none rounded transition-colors active:scale-95 cursor-pointer"
-                    title="Предыдущий трек"
-                  >
-                    <SkipBack className="w-4 h-4 fill-current" />
-                  </button>
-                  
-                  <button
-                    onClick={handlePlayPauseToggle}
-                    disabled={!currentTrack}
-                    className="w-10 h-10 bg-white hover:bg-zinc-200 text-black rounded-none flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer flex-shrink-0"
-                    title={isPlaying ? "Пауза" : "Воспроизвести"}
-                  >
-                    {isPlaying ? (
-                      <Pause className="w-4.5 h-4.5 fill-black text-black" />
-                    ) : (
-                      <Play className="w-4.5 h-4.5 fill-black text-black translate-x-0.5" />
-                    )}
-                  </button>
-                  
-                  <button
-                    onClick={handleSkipNext}
-                    disabled={playlist.length <= 1}
-                    className="p-1 text-zinc-400 hover:text-white disabled:opacity-20 disabled:pointer-events-none rounded transition-colors active:scale-95 cursor-pointer"
-                    title="Следующий трек"
-                  >
-                    <SkipForward className="w-4 h-4 fill-current" />
-                  </button>
-                  
-                  <button
-                    onClick={() => setIsRepeat(!isRepeat)}
-                    className={`p-1 rounded transition-colors cursor-pointer ${isRepeat ? "text-[#007aff]" : "text-zinc-550 hover:text-white"}`}
-                    title="Повторять трек"
-                  >
-                    <Repeat className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-                
-                {/* Volume slider */}
-                <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-none border border-white/5 max-w-[120px] w-full">
-                  <button
-                    onClick={toggleMute}
-                    className="text-zinc-400 hover:text-white transition-colors cursor-pointer flex-shrink-0"
-                  >
-                    {isMuted ? <VolumeX className="w-3.5 h-3.5 text-zinc-500" /> : <Volume2 className="w-3.5 h-3.5" />}
-                  </button>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={isMuted ? 0 : volume}
-                    onChange={handleVolumeChange}
-                    className="w-full cursor-pointer accent-white h-0.5 bg-white/10"
-                  />
-                </div>
+              <div className="flex justify-between items-center text-[11px] font-mono text-zinc-500">
+                <span>{formatTime(progressMs)}</span>
+                <span>{formatTime(durationMs)}</span>
               </div>
             </div>
-
-            {/* Consolidated Mediatheque, Importer & Queue Tab Box */}
-            <div className="minimal-panel p-6 flex flex-col gap-4 text-left">
+            
+            {/* Playback Controls */}
+            <div className="w-full max-w-lg mt-6 flex items-center justify-between z-10">
+              <button
+                onClick={toggleMute}
+                className="text-zinc-400 hover:text-white transition-colors p-2"
+                title={isMuted ? "Unmute" : "Mute"}
+              >
+                {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
+              </button>
               
-              {/* Segmented Tab Row */}
-              <div className="grid grid-cols-4 bg-black/40 p-1 rounded-none border border-white/5">
+              <div className="flex items-center gap-6">
                 <button
-                  onClick={() => setActiveLibraryTab("favorites")}
-                  className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
-                    activeLibraryTab === "favorites"
-                      ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
-                      : "text-zinc-500 hover:text-zinc-300"
-                  }`}
+                  onClick={handleSkipPrev}
+                  disabled={playlist.length <= 1}
+                  className="text-zinc-300 hover:text-white disabled:opacity-30 disabled:hover:text-zinc-300 transition-colors cursor-pointer"
                 >
-                  Медиатека
+                  <SkipBack className="w-6 h-6 fill-current" />
                 </button>
+                
                 <button
-                  onClick={() => setActiveLibraryTab("playlist")}
-                  className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
-                    activeLibraryTab === "playlist"
-                      ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
-                      : "text-zinc-550 hover:text-zinc-300"
-                  }`}
+                  onClick={handlePlayPauseToggle}
+                  disabled={!currentTrack}
+                  className="w-16 h-16 bg-[#FF5500] text-white rounded-full flex items-center justify-center shadow-[0_8px_24px_rgba(255,85,0,0.4)] hover:scale-105 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 transition-all cursor-pointer"
                 >
-                  Импорт
+                  {isPlaying ? (
+                    <Pause className="w-6 h-6 fill-current" />
+                  ) : (
+                    <Play className="w-6 h-6 fill-current translate-x-0.5" />
+                  )}
                 </button>
+                
                 <button
-                  onClick={() => setActiveLibraryTab("bulk")}
-                  className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
-                    activeLibraryTab === "bulk"
-                      ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
-                      : "text-zinc-550 hover:text-zinc-300"
-                  }`}
+                  onClick={handleSkipNext}
+                  disabled={playlist.length <= 1}
+                  className="text-zinc-300 hover:text-white disabled:opacity-30 disabled:hover:text-zinc-300 transition-colors cursor-pointer"
                 >
-                  Списком
-                </button>
-                <button
-                  onClick={() => setActiveLibraryTab("queue")}
-                  className={`py-2 rounded-none text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
-                    activeLibraryTab === "queue" || activeLibraryTab === undefined
-                      ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
-                      : "text-zinc-550 hover:text-zinc-300"
-                  }`}
-                >
-                  Очередь (${playlist.length})
+                  <SkipForward className="w-6 h-6 fill-current" />
                 </button>
               </div>
+              
+              <button
+                onClick={() => setIsRepeat(!isRepeat)}
+                className={`p-2 transition-colors ${isRepeat ? "text-[#FF5500]" : "text-zinc-400 hover:text-white"}`}
+              >
+                <Repeat className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          {/* Consolidated Mediatheque, Importer & Queue Tab Box */}
+          <div className="bg-[#161616] rounded-3xl p-6 flex flex-col gap-5 shadow-[0_8px_32px_rgba(0,0,0,0.3)]">
+            
+            {/* Segmented Tab Row */}
+            <div className="grid grid-cols-4 bg-[#0a0a0a] p-1.5 rounded-full border border-white/5">
+              <button
+                onClick={() => setActiveLibraryTab("favorites")}
+                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  activeLibraryTab === "favorites"
+                    ? "bg-[#222] text-white shadow-md border border-white/5"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                Медиатека
+              </button>
+              <button
+                onClick={() => setActiveLibraryTab("playlist")}
+                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  activeLibraryTab === "playlist"
+                    ? "bg-[#222] text-white shadow-md border border-white/5"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                Импорт
+              </button>
+              <button
+                onClick={() => setActiveLibraryTab("bulk")}
+                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  activeLibraryTab === "bulk"
+                    ? "bg-[#222] text-white shadow-md border border-white/5"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                Списком
+              </button>
+              <button
+                onClick={() => setActiveLibraryTab("queue")}
+                className={`py-2 rounded-full text-[11px] font-bold uppercase tracking-wider transition-all duration-300 cursor-pointer ${
+                  activeLibraryTab === "queue" || activeLibraryTab === undefined
+                    ? "bg-[#222] text-[#FF5500] shadow-md border border-[#FF5500]/20"
+                    : "text-zinc-500 hover:text-zinc-300"
+                }`}
+              >
+                Очередь ({playlist.length})
+              </button>
+            </div>
 
               {/* TAB CONTENT: FAVORITES */}
               {activeLibraryTab === "favorites" && (
@@ -2544,7 +2497,7 @@ function SyncPlayerApp() {
                     <button
                       type="submit"
                       disabled={!newPersonalUrl.trim() || addingPersonal}
-                      className="p-2 bg-[#007aff] hover:bg-[#0066d6] text-white active:scale-[0.98] disabled:opacity-30 rounded-none transition-all flex items-center justify-center cursor-pointer flex-shrink-0"
+                      className="p-2 bg-[#FF5500] hover:bg-[#e04b00] text-white active:scale-[0.98] disabled:opacity-30 rounded-none transition-all flex items-center justify-center cursor-pointer flex-shrink-0"
                     >
                       {addingPersonal ? (
                         <div className="w-3.5 h-3.5 rounded-none border-2 border-white border-r-transparent animate-spin"></div>
@@ -2626,7 +2579,7 @@ function SyncPlayerApp() {
                       value={importUrl}
                       onChange={(e) => setImportUrl(e.target.value)}
                       disabled={importingPlaylist}
-                      className="flex-1 bg-black/45 border border-white/5 rounded-none px-3 py-2 text-xs text-zinc-250 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors"
+                      className="flex-1 bg-black/45 border border-white/5 rounded-none px-3 py-2 text-xs text-zinc-250 placeholder:text-zinc-655 focus:outline-none focus:border-[#FF5500] transition-colors"
                     />
                     <button
                       type="submit"
@@ -2694,7 +2647,7 @@ function SyncPlayerApp() {
                     <button
                       type="submit"
                       disabled={!newTrackUrl.trim() || addingTrack}
-                      className="p-2 bg-[#007aff] hover:bg-[#0066d6] text-white active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none rounded-none transition-all flex items-center justify-center cursor-pointer"
+                      className="p-2 bg-[#FF5500] hover:bg-[#e04b00] text-white active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none rounded-none transition-all flex items-center justify-center cursor-pointer"
                     >
                       {addingTrack ? (
                         <div className="w-3.5 h-3.5 rounded-none border-2 border-white border-r-transparent animate-spin"></div>
@@ -3362,7 +3315,7 @@ function SyncPlayerApp() {
                   </div>
                   <div className="flex flex-col min-w-0 leading-tight">
                     <div className="flex items-baseline gap-1.5">
-                      <span className="text-[10px] font-bold text-zinc-300 group-hover:text-[#007aff] transition-colors">{msg.username}</span>
+                      <span className="text-[10px] font-bold text-zinc-300 group-hover:text-[#FF5500] transition-colors">{msg.username}</span>
                       {msg.customBadge && (
                         <span className="px-1.5 py-0.5 rounded-[3px] bg-[#007aff]/10 text-[#007aff] border border-[#007aff]/20 text-[6px] font-black uppercase tracking-wider scale-90 origin-left">
                           {msg.customBadge}
@@ -3648,89 +3601,76 @@ function SyncPlayerApp() {
 
       {/* ==================== SUPABASE AUTH MODAL ==================== */}
       {showAuthModal && (
-        <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/60 backdrop-blur-md px-4 select-text">
-          <div className="w-full max-w-sm glass-panel p-8 rounded-none border-white/10 shadow-2xl relative flex flex-col gap-6">
+        <div className="fixed inset-0 z-55 flex items-center justify-center bg-black/80 backdrop-blur-md px-4 select-text">
+          {/* Decorative background waveform approximation */}
+          <div className="absolute inset-0 z-0 pointer-events-none flex items-center justify-center opacity-30 overflow-hidden">
+             <div className="w-full h-48 bg-[url('https://w.soundcloud.com/player/assets/images/waveform-13b30bd.svg')] bg-repeat-x opacity-50 filter sepia saturate-200 hue-rotate-340 brightness-150"></div>
+          </div>
+          
+          <div className="w-full max-w-[420px] bg-[#161616] p-10 rounded-3xl shadow-[0_30px_60px_rgba(0,0,0,0.5)] relative flex flex-col gap-8 z-10">
             <button
               onClick={() => setShowAuthModal(false)}
-              className="absolute top-4 right-4 text-zinc-500 hover:text-white transition-colors cursor-pointer text-sm font-bold"
+              className="absolute top-5 right-5 text-zinc-500 hover:text-white transition-colors cursor-pointer text-lg font-bold"
             >
               ✕
             </button>
 
-            <div className="flex flex-col gap-1 text-center">
-              <h2 className="text-2xl font-black tracking-tight">
-                {authTab === "login" ? "Вход в аккаунт" : "Регистрация"}
+            <div className="flex flex-col gap-2 text-center mt-2">
+              <h2 className="text-3xl font-black tracking-tight text-white">
+                SoundWave
               </h2>
-              <p className="text-xs text-zinc-500">
+              <p className="text-sm text-zinc-400 font-medium">
                 {authTab === "login"
-                  ? "Войдите, чтобы управлять своей комнатой"
-                  : "Создайте профиль и получите постоянную комнату"}
+                  ? "Music Co-listening App"
+                  : "Create your account to sync"}
               </p>
             </div>
 
-            {/* Segmented Modal Tabs */}
-            <div className="grid grid-cols-2 bg-black/40 p-1 rounded-none border border-white/5">
-              <button
-                onClick={() => { setAuthTab("login"); setAuthError(""); }}
-                className={`py-2 rounded-none text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                  authTab === "login"
-                    ? "bg-white/10 text-white shadow-sm border border-white/5"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                Вход
-              </button>
-              <button
-                onClick={() => { setAuthTab("register"); setAuthError(""); }}
-                className={`py-2 rounded-none text-xs font-black uppercase tracking-wider transition-all duration-300 cursor-pointer ${
-                  authTab === "register"
-                    ? "bg-white/10 text-white shadow-sm border border-white/5"
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                Регистрация
-              </button>
-            </div>
-
             <form onSubmit={handleAuthSubmit} className="flex flex-col gap-4">
-              <div className="flex flex-col gap-1.5 text-left">
-                <label className="text-[10px] uppercase font-bold text-zinc-500 pl-1">Email</label>
-                <input
-                  type="email"
-                  placeholder="name@example.com"
-                  value={authEmail}
-                  onChange={(e) => setAuthEmail(e.target.value)}
-                  className="w-full bg-black/60 border border-white/8 rounded-none px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#007aff] transition-all"
-                  required
-                />
-              </div>
+              <input
+                type="email"
+                placeholder="Email address"
+                value={authEmail}
+                onChange={(e) => setAuthEmail(e.target.value)}
+                className="w-full bg-[#242424] border border-transparent rounded-xl px-4 py-4 text-white text-[15px] focus:outline-none focus:border-[#FF5500]/50 transition-all placeholder:text-zinc-500"
+                required
+              />
 
-              <div className="flex flex-col gap-1.5 text-left">
-                <label className="text-[10px] uppercase font-bold text-zinc-500 pl-1">Пароль</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  value={authPassword}
-                  onChange={(e) => setAuthPassword(e.target.value)}
-                  className="w-full bg-black/60 border border-white/8 rounded-none px-4 py-3.5 text-white text-xs focus:outline-none focus:border-[#007aff] transition-all"
-                  required
-                />
-              </div>
+              <input
+                type="password"
+                placeholder="Password"
+                value={authPassword}
+                onChange={(e) => setAuthPassword(e.target.value)}
+                className="w-full bg-[#242424] border border-transparent rounded-xl px-4 py-4 text-white text-[15px] focus:outline-none focus:border-[#FF5500]/50 transition-all placeholder:text-zinc-500"
+                required
+              />
 
               {authError && (
-                <div className="text-red-500 text-xs font-semibold pl-1 text-left">
-                  ⚠️ {authError}
+                <div className="text-red-500 text-[13px] font-medium text-center">
+                  {authError}
                 </div>
               )}
 
               <button
                 type="submit"
                 disabled={authLoading}
-                className="w-full py-4 bg-white text-black font-extrabold text-xs uppercase tracking-widest rounded-none transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer mt-2"
+                className="w-full py-4 bg-[#FF5500] text-white font-semibold text-[15px] rounded-xl transition-all hover:bg-[#e04b00] active:scale-[0.98] shadow-[0_4px_14px_rgba(255,85,0,0.3)] disabled:opacity-50 disabled:pointer-events-none cursor-pointer mt-2"
               >
-                {authLoading ? "Пожалуйста, подождите..." : authTab === "login" ? "Войти" : "Зарегистрироваться"}
+                {authLoading ? "Please wait..." : authTab === "login" ? "Continue with Email" : "Sign Up"}
               </button>
             </form>
+
+            <div className="text-center mt-2">
+              <button
+                onClick={() => {
+                  setAuthTab(authTab === "login" ? "register" : "login");
+                  setAuthError("");
+                }}
+                className="text-[13px] text-zinc-400 hover:text-white transition-colors"
+              >
+                {authTab === "login" ? "Don't have an account? Sign up" : "Already have an account? Log in"}
+              </button>
+            </div>
           </div>
         </div>
       )}
