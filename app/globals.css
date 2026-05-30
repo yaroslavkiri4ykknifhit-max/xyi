@@ -2,35 +2,38 @@
 
 @theme {
   --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --color-soundcloud: #ff5500;
-  --color-ios-bg: #0a0a0c;
-  --color-ios-card: rgba(20, 20, 25, 0.6);
-  --color-ios-border: rgba(255, 255, 255, 0.08);
-  --color-ios-gray: #8e8e93;
+  --color-soundcloud: #ff3366; /* Coral-pink accent color as requested */
+  --color-quartz-bg: rgba(13, 11, 28, 0.45);
+  --color-quartz-border: rgba(255, 255, 255, 0.05);
 }
 
 :root {
-  --background: #050508;
+  --background: #060512;
   --foreground: #ffffff;
+  --color-coral: #ff3366;
+  --color-coral-glow: rgba(255, 51, 102, 0.35);
+  --color-violet-glow: rgba(138, 43, 226, 0.25);
 }
 
 body {
-  background-color: #020204;
+  background-color: #04030a;
   color: #ffffff;
   font-family: var(--font-sans);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Rich quartz gradient background with atmospheric violet/blue glows */
   background-image: 
-    linear-gradient(rgba(255, 85, 0, 0.012) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 85, 0, 0.012) 1px, transparent 1px),
-    radial-gradient(circle at 10% 20%, rgba(255, 85, 0, 0.05) 0%, transparent 45%),
-    radial-gradient(circle at 95% 85%, rgba(0, 180, 216, 0.04) 0%, transparent 45%);
-  background-size: 32px 32px, 32px 32px, 100% 100%, 100% 100%;
+    radial-gradient(circle at 5% 15%, rgba(138, 43, 226, 0.15) 0%, transparent 45%),
+    radial-gradient(circle at 95% 80%, rgba(255, 51, 102, 0.12) 0%, transparent 50%),
+    radial-gradient(circle at 50% 50%, rgba(0, 180, 216, 0.06) 0%, transparent 60%),
+    linear-gradient(180deg, #070614 0%, #030307 100%);
   background-attachment: fixed;
+  min-height: 100vh;
 }
 
-/* Custom Webkit scrollbar customization for a premium Apple UI experience */
+/* Custom premium thin scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
@@ -41,13 +44,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 85, 0, 0.15);
-  border-radius: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.02);
+  background: rgba(255, 51, 102, 0.15);
+  border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #ff5500;
+  background: #ff3366;
 }
 
 /* Hide SoundCloud default standard widget element but keep API working */
@@ -62,103 +64,136 @@ body {
   border: 0;
 }
 
-/* Glassmorphism details - strict, premium, cyber-accented */
-.glass-panel {
-  background: rgba(6, 6, 9, 0.75);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 85, 0, 0.12); /* subtle SoundCloud orange glow border */
-  box-shadow: 0 16px 48px 0 rgba(0, 0, 0, 0.7);
+/* Quartz-morphism Panel: Multi-layered glass styling with physical volumetric feel */
+.quartz-panel {
+  background: rgba(14, 12, 30, 0.45);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 
+    0 24px 70px 0 rgba(0, 0, 0, 0.75),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.5);
+  transition: border-color 0.4s ease, box-shadow 0.4s ease, background 0.4s ease;
 }
 
-.glass-panel-hover {
-  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+.quartz-panel-hover:hover {
+  background: rgba(20, 18, 42, 0.55);
+  border-color: rgba(255, 51, 102, 0.25);
+  box-shadow: 
+    0 24px 70px 0 rgba(0, 0, 0, 0.8),
+    0 0 20px 0 rgba(255, 51, 102, 0.05),
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.4);
 }
 
-.glass-panel-hover:hover {
-  background: rgba(10, 10, 15, 0.85);
-  border-color: rgba(255, 85, 0, 0.3);
-  box-shadow: 0 16px 48px 0 rgba(255, 85, 0, 0.05);
+/* Special Pink-Coral Neon Glow Panel (For Player and selected regions) */
+.quartz-pink-glow {
+  box-shadow: 
+    0 24px 70px 0 rgba(0, 0, 0, 0.75),
+    0 0 30px -5px rgba(255, 51, 102, 0.18),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.15),
+    inset 0 -1px 2px 0 rgba(0, 0, 0, 0.5);
+  border-color: rgba(255, 51, 102, 0.25);
 }
 
-/* Music dynamic animated sine waves */
-@keyframes waveAnimation1 {
+/* 3D Protruding Navigation Bridge ("Пиздюлина" слева) */
+.nav-bridge-active {
+  position: relative;
+  background: linear-gradient(90deg, rgba(255, 51, 102, 0.15) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border-left: 3px solid #ff3366 !important;
+  border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+  border-right: none !important;
+  border-radius: 8px 0px 0px 8px;
+  box-shadow: 
+    inset 0 1px 0px 0 rgba(255, 255, 255, 0.1),
+    -10px 0 25px -5px rgba(255, 51, 102, 0.15);
+  transform: translateX(1px);
+  z-index: 30;
+}
+
+/* The physical overlapping bridge connector extending rightwards */
+.nav-bridge-connector {
+  position: absolute;
+  top: -1px;
+  right: -25px; /* Overlaps boundary */
+  height: calc(100% + 2px);
+  width: 25px;
+  background: rgba(14, 12, 30, 0.45);
+  backdrop-filter: blur(32px);
+  -webkit-backdrop-filter: blur(32px);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: none;
+  border-right: none;
+  box-shadow: inset 0 1px 0px 0 rgba(255, 255, 255, 0.1);
+  z-index: 29;
+  pointer-events: none;
+}
+
+/* Animated Spectrogram Dynamic Spectro-Wave */
+@keyframes spectroWave {
   0%, 100% {
-    transform: translateY(0) scaleY(1);
+    height: 10%;
   }
   50% {
-    transform: translateY(-4px) scaleY(1.15);
+    height: 85%;
   }
 }
 
-@keyframes waveAnimation2 {
-  0%, 100% {
-    transform: translateY(0) scaleY(1);
-  }
-  50% {
-    transform: translateY(3px) scaleY(0.85);
-  }
+.spectro-bar {
+  width: 3px;
+  height: 50%;
+  background-color: #ff3366;
+  border-radius: 99px;
+  box-shadow: 0 0 10px rgba(255, 51, 102, 0.5);
+  transition: height 0.1s ease;
 }
 
-.animate-wave-1 {
-  animation: waveAnimation1 4s infinite ease-in-out;
+.spectro-bar-active {
+  animation: spectroWave 1.4s infinite ease-in-out;
 }
 
-.animate-wave-2 {
-  animation: waveAnimation2 3.5s infinite ease-in-out;
-}
-
-/* Custom premium slider */
+/* Custom premium slider - neon pink and coral gradient */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 99px;
   outline: none;
-  height: 4px;
+  height: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.02);
 }
 
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  background: #ff5500;
+  background: linear-gradient(135deg, #ff3366 0%, #ff6680 100%);
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(255, 85, 0, 0.6);
-  transition: transform 0.1s ease, background-color 0.1s ease;
+  box-shadow: 0 0 12px rgba(255, 51, 102, 0.8);
+  transition: transform 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.3);
-  background: #ff7733;
+  transform: scale(1.35);
 }
 
-/* Pulsing red dot for LIVE indicators */
-@keyframes livePulse {
-  0% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4);
+/* Fade In Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
   }
-  70% {
-    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-.live-pulse-dot {
-  animation: livePulse 2s infinite;
+.animate-fadeIn {
+  animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
-
-/* Premium static glow shadow for cover art */
-.animate-beat {
-  box-shadow: 0 20px 50px rgba(255, 85, 0, 0.2);
-  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.animate-beat:hover {
-  transform: scale(1.015);
-  box-shadow: 0 25px 60px rgba(255, 85, 0, 0.35);
-}
-
