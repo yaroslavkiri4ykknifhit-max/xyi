@@ -214,17 +214,17 @@ export default function UserProfilePage({ params }) {
   };
 
   return (
-    <main className="min-h-screen bg-[#020204] text-white flex flex-col relative select-none overflow-x-hidden pb-16">
+    <main className="min-h-screen bg-[#09090b] text-white flex flex-col relative select-none overflow-x-hidden pb-16">
       
-      {/* Dynamic Background Glowing elements */}
-      <div className="absolute top-[20%] left-[-10%] w-[50%] h-[50%] bg-[#ff5500]/5 rounded-full blur-[160px] pointer-events-none z-0"></div>
-      <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/4 rounded-full blur-[160px] pointer-events-none z-0"></div>
+      {/* Subtle Background Glowing elements - classic iMessage blue theme */}
+      <div className="absolute top-[20%] left-[-10%] w-[50%] h-[50%] bg-[#007aff]/3 rounded-full blur-[160px] pointer-events-none z-0"></div>
+      <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-zinc-800/5 rounded-full blur-[160px] pointer-events-none z-0"></div>
 
       {/* LOADING SCREEN */}
       {loading && (
         <div className="flex-1 flex flex-col items-center justify-center min-h-[100vh] gap-4">
-          <div className="w-10 h-10 border-t-2 border-[#ff5500] border-r-2 border-r-transparent animate-spin"></div>
-          <p className="text-zinc-600 text-[10px] uppercase font-black tracking-widest animate-pulse">Идентификация в клубе...</p>
+          <div className="w-10 h-10 border-t-2 border-[#007aff] border-r-2 border-r-transparent animate-spin"></div>
+          <p className="text-zinc-500 text-[10px] uppercase font-black tracking-widest animate-pulse">Идентификация в базе клуба...</p>
         </div>
       )}
 
@@ -234,22 +234,22 @@ export default function UserProfilePage({ params }) {
           
           {/* 1. Page-Wide Hero Banner (Stretches 100% Edge-to-Edge) */}
           <div 
-            className="w-full h-[280px] md:h-[380px] relative transition-all duration-500 border-b border-[#ff5500]/25 shadow-2xl"
+            className="w-full h-[280px] md:h-[380px] relative transition-all duration-500 border-b border-white/5 shadow-2xl"
             style={getBannerStyle(myBannerUrl)}
           >
-            <div className="absolute inset-0 bg-gradient-to-t from-[#020204] via-[#020204]/30 to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-t from-[#09090b] via-[#09090b]/30 to-transparent"></div>
             
             {/* Embedded Floating Transparent Navbar */}
             <div className="absolute top-0 left-0 right-0 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between z-20">
               <div className="flex items-center gap-1.5 cursor-pointer bg-black/40 backdrop-blur-md px-3.5 py-2 border border-white/5 rounded-xl hover:bg-black/60 transition-all" onClick={() => router.push("/")}>
                 <span className="text-xl font-black tracking-tighter text-white">xyi</span>
-                <span className="w-4 h-4 rounded bg-[#ff5500] flex items-center justify-center text-[8px] font-black text-black select-none">▶</span>
+                <span className="w-4 h-4 rounded bg-[#007aff] flex items-center justify-center text-[8px] font-black text-black select-none">▶</span>
               </div>
 
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyProfileLink}
-                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#ff5500]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#007aff]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                 >
                   {copiedLink ? (
                     <>
@@ -265,15 +265,15 @@ export default function UserProfilePage({ params }) {
                 </button>
                 <button
                   onClick={() => router.push("/")}
-                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#ff5500]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#007aff]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  <Home className="w-3.5 h-3.5 text-[#ff5500]" /> Выйти в плеер
+                  <Home className="w-3.5 h-3.5 text-[#007aff]" /> Выйти в плеер
                 </button>
               </div>
             </div>
 
             {/* Subtle banner tech grid overlay */}
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px] opacity-15"></div>
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px] opacity-10"></div>
           </div>
 
           {/* 2. Overlapping Profile Identity Container */}
@@ -284,7 +284,7 @@ export default function UserProfilePage({ params }) {
               
               {/* Massive Custom Strict Avatar (Rounded Square!) */}
               <div 
-                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-4 border-[#020204] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden bg-zinc-950 flex-shrink-0"
+                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-4 border-[#09090b] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden bg-zinc-950 flex-shrink-0"
                 style={{ backgroundColor: myAvatarColor }}
               >
                 {myAvatarUrl && myAvatarUrl.startsWith("data:image") ? (
@@ -294,7 +294,7 @@ export default function UserProfilePage({ params }) {
                 )}
                 
                 {/* Active Tech Indicator */}
-                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#020204] live-pulse-dot shadow-md"></div>
+                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#09090b] live-pulse-dot shadow-md"></div>
               </div>
 
               {/* Text Meta Info */}
@@ -304,13 +304,13 @@ export default function UserProfilePage({ params }) {
                     {myUsername}
                   </h1>
                   {myCustomBadge && (
-                    <span className="px-3 py-1 bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/25 text-[9px] font-black uppercase tracking-widest rounded-md shadow-sm">
+                    <span className="px-3 py-1 bg-[#007aff]/10 text-[#007aff] border border-[#007aff]/25 text-[9px] font-black uppercase tracking-widest rounded-md shadow-sm">
                       {myCustomBadge}
                     </span>
                   )}
                 </div>
-                <span className="text-xs text-zinc-500 font-extrabold tracking-widest uppercase mt-0.5">
-                  ID: @{myUsername ? myUsername.toLowerCase() : "hustler"} // ЧЛЕН КЛУБА XYI
+                <span className="text-xs text-zinc-550 font-extrabold tracking-widest uppercase mt-0.5">
+                  ID: @{myUsername ? myUsername.toLowerCase() : "hustler"} // РЕЗИДЕНТ КЛУБА XYI
                 </span>
               </div>
             </div>
@@ -320,12 +320,12 @@ export default function UserProfilePage({ params }) {
               
               {/* Left Bio and Status Column (8/12 cols) */}
               <div className="lg:col-span-8 flex flex-col gap-6 w-full">
-                <div className="glass-panel p-8 rounded-xl text-left flex flex-col gap-4 border-[#ff5500]/10 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff5500]/2 rounded-full blur-2xl pointer-events-none"></div>
+                <div className="minimal-panel p-8 text-left flex flex-col gap-4 relative overflow-hidden bg-[#121214]">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#007aff]/2 rounded-full blur-2xl pointer-events-none"></div>
                   
                   <div className="flex items-center justify-between pb-2.5 border-b border-white/5">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#ff5500]">Манифест / Статус</span>
-                    <span className="text-[9px] text-zinc-500 font-mono font-bold">STRICT CHILL VIBE</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#007aff]">Манифест / Статус</span>
+                    <span className="text-[9px] text-zinc-555 font-mono font-bold">STRICT CHILL VIBE</span>
                   </div>
                   
                   <p className="text-sm text-zinc-300 font-medium break-words leading-relaxed italic min-h-[52px]">
@@ -335,19 +335,19 @@ export default function UserProfilePage({ params }) {
 
                 {/* Additional Tech Stats panel for club vibe */}
                 <div className="grid grid-cols-3 gap-4">
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                  <div className="p-4 bg-[#121214] border border-white/5 rounded-2xl text-left">
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Статус сессии</span>
                     <p className="text-xs font-bold text-emerald-450 uppercase mt-1 flex items-center gap-1.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 live-pulse-dot"></span> В сети
                     </p>
                   </div>
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                  <div className="p-4 bg-[#121214] border border-white/5 rounded-2xl text-left">
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Права доступа</span>
                     <p className="text-xs font-bold text-zinc-200 mt-1 uppercase">Резидент</p>
                   </div>
-                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                  <div className="p-4 bg-[#121214] border border-white/5 rounded-2xl text-left">
                     <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Зона чилла</span>
-                    <p className="text-xs font-bold text-[#ff5500] mt-1 uppercase flex items-center gap-1">
+                    <p className="text-xs font-bold text-[#007aff] mt-1 uppercase flex items-center gap-1">
                       <Radio className="w-3.5 h-3.5 animate-pulse" /> SoundCloud
                     </p>
                   </div>
@@ -359,35 +359,35 @@ export default function UserProfilePage({ params }) {
                 {isOwnProfile ? (
                   <button
                     onClick={() => setShowCustomizer(true)}
-                    className="w-full py-4.5 bg-white hover:bg-zinc-200 text-black font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer border border-transparent"
+                    className="w-full py-4 bg-[#007aff] hover:bg-[#0066d6] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer border border-transparent"
                   >
-                    <Sparkles className="w-4 h-4 text-[#ff5500]" /> Настроить Профиль
+                    <Sparkles className="w-4 h-4 text-white" /> Настроить Профиль
                   </button>
                 ) : (
                   <button
                     onClick={handleStartCoListening}
-                    className="w-full py-4.5 bg-[#ff5500] hover:bg-[#ff661a] text-black font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-[#ff5500]/10 flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-4 bg-[#007aff] hover:bg-[#0066d6] text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-[#007aff]/10 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Radio className="w-4 h-4 animate-pulse" /> Слушать Вместе
                   </button>
                 )}
 
-                <div className="flex flex-col gap-2.5 w-full bg-black/30 border border-white/5 p-4 rounded-xl">
-                  <span className="text-[8px] text-zinc-500 font-black uppercase tracking-widest text-center block mb-1">
+                <div className="flex flex-col gap-2.5 w-full bg-[#121214] border border-white/5 p-4 rounded-xl">
+                  <span className="text-[8px] text-zinc-550 font-black uppercase tracking-widest text-center block mb-1">
                     Клубные Действия
                   </span>
                   
                   <button
                     onClick={handleCopyProfileLink}
-                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 bg-black/40 hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Copy className="w-3.5 h-3.5" /> Копировать ссылку
                   </button>
                   <button
                     onClick={() => router.push("/")}
-                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 bg-black/40 hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Compass className="w-3.5 h-3.5 text-[#ff5500]" /> Обзор комнат
+                    <Compass className="w-3.5 h-3.5 text-[#007aff]" /> Обзор комнат
                   </button>
                 </div>
               </div>
@@ -407,12 +407,12 @@ export default function UserProfilePage({ params }) {
           
           <div className="flex flex-col gap-2 mb-8">
             <h2 className="text-xl font-black tracking-tight text-white uppercase">Хастлер не опознан</h2>
-            <p className="text-xs text-zinc-500 leading-relaxed max-w-sm mx-auto">
-              Пользователь с никнеймом <strong>@{decodeURIComponent(rawUsername)}</strong> не зарегистрирован в базе резидентов клуба XYI, либо его временная сессия уже истекла.
+            <p className="text-xs text-zinc-550 leading-relaxed max-w-sm mx-auto">
+              Пользователь с никнеймом <strong>@${decodeURIComponent(rawUsername)}</strong> не зарегистрирован в базе резидентов клуба XYI, либо его временная сессия уже истекла.
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 w-full bg-[#0d0d12] border border-white/5 p-6 rounded-xl">
+          <div className="flex flex-col gap-2.5 w-full bg-[#121214] border border-white/5 p-6 rounded-xl">
             <button
               onClick={() => router.push("/")}
               className="w-full py-4 bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-widest rounded-lg transition-all active:scale-[0.98] cursor-pointer"

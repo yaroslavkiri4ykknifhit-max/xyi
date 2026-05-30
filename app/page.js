@@ -2207,244 +2207,258 @@ function SyncPlayerApp() {
         </div>
       </header>
 
-        {/* ==================== REDESIGNED QUARTZ-MORPHIC CONSOLE DASHBOARD ==================== */}
+                {/* ==================== REDESIGNED MINIMALIST TWO-COLUMN GRAPHITE DASHBOARD ==================== */}
         <div className="w-full max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start relative z-10">
           
-          {/* PANEL 1: LEFT NAVIGATION (3/12 cols) */}
-          <div className="col-span-1 lg:col-span-3 flex flex-col gap-6 h-full lg:sticky lg:top-[96px]">
-            <div className="quartz-panel rounded-[32px] p-6 text-left flex flex-col gap-6 h-full">
-              {/* Branding Logo */}
-              <div className="flex items-center gap-2 px-2 pb-2 border-b border-white/5">
-                <span className="text-2xl font-black tracking-tighter text-white font-sans uppercase">xyi</span>
-                <span className="w-4 h-4 rounded bg-[#ff3366] flex items-center justify-center text-[9px] font-black text-black select-none shadow-[0_0_12px_rgba(255,51,102,0.6)]">▶</span>
-              </div>
-
-              {/* Library Menu */}
-              <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-550 px-3 pl-1 font-sans">Library</span>
-                <div className="flex flex-col gap-1">
-                  {/* Trends Active Bridge */}
-                  <div className="relative">
-                    <div className="nav-bridge-active flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-white transition-all cursor-pointer">
-                      <Compass className="w-4 h-4 text-[#ff3366]" />
-                      <span>Trends</span>
-                      <div className="nav-bridge-connector"></div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer">
-                    <Disc className="w-4 h-4 text-zinc-500" />
-                    <span>Artists</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer">
-                    <Music className="w-4 h-4 text-zinc-500" />
-                    <span>Albums</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer">
-                    <List className="w-4 h-4 text-zinc-500" />
-                    <span>Songs</span>
-                  </div>
+          {/* COLUMN 1: iMESSAGE CHAT COLUMN (7/12 cols) */}
+          <div className="col-span-1 lg:col-span-7 flex flex-col gap-4">
+            <div className="minimal-panel flex flex-col h-[650px] relative overflow-hidden bg-[#121214]">
+              
+              {/* iMessage Header with Horizontal Online User Bubbles */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#121214] z-10">
+                <div className="flex flex-col text-left">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-[#007aff]">iMessage Chat</span>
+                  <h3 className="text-sm font-black truncate max-w-[140px] md:max-w-[200px]">
+                    {roomSettings.room_name || `Сессия ${roomCode}`}
+                  </h3>
                 </div>
-              </div>
-
-              {/* Discover Menu */}
-              <div className="flex flex-col gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-550 px-3 pl-1 font-sans">Discover</span>
-                <div className="flex flex-col gap-1">
-                  <div className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer">
-                    <Radio className="w-4 h-4 text-zinc-500" />
-                    <span>Store</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer">
-                    <Heart className="w-4 h-4 text-zinc-500" />
-                    <span>Like</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer">
-                    <Radio className="w-4 h-4 text-zinc-500" />
-                    <span>Radio</span>
-                  </div>
-
-                  <div className="flex items-center gap-3 px-4 py-2.5 text-xs font-bold text-zinc-400 hover:text-white hover:bg-white/5 rounded-lg transition-all cursor-pointer">
-                    <Compass className="w-4 h-4 text-zinc-500" />
-                    <span>Browse</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Owner Room Settings Control Panel */}
-              {currentUser && roomSettings.owner_id === currentUser.id && (
-                <div className="mt-auto pt-4 border-t border-white/5 flex flex-col gap-3">
-                  <div className="flex items-center justify-between pb-1.5 border-b border-white/5">
-                    <h3 className="text-[9px] font-black uppercase tracking-wider text-[#ff3366] font-sans">Консоль Сессии</h3>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 live-pulse-dot"></span>
-                  </div>
-                  
-                  {/* Room name form */}
-                  <form onSubmit={handleUpdateRoomName} className="flex flex-col gap-1.5">
-                    <label className="text-[8px] uppercase font-black text-zinc-500 pl-0.5">Название сессии</label>
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        value={newRoomNameInput}
-                        onChange={(e) => setNewRoomNameInput(e.target.value)}
-                        placeholder="Сессия..."
-                        className="flex-1 bg-black/40 border border-white/5 rounded-lg px-2.5 py-1.5 text-[10px] text-white focus:outline-none focus:border-[#ff3366] transition-all font-bold"
-                      />
-                      <button
-                        type="submit"
-                        className="px-2.5 py-1.5 bg-white text-black hover:bg-zinc-200 font-extrabold text-[9px] uppercase tracking-wider rounded-lg transition-all cursor-pointer active:scale-95"
-                      >
-                        OK
-                      </button>
-                    </div>
-                  </form>
-
-                  {/* Publicity Toggle switch */}
-                  <div className="flex items-center justify-between pt-1">
-                    <div className="flex flex-col text-left">
-                      <span className="text-[9px] uppercase font-bold text-zinc-450">Публичность</span>
-                      <span className="text-[7.5px] text-zinc-650 font-medium">Показать в каталоге</span>
-                    </div>
+                
+                {/* Horizontal scroll of online participants */}
+                <div className="flex items-center gap-2 overflow-x-auto py-1 max-w-[180px] md:max-w-[320px] custom-slim-scrollbar">
+                  {participants.map((p, idx) => (
                     <button
-                      onClick={handleToggleRoomPublicity}
-                      className={`w-10 h-5 rounded-full p-0.5 transition-colors duration-300 cursor-pointer ${
-                        roomSettings.is_public ? "bg-[#ff3366]" : "bg-zinc-800"
-                      }`}
+                      key={idx}
+                      onClick={() => setSelectedUserProfile(p)}
+                      className="flex-shrink-0 w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-[10px] font-black text-black overflow-hidden hover:scale-105 active:scale-95 transition-all cursor-pointer relative"
+                      style={{ backgroundColor: p.avatarColor || "#007aff" }}
+                      title={p.username}
                     >
-                      <div
-                        className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-300 ${
-                          roomSettings.is_public ? "translate-x-5" : "translate-x-0"
-                        }`}
-                      ></div>
+                      {p.avatarUrl && p.avatarUrl.startsWith("data:image") ? (
+                        <img src={p.avatarUrl} alt="" className="w-full h-full object-cover" />
+                      ) : (
+                        p.username ? p.username.charAt(0).toUpperCase() : "?"
+                      )}
+                      <span className="absolute bottom-0 right-0 w-2 h-2 bg-emerald-500 rounded-full border border-zinc-900 shadow"></span>
                     </button>
-                  </div>
+                  ))}
                 </div>
-              )}
+              </div>
+
+              {/* Dynamic Chat messages scrolling block */}
+              <div 
+                ref={chatContainerRef} 
+                className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 select-text custom-slim-scrollbar bg-[#09090b]"
+              >
+                {chatMessages.map((msg) => {
+                  if (msg.isSystem) {
+                    return (
+                      <div key={msg.id} className="text-center text-[10px] text-zinc-500 italic py-1 font-mono">
+                        {msg.text}
+                      </div>
+                    );
+                  }
+                  const isMe = msg.username === myUsername;
+                  return (
+                    <div 
+                      key={msg.id} 
+                      className={`flex items-end gap-2.5 max-w-[85%] ${isMe ? "self-end flex-row-reverse" : "self-start flex-row"}`}
+                    >
+                      {/* Avatar for received messages */}
+                      {!isMe && (
+                        <button
+                          onClick={() => setSelectedUserProfile({
+                            username: msg.username,
+                            avatarColor: msg.avatarColor,
+                            avatarUrl: msg.avatarUrl,
+                            bannerUrl: msg.bannerUrl,
+                            bio: msg.bio,
+                            customBadge: msg.customBadge,
+                            joinedAt: msg.joinedAt || new Date().toISOString(),
+                            latency: "Chat"
+                          })}
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 overflow-hidden hover:scale-105 transition-all border border-white/5 cursor-pointer"
+                          style={{ backgroundColor: msg.avatarColor || "#007aff" }}
+                        >
+                          {msg.avatarUrl && msg.avatarUrl.startsWith("data:image") ? (
+                            <img src={msg.avatarUrl} alt="" className="w-full h-full object-cover" />
+                          ) : (
+                            msg.username ? msg.username.charAt(0).toUpperCase() : "?"
+                          )}
+                        </button>
+                      )}
+                      
+                      <div className="flex flex-col gap-0.5 max-w-[260px] md:max-w-[360px]">
+                        {/* Display Sender name above bubble for group visual validation */}
+                        {!isMe && (
+                          <span className="text-[9px] font-bold text-zinc-550 pl-1 text-left">
+                            {msg.username}
+                          </span>
+                        )}
+                        <div 
+                          className={isMe ? "imessage-bubble-sent text-left" : "imessage-bubble-received text-left"}
+                        >
+                          {msg.text}
+                        </div>
+                        <span className={`text-[7.5px] text-zinc-600 font-mono mt-0.5 px-1 ${isMe ? "text-right" : "text-left"}`}>
+                          {msg.timestamp}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Message input bar with circular blue submit */}
+              <form onSubmit={handleSendChatMessage} className="flex items-center gap-2 p-4 border-t border-white/5 bg-[#121214] z-10">
+                <input
+                  type="text"
+                  placeholder="iMessage..."
+                  value={newChatMessage}
+                  onChange={(e) => setNewChatMessage(e.target.value)}
+                  className="flex-1 bg-[#1a1a1e] border border-white/5 rounded-full px-5 py-3 text-xs text-white placeholder:text-zinc-650 focus:outline-none focus:border-[#007aff]/60 transition-all font-semibold"
+                />
+                <button
+                  type="submit"
+                  disabled={!newChatMessage.trim()}
+                  className="w-9 h-9 bg-[#007aff] hover:bg-[#0066d6] active:scale-95 disabled:opacity-30 rounded-full transition-all flex items-center justify-center cursor-pointer text-white flex-shrink-0"
+                >
+                  <Send className="w-4 h-4 text-white fill-current" />
+                </button>
+              </form>
             </div>
           </div>
 
-          {/* PANEL 2: CENTER CONTENT (5/12 cols) */}
-          <div className="col-span-1 lg:col-span-5 flex flex-col gap-6">
-            {/* Search Bar */}
-            <div className="relative w-full">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-550" />
-              <input
-                type="text"
-                placeholder="Enter keywords to search..."
-                className="w-full bg-[#0d0b1a]/60 backdrop-blur-md border border-white/5 rounded-full pl-11 pr-4 py-2.5 text-xs text-white placeholder:text-zinc-600 focus:outline-none focus:border-[#ff3366] transition-all font-semibold shadow-inner"
-              />
-            </div>
-
-            {/* Trending Banner */}
-            <div className="relative w-full rounded-[28px] overflow-hidden border border-white/5 shadow-[0_24px_50px_rgba(0,0,0,0.6)] aspect-[21/9] flex flex-col justify-end p-6 bg-cover bg-center" style={{ backgroundImage: `url('/trending_banner_bg.png')` }}>
-              <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent z-10"></div>
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,51,102,0.15),transparent_40%)] z-10"></div>
+          {/* COLUMN 2: PLAYER & MEDIA CONTROLS COLUMN (5/12 cols) */}
+          <div className="col-span-1 lg:col-span-5 flex flex-col gap-6 h-[650px] overflow-y-auto pr-1 custom-slim-scrollbar">
+            
+            {/* Minimal Now Playing Card */}
+            <div className="minimal-panel p-6 flex flex-col gap-4 text-left">
+              <span className="text-[9px] font-black uppercase tracking-widest text-[#007aff] flex items-center gap-1.5 pl-1 font-sans">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#007aff] animate-pulse"></span>
+                Currently Playing
+              </span>
               
-              <div className="relative z-20 flex flex-col items-start gap-1">
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#ff3366] bg-[#ff3366]/10 px-2.5 py-1 rounded-md border border-[#ff3366]/20 shadow-sm flex items-center gap-1.5 mb-2">
-                  <Compass className="w-3 h-3 text-[#ff3366] animate-pulse" />
-                  Trending
+              <div className="flex items-center gap-4 bg-black/20 p-4 rounded-2xl border border-white/5 relative overflow-hidden group">
+                <div className="relative w-14 h-14 rounded-xl bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
+                  {currentTrack && currentTrack.thumbnail ? (
+                    <img src={currentTrack.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  ) : (
+                    <Music className="w-5 h-5 text-zinc-650" />
+                  )}
+                </div>
+                <div className="flex flex-col min-w-0 flex-1 leading-tight">
+                  <h4 className="text-xs font-black text-white truncate max-w-full font-sans">
+                    {currentTrack ? currentTrack.title : "Ничего не проигрывается"}
+                  </h4>
+                  <span className="text-[8px] text-zinc-500 font-bold uppercase tracking-wider mt-1 font-sans">
+                    {currentTrack ? "SoundCloud Realtime" : "Ожидание трека..."}
+                  </span>
+                </div>
+              </div>
+              
+              {/* Timeline Slider Progress */}
+              <div className="w-full flex items-center gap-3 px-1 mt-2">
+                <span className="text-[9px] font-mono text-zinc-500 min-w-[28px] text-right">
+                  {formatTime(progressMs)}
                 </span>
-                <h2 className="text-xl font-black tracking-tight leading-none text-white font-sans uppercase">In My Feelings</h2>
-                <p className="text-[9.5px] text-zinc-400 font-bold tracking-wider mt-0.5 font-sans">Camila Cabello — 63M Plays</p>
+                <input
+                  type="range"
+                  min="0"
+                  max={durationMs || 100}
+                  value={progressMs}
+                  onChange={handleSeek}
+                  disabled={!currentTrack}
+                  className="flex-1 cursor-pointer"
+                />
+                <span className="text-[9px] font-mono text-zinc-500 min-w-[28px] text-left">
+                  {formatTime(durationMs)}
+                </span>
+              </div>
+              
+              {/* Playback controls row */}
+              <div className="flex items-center justify-between mt-1 px-1">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleSkipPrev}
+                    disabled={playlist.length <= 1}
+                    className="p-1 text-zinc-400 hover:text-white disabled:opacity-20 disabled:pointer-events-none rounded transition-colors active:scale-95 cursor-pointer"
+                    title="Предыдущий трек"
+                  >
+                    <SkipBack className="w-4 h-4 fill-current" />
+                  </button>
+                  
+                  <button
+                    onClick={handlePlayPauseToggle}
+                    disabled={!currentTrack}
+                    className="w-10 h-10 bg-white hover:bg-zinc-200 text-black rounded-full flex items-center justify-center shadow-md transition-all active:scale-95 cursor-pointer flex-shrink-0"
+                    title={isPlaying ? "Пауза" : "Воспроизвести"}
+                  >
+                    {isPlaying ? (
+                      <Pause className="w-4.5 h-4.5 fill-black text-black" />
+                    ) : (
+                      <Play className="w-4.5 h-4.5 fill-black text-black translate-x-0.5" />
+                    )}
+                  </button>
+                  
+                  <button
+                    onClick={handleSkipNext}
+                    disabled={playlist.length <= 1}
+                    className="p-1 text-zinc-400 hover:text-white disabled:opacity-20 disabled:pointer-events-none rounded transition-colors active:scale-95 cursor-pointer"
+                    title="Следующий трек"
+                  >
+                    <SkipForward className="w-4 h-4 fill-current" />
+                  </button>
+                  
+                  <button
+                    onClick={() => setIsRepeat(!isRepeat)}
+                    className={`p-1 rounded transition-colors cursor-pointer ${isRepeat ? "text-[#007aff]" : "text-zinc-550 hover:text-white"}`}
+                    title="Повторять трек"
+                  >
+                    <Repeat className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+                
+                {/* Volume slider */}
+                <div className="flex items-center gap-2 bg-black/40 px-3 py-1.5 rounded-xl border border-white/5 max-w-[120px] w-full">
+                  <button
+                    onClick={toggleMute}
+                    className="text-zinc-400 hover:text-white transition-colors cursor-pointer flex-shrink-0"
+                  >
+                    {isMuted ? <VolumeX className="w-3.5 h-3.5 text-zinc-500" /> : <Volume2 className="w-3.5 h-3.5" />}
+                  </button>
+                  <input
+                    type="range"
+                    min="0"
+                    max="100"
+                    value={isMuted ? 0 : volume}
+                    onChange={handleVolumeChange}
+                    className="w-full cursor-pointer accent-white h-0.5 bg-white/10"
+                  />
+                </div>
               </div>
             </div>
 
-            {/* Top Artists Grid */}
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 font-sans">Top Artists</span>
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#ff3366] hover:underline cursor-pointer font-sans font-bold">View All</span>
-              </div>
-              <div className="grid grid-cols-4 gap-3">
-                {/* Card 1: Rose glow */}
-                <div className="quartz-panel rounded-2xl p-3 flex flex-col items-center gap-2 relative overflow-hidden transition-all duration-300 hover:scale-[1.03] group cursor-pointer" style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.5), 0 0 15px -3px rgba(255,51,102,0.25)', borderColor: 'rgba(255,51,102,0.15)' }}>
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#ff3366]/20 to-[#ff3366]/5 border border-[#ff3366]/20 flex items-center justify-center relative overflow-hidden shadow-inner">
-                    <div className="w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center shadow-md">
-                      <Disc className="w-3 h-3 text-zinc-550 animate-spin" style={{ animationDuration: '6s' }} />
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center min-w-0 w-full">
-                    <span className="text-[9.5px] font-black text-white truncate max-w-full font-sans">Travis Scott</span>
-                    <span className="text-[7.5px] text-zinc-550 font-bold tracking-wider font-sans">23M Plays</span>
-                  </div>
-                </div>
-
-                {/* Card 2: Emerald glow */}
-                <div className="quartz-panel rounded-2xl p-3 flex flex-col items-center gap-2 relative overflow-hidden transition-all duration-300 hover:scale-[1.03] group cursor-pointer" style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.5), 0 0 15px -3px rgba(16,185,129,0.25)', borderColor: 'rgba(16,185,129,0.15)' }}>
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-emerald-500/20 to-emerald-500/5 border border-emerald-500/20 flex items-center justify-center relative overflow-hidden shadow-inner">
-                    <div className="w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center shadow-md">
-                      <Music className="w-3 h-3 text-zinc-550 animate-pulse" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center min-w-0 w-full">
-                    <span className="text-[9.5px] font-black text-white truncate max-w-full font-sans">Billie Eilish</span>
-                    <span className="text-[7.5px] text-zinc-550 font-bold tracking-wider font-sans">18M Plays</span>
-                  </div>
-                </div>
-
-                {/* Card 3: Violet glow */}
-                <div className="quartz-panel rounded-2xl p-3 flex flex-col items-center gap-2 relative overflow-hidden transition-all duration-300 hover:scale-[1.03] group cursor-pointer" style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.5), 0 0 15px -3px rgba(138,43,226,0.25)', borderColor: 'rgba(138,43,226,0.15)' }}>
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#8a2be2]/20 to-[#8a2be2]/5 border border-[#8a2be2]/20 flex items-center justify-center relative overflow-hidden shadow-inner">
-                    <div className="w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center shadow-md">
-                      <Disc className="w-3 h-3 text-zinc-555" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center min-w-0 w-full">
-                    <span className="text-[9.5px] font-black text-white truncate max-w-full font-sans">This Kid</span>
-                    <span className="text-[7.5px] text-zinc-550 font-bold tracking-wider font-sans">9M Plays</span>
-                  </div>
-                </div>
-
-                {/* Card 4: Cyan glow */}
-                <div className="quartz-panel rounded-2xl p-3 flex flex-col items-center gap-2 relative overflow-hidden transition-all duration-300 hover:scale-[1.03] group cursor-pointer" style={{ boxShadow: '0 8px 30px rgba(0,0,0,0.5), 0 0 15px -3px rgba(0,180,216,0.25)', borderColor: 'rgba(0,180,216,0.15)' }}>
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-[#00b4d8]/20 to-[#00b4d8]/5 border border-[#00b4d8]/20 flex items-center justify-center relative overflow-hidden shadow-inner">
-                    <div className="w-5 h-5 rounded-full bg-zinc-800 border border-zinc-700 flex items-center justify-center shadow-md">
-                      <Music className="w-3 h-3 text-zinc-550 animate-bounce" />
-                    </div>
-                  </div>
-                  <div className="flex flex-col items-center min-w-0 w-full">
-                    <span className="text-[9.5px] font-black text-white truncate max-w-full font-sans">Bloody Eyes</span>
-                    <span className="text-[7.5px] text-zinc-550 font-bold tracking-wider font-sans">125M Plays</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Redesigned My Library (Моя Медиатека) Quartz Panel */}
-            <div className="quartz-panel p-6 rounded-[28px] text-left flex flex-col gap-4">
-              <div className="flex items-center justify-between pb-2 border-b border-white/5">
-                <div className="flex items-center gap-2">
-                  <Music className="w-4 h-4 text-[#ff3366] animate-pulse" />
-                  <h3 className="text-xs font-black uppercase tracking-widest text-white font-sans font-bold">Моя Медиатека</h3>
-                </div>
-                <span className="text-[8px] uppercase font-black tracking-widest text-[#ff3366] bg-[#ff3366]/10 px-2.5 py-1 rounded-md border border-[#ff3366]/25 shadow-sm">
-                  SoundCloud
-                </span>
-              </div>
-
-              {/* Segmented Tab Bar */}
-              <div className="grid grid-cols-3 bg-black/40 p-1 rounded-xl border border-white/5">
+            {/* Consolidated Mediatheque, Importer & Queue Tab Box */}
+            <div className="minimal-panel p-6 flex flex-col gap-4 text-left">
+              
+              {/* Segmented Tab Row */}
+              <div className="grid grid-cols-4 bg-black/40 p-1 rounded-xl border border-white/5">
                 <button
                   onClick={() => setActiveLibraryTab("favorites")}
                   className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                     activeLibraryTab === "favorites"
                       ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      : "text-zinc-500 hover:text-zinc-300"
                   }`}
                 >
-                  Мои Треки
+                  Медиатека
                 </button>
                 <button
                   onClick={() => setActiveLibraryTab("playlist")}
                   className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                     activeLibraryTab === "playlist"
                       ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      : "text-zinc-550 hover:text-zinc-300"
                   }`}
                 >
                   Импорт
@@ -2454,20 +2468,26 @@ function SyncPlayerApp() {
                   className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
                     activeLibraryTab === "bulk"
                       ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
-                      : "text-zinc-400 hover:text-zinc-200"
+                      : "text-zinc-550 hover:text-zinc-300"
                   }`}
                 >
                   Списком
+                </button>
+                <button
+                  onClick={() => setActiveLibraryTab("queue")}
+                  className={`py-2 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all duration-350 cursor-pointer ${
+                    activeLibraryTab === "queue" || activeLibraryTab === undefined
+                      ? "bg-white/10 text-white shadow-md border border-white/5 font-bold animate-fadeIn"
+                      : "text-zinc-550 hover:text-zinc-300"
+                  }`}
+                >
+                  Очередь (${playlist.length})
                 </button>
               </div>
 
               {/* TAB CONTENT: FAVORITES */}
               {activeLibraryTab === "favorites" && (
                 <div className="flex flex-col gap-3 animate-fadeIn">
-                  <p className="text-[9.5px] text-zinc-500 font-medium leading-relaxed">
-                    Ваша личная медиатека в клубе. Добавляйте треки поштучно или импортируйте плейлисты. Запускайте треки синхронно для всех!
-                  </p>
-                  
                   <form onSubmit={handleAddPersonalTrack} className="w-full flex gap-2">
                     <input
                       type="text"
@@ -2475,15 +2495,15 @@ function SyncPlayerApp() {
                       value={newPersonalUrl}
                       onChange={(e) => setNewPersonalUrl(e.target.value)}
                       disabled={addingPersonal}
-                      className="flex-1 bg-black/40 border border-white/5 rounded-xl px-3.5 py-2.5 text-xs text-zinc-200 placeholder:text-zinc-650 focus:outline-none focus:border-[#ff3366] transition-colors"
+                      className="flex-1 bg-black/40 border border-white/5 rounded-xl px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors"
                     />
                     <button
                       type="submit"
                       disabled={!newPersonalUrl.trim() || addingPersonal}
-                      className="p-2.5 bg-white hover:bg-[#ff3366] text-black hover:text-white active:scale-[0.98] disabled:opacity-30 rounded-xl transition-all flex items-center justify-center cursor-pointer flex-shrink-0 animate-fadeIn"
+                      className="p-2 bg-[#007aff] hover:bg-[#0066d6] text-white active:scale-[0.98] disabled:opacity-30 rounded-xl transition-all flex items-center justify-center cursor-pointer flex-shrink-0"
                     >
                       {addingPersonal ? (
-                        <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+                        <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-r-transparent animate-spin"></div>
                       ) : (
                         <Plus className="w-4 h-4 stroke-[3]" />
                       )}
@@ -2492,52 +2512,51 @@ function SyncPlayerApp() {
 
                   {personalLibrary.length === 0 ? (
                     <div className="w-full py-8 bg-black/10 border border-dashed border-white/5 rounded-xl flex flex-col items-center justify-center gap-2 px-4 text-center">
-                      <p className="text-zinc-600 text-[10px] leading-normal font-medium">Медиатека пуста. Добавьте трек выше или импортируйте плейлист!</p>
+                      <p className="text-zinc-650 text-[10px] leading-normal font-medium">Медиатека пуста. Добавьте SoundCloud треки!</p>
                     </div>
                   ) : (
-                    <div className="flex flex-col gap-2 max-h-[200px] overflow-y-auto pr-1.5 custom-slim-scrollbar">
+                    <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1.5 custom-slim-scrollbar">
                       {personalLibrary.map((track, idx) => (
                         <div
                           key={track.id}
-                          className="w-full p-2 bg-black/20 border border-white/5 hover:border-[#ff3366]/25 rounded-xl flex items-center gap-3 transition-all duration-300 hover:bg-black/40 group/track"
+                          className="w-full p-2 bg-black/20 border border-white/5 hover:border-[#007aff]/30 rounded-xl flex items-center gap-3 transition-all duration-300 hover:bg-black/40 group/track"
                         >
-                          <span className="text-[9px] font-mono font-bold text-zinc-550 group-hover/track:text-[#ff3366] transition-colors pl-1">
+                          <span className="text-[9px] font-mono font-bold text-zinc-600 group-hover/track:text-[#007aff] transition-colors pl-1">
                             {String(idx + 1).padStart(2, '0')}
                           </span>
                           
-                          <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center relative">
+                          <div className="w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
                             {track.thumbnail ? (
-                              <img src={track.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover/track:scale-110" />
+                              <img src={track.thumbnail} alt="" className="w-full h-full object-cover" />
                             ) : (
                               <Music className="w-3.5 h-3.5 text-zinc-600" />
                             )}
                           </div>
 
                           <div className="flex-1 min-w-0 flex flex-col text-left">
-                            <p className="text-[10.5px] font-black text-zinc-305 uppercase tracking-tight truncate group-hover/track:text-white transition-colors font-sans" title={track.title}>
+                            <p className="text-[10px] font-bold text-zinc-300 truncate group-hover/track:text-white transition-colors font-sans" title={track.title}>
                               {track.title}
                             </p>
-                            <span className="text-[7px] text-[#ff3366]/65 font-bold uppercase tracking-widest mt-0.5 font-sans">SoundCloud</span>
                           </div>
 
                           <div className="flex items-center gap-1 flex-shrink-0">
                             <button
                               onClick={(e) => handlePlayPersonalTrackNow(track, e)}
-                              className="w-6.5 h-6.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-black flex items-center justify-center transition-all duration-300 cursor-pointer shadow-[0_2px_8px_rgba(16,185,129,0.05)] active:scale-90"
+                              className="w-6.5 h-6.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500 text-emerald-455 hover:text-black flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                               title="Запустить сейчас для всех"
                             >
                               <Play className="w-2.5 h-2.5 fill-current" />
                             </button>
                             <button
                               onClick={(e) => handleQueuePersonalTrack(track, e)}
-                              className="w-6.5 h-6.5 rounded-lg bg-white/5 hover:bg-white hover:text-black text-zinc-400 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
+                              className="w-6.5 h-6.5 rounded-lg bg-white/5 hover:bg-[#007aff] hover:text-white text-zinc-400 flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                               title="Добавить в очередь"
                             >
                               <Plus className="w-3 h-3 stroke-[2.5]" />
                             </button>
                             <button
                               onClick={(e) => handleDeletePersonalTrack(track.id, e)}
-                              className="w-6.5 h-6.5 rounded-lg bg-red-500/5 hover:bg-red-500/90 text-zinc-650 hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
+                              className="w-6.5 h-6.5 rounded-lg bg-red-500/5 hover:bg-red-500/90 text-zinc-600 hover:text-white flex items-center justify-center transition-all duration-300 cursor-pointer active:scale-90"
                               title="Удалить из медиатеки"
                             >
                               <Trash2 className="w-2.5 h-2.5" />
@@ -2547,73 +2566,51 @@ function SyncPlayerApp() {
                       ))}
                     </div>
                   )}
-                  {personalLibrary.length > 0 && (
-                    <div className="flex justify-between items-center text-[8px] text-zinc-600 font-mono uppercase tracking-widest pt-1 px-1">
-                      <span>Всего резидентом сохранено</span>
-                      <span className="font-extrabold text-[#ff3366]">{personalLibrary.length} треков</span>
-                    </div>
-                  )}
                 </div>
               )}
 
               {/* TAB CONTENT: PLAYLIST IMPORT */}
               {activeLibraryTab === "playlist" && (
                 <div className="flex flex-col gap-3 animate-fadeIn">
-                  <p className="text-[9.5px] text-zinc-500 font-medium leading-relaxed">
-                    Создайте в SoundCloud публичный плейлист со своими любимыми треками (лайками) и вставьте ссылку ниже. Мы автоматически вытащем все треки!
+                  <p className="text-[9px] text-zinc-500 leading-normal">
+                    Укажите адрес публичного плейлиста SoundCloud для пакетного импорта треков в медиатеку сессии:
                   </p>
-
-                  <form onSubmit={handleImportPlaylistSubmit} className="w-full flex flex-col gap-3">
-                    <div className="flex gap-2">
-                      <input
-                        type="text"
-                        placeholder="Вставьте ссылку на плейлист SoundCloud..."
-                        value={importUrl}
-                        onChange={(e) => setImportUrl(e.target.value)}
-                        disabled={importingPlaylist}
-                        className="flex-1 bg-black/40 border border-white/5 rounded-xl px-3 py-2.5 text-[10px] text-zinc-205 placeholder:text-zinc-650 focus:outline-none focus:border-[#ff3366] transition-colors"
-                      />
-                      <button
-                        type="submit"
-                        disabled={!importUrl.trim() || importingPlaylist}
-                        className="px-4 py-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer"
-                      >
-                        {importingPlaylist ? (
-                          <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
-                        ) : (
-                          "Импорт"
-                        )}
-                      </button>
-                    </div>
+                  <form onSubmit={handleImportPlaylistSubmit} className="w-full flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Вставьте ссылку на плейлист SoundCloud..."
+                      value={importUrl}
+                      onChange={(e) => setImportUrl(e.target.value)}
+                      disabled={importingPlaylist}
+                      className="flex-1 bg-black/45 border border-white/5 rounded-xl px-3 py-2 text-xs text-zinc-250 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!importUrl.trim() || importingPlaylist}
+                      className="px-4 py-2 bg-[#007aff] text-white hover:bg-[#0066d6] active:scale-[0.98] disabled:opacity-30 rounded-xl font-bold text-[10px] uppercase tracking-wider transition-all flex items-center justify-center cursor-pointer"
+                    >
+                      {importingPlaylist ? (
+                        <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-r-transparent animate-spin"></div>
+                      ) : (
+                        "Импорт"
+                      )}
+                    </button>
                   </form>
-
                   {importingPlaylist && (
-                    <div className="w-full p-4 bg-[#ff3366]/5 border border-[#ff3366]/10 rounded-2xl flex items-center justify-center gap-3 animate-pulse">
-                      <div className="w-4 h-4 rounded-full border-2 border-[#ff3366] border-r-transparent animate-spin"></div>
-                      <span className="text-[10px] font-bold text-[#ff3366] tracking-wide uppercase">
-                        Разбираем плейлист, пожалуйста подождите...
-                      </span>
+                    <div className="w-full p-2 flex items-center justify-center gap-2">
+                      <div className="w-3.5 h-3.5 rounded-full border-2 border-[#007aff] border-r-transparent animate-spin"></div>
+                      <span className="text-[9px] font-bold text-[#007aff] uppercase animate-pulse">Идет разбор плейлиста...</span>
                     </div>
                   )}
-
-                  <div className="p-3 bg-black/10 rounded-xl border border-white/5 flex flex-col gap-1.5 text-left animate-fadeIn">
-                    <span className="text-[9px] font-black text-zinc-400 uppercase tracking-widest">Как импортировать Лайки?</span>
-                    <p className="text-[9px] text-zinc-500 leading-normal">
-                      1. Перейдите в SoundCloud, зайдите во вкладку <span className="text-zinc-300 font-bold">Likes</span>.<br />
-                      2. Создайте новый публичный плейлист и добавьте туда треки.<br />
-                      3. Скопируйте ссылку на этот плейлист и вставьте выше.
-                    </p>
-                  </div>
                 </div>
               )}
 
               {/* TAB CONTENT: BULK IMPORT */}
               {activeLibraryTab === "bulk" && (
                 <div className="flex flex-col gap-3 animate-fadeIn">
-                  <p className="text-[9.5px] text-zinc-500 font-medium leading-relaxed">
-                    Скопируйте ссылки на любые треки SoundCloud из адресной строки и вставьте их ниже. Каждая ссылка должна быть на новой строчке или разделена запятой.
+                  <p className="text-[9px] text-zinc-500 leading-normal">
+                    Вставьте список ссылок SoundCloud (каждая ссылка на новой строке) для импорта:
                   </p>
-
                   <form onSubmit={handleBulkImportSubmit} className="w-full flex flex-col gap-3">
                     <textarea
                       rows={3}
@@ -2621,12 +2618,12 @@ function SyncPlayerApp() {
                       value={bulkText}
                       onChange={(e) => setBulkText(e.target.value)}
                       disabled={importingBulk}
-                      className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-[#ff3366] transition-colors resize-none leading-normal font-mono"
+                      className="w-full bg-black/40 border border-white/5 rounded-xl p-3 text-[10px] text-zinc-200 placeholder:text-zinc-700 focus:outline-none focus:border-[#007aff] transition-colors resize-none leading-normal font-mono"
                     />
                     <button
                       type="submit"
                       disabled={!bulkText.trim() || importingBulk}
-                      className="w-full py-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center cursor-pointer font-sans"
+                      className="w-full py-2.5 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 rounded-xl font-bold text-[10px] uppercase tracking-widest transition-all flex items-center justify-center cursor-pointer"
                     >
                       {importingBulk ? (
                         <div className="w-3.5 h-3.5 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
@@ -2637,212 +2634,93 @@ function SyncPlayerApp() {
                   </form>
                 </div>
               )}
-            </div>
 
-            {/* Add Track Input Glass Form */}
-            <div className="quartz-panel p-5 rounded-[24px] flex flex-col gap-3">
-              <h3 className="text-[10px] uppercase tracking-widest font-black text-zinc-400 text-left pl-1 font-sans font-bold">Добавить трек в сессию</h3>
-              <form onSubmit={handleAddTrack} className="w-full flex gap-2">
-                <input
-                  type="text"
-                  placeholder="Вставьте SoundCloud ссылку на трек..."
-                  value={newTrackUrl}
-                  onChange={(e) => setNewTrackUrl(e.target.value)}
-                  disabled={addingTrack}
-                  className="flex-1 bg-black/40 border border-white/5 rounded-xl px-4 py-3 text-xs text-zinc-200 placeholder:text-zinc-650 focus:outline-none focus:border-[#ff3366] transition-colors disabled:opacity-50"
-                />
-                <button
-                  type="submit"
-                  disabled={!newTrackUrl.trim() || addingTrack}
-                  className="p-3 bg-white text-black hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none rounded-xl transition-all flex items-center justify-center cursor-pointer"
-                >
-                  {addingTrack ? (
-                    <div className="w-4 h-4 rounded-full border-2 border-black border-r-transparent animate-spin"></div>
+              {/* TAB CONTENT: PLAYLIST QUEUE */}
+              {(activeLibraryTab === "queue" || activeLibraryTab === undefined) && (
+                <div className="flex flex-col gap-3 animate-fadeIn">
+                  <form onSubmit={handleAddTrack} className="w-full flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Добавить новый SoundCloud трек..."
+                      value={newTrackUrl}
+                      onChange={(e) => setNewTrackUrl(e.target.value)}
+                      disabled={addingTrack}
+                      className="flex-1 bg-black/40 border border-white/5 rounded-xl px-3 py-2 text-xs text-zinc-200 placeholder:text-zinc-655 focus:outline-none focus:border-[#007aff] transition-colors disabled:opacity-50"
+                    />
+                    <button
+                      type="submit"
+                      disabled={!newTrackUrl.trim() || addingTrack}
+                      className="p-2 bg-[#007aff] hover:bg-[#0066d6] text-white active:scale-[0.98] disabled:opacity-30 disabled:pointer-events-none rounded-xl transition-all flex items-center justify-center cursor-pointer"
+                    >
+                      {addingTrack ? (
+                        <div className="w-3.5 h-3.5 rounded-full border-2 border-white border-r-transparent animate-spin"></div>
+                      ) : (
+                        <Plus className="w-4 h-4" />
+                      )}
+                    </button>
+                  </form>
+
+                  {playlist.length === 0 ? (
+                    <div className="w-full py-8 bg-black/10 border border-dashed border-white/5 rounded-xl flex flex-col items-center justify-center gap-2 text-center">
+                      <p className="text-zinc-600 text-[10px] leading-normal font-medium">Очередь воспроизведения пуста.</p>
+                    </div>
                   ) : (
-                    <Plus className="w-4 h-4" />
-                  )}
-                </button>
-              </form>
-            </div>
-          </div>
-
-          {/* PANEL 3: RIGHT PLAYER COLUMN (4/12 cols) */}
-          <div className="col-span-1 lg:col-span-4 flex flex-col gap-6 h-full lg:sticky lg:top-[96px] quartz-panel rounded-[32px] p-6 text-left quartz-pink-glow">
-            {/* Currently Playing Card */}
-            <div className="flex flex-col gap-4">
-              <span className="text-[10px] font-black uppercase tracking-widest text-[#ff3366] flex items-center gap-1.5 pl-1 font-sans">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#ff3366] animate-pulse"></span>
-                Currently Playing
-              </span>
-              
-              {/* Visualizer Spectro-Wave block */}
-              <div className="flex items-end justify-center gap-1 h-16 w-full px-4 bg-black/40 border border-white/5 rounded-2xl relative overflow-hidden">
-                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,51,102,0.06),transparent_70%)]"></div>
-                {Array.from({ length: 32 }).map((_, i) => (
-                  <div
-                    key={i}
-                    className={`spectro-bar ${isPlaying ? "spectro-bar-active" : ""}`}
-                    style={{
-                      animationDelay: `${i * 0.05}s`,
-                      animationDuration: `${0.8 + Math.sin(i) * 0.3}s`,
-                    }}
-                  ></div>
-                ))}
-              </div>
-
-              {/* Album/Track row */}
-              <div className="flex items-center gap-3 p-3 bg-black/20 border border-white/5 rounded-2xl relative overflow-hidden group">
-                <div className="relative w-10 h-10 rounded-xl bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center shadow-inner">
-                  {currentTrack && currentTrack.thumbnail ? (
-                    <img src={currentTrack.thumbnail} alt="" className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
-                  ) : (
-                    <Music className="w-5 h-5 text-zinc-650" />
-                  )}
-                </div>
-                <div className="flex flex-col min-w-0 flex-1 leading-tight">
-                  <h4 className="text-xs font-black text-white truncate max-w-full group-hover:text-[#ff3366] transition-colors font-sans">{currentTrack ? currentTrack.title : "Ничего не проигрывается"}</h4>
-                  <span className="text-[8.5px] text-zinc-550 font-bold uppercase tracking-wider mt-0.5 font-sans">{currentTrack ? "SoundCloud Realtime" : "Ожидание трека..."}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Next Songs Queue */}
-            <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between px-1">
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 font-sans">Next Songs</span>
-                <span className="text-[9px] font-black uppercase tracking-widest text-[#ff3366] font-bold font-sans">Queue</span>
-              </div>
-              
-              {playlist.length === 0 ? (
-                <div className="w-full py-6 bg-black/10 border border-dashed border-white/5 rounded-2xl flex flex-col items-center justify-center gap-2 text-center">
-                  <Music className="w-5 h-5 text-[#ff3366]/40 animate-bounce" />
-                  <p className="text-zinc-655 text-[9px] font-semibold uppercase tracking-wider font-sans">Очередь пуста</p>
-                </div>
-              ) : (
-                <div className="flex flex-col gap-2 max-h-[140px] overflow-y-auto pr-1">
-                  {playlist.map((track, idx) => {
-                    const isCurrent = currentTrack && currentTrack.id === track.id;
-                    return (
-                      <div
-                        key={track.id}
-                        onClick={() => playTrack(track)}
-                        className={`w-full p-2 bg-black/20 hover:bg-[#ff3366]/5 border rounded-xl flex items-center gap-3 cursor-pointer transition-all duration-300 ${
-                          isCurrent
-                            ? "border-[#ff3366]/30 bg-black/40 shadow-[0_4px_12px_rgba(255,51,102,0.05)]"
-                            : "border-white/5 hover:border-white/10"
-                        }`}
-                      >
-                        <div className="relative w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                          {track.thumbnail ? (
-                            <img src={track.thumbnail} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <Music className="w-3.5 h-3.5 text-zinc-600" />
-                          )}
-                        </div>
-                        
-                        <div className="flex-1 min-w-0 flex flex-col text-left">
-                          <p className={`text-[10px] font-black truncate font-sans uppercase tracking-tight ${isCurrent ? "text-[#ff3366]" : "text-zinc-300"}`}>
-                            {track.title}
-                          </p>
-                          <span className="text-[7.5px] text-zinc-555 font-bold tracking-widest mt-0.5 uppercase font-sans">Track #{idx + 1}</span>
-                        </div>
-
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          {isCurrent ? (
-                            <span className="text-[7px] uppercase font-black tracking-widest text-[#ff3366] bg-[#ff3366]/10 px-1.5 py-0.5 rounded border border-[#ff3366]/20 font-sans">
-                              Live
-                            </span>
-                          ) : (
-                            <Play className="w-2.5 h-2.5 text-zinc-550 hover:text-white transition-colors" />
-                          )}
-                          <button
-                            onClick={(e) => handleDeleteTrack(track.id, e)}
-                            className="p-1 hover:bg-red-500/10 rounded transition-colors cursor-pointer"
+                    <div className="flex flex-col gap-2 max-h-[220px] overflow-y-auto pr-1.5 custom-slim-scrollbar">
+                      {playlist.map((track, idx) => {
+                        const isCurrent = currentTrack && currentTrack.id === track.id;
+                        return (
+                          <div
+                            key={track.id}
+                            onClick={() => playTrack(track)}
+                            className={`w-full p-2 bg-black/20 hover:bg-[#007aff]/5 border rounded-xl flex items-center gap-3 cursor-pointer transition-all duration-300 ${
+                              isCurrent
+                                ? "border-[#007aff]/30 bg-black/45 shadow-[0_4px_12px_rgba(0,122,255,0.05)]"
+                                : "border-white/5 hover:border-white/10"
+                            }`}
                           >
-                            <Trash2 className="w-2.5 h-2.5 text-zinc-650 hover:text-red-500" />
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
+                            <div className="relative w-8 h-8 rounded-lg bg-zinc-950 border border-white/5 overflow-hidden flex-shrink-0 flex items-center justify-center">
+                              {track.thumbnail ? (
+                                <img src={track.thumbnail} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <Music className="w-3.5 h-3.5 text-zinc-600" />
+                              )}
+                            </div>
+                            
+                            <div className="flex-1 min-w-0 flex flex-col text-left">
+                              <p className={`text-[10px] font-bold truncate font-sans uppercase tracking-tight ${isCurrent ? "text-[#007aff]" : "text-zinc-300"}`}>
+                                {track.title}
+                              </p>
+                              <span className="text-[7.5px] text-zinc-550 font-bold tracking-widest mt-0.5 uppercase">Трек #${idx + 1}</span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5 flex-shrink-0">
+                              {isCurrent ? (
+                                <span className="text-[7px] uppercase font-black tracking-widest text-[#007aff] bg-[#007aff]/10 px-1.5 py-0.5 rounded border border-[#007aff]/20 font-sans">
+                                  Эфир
+                                </span>
+                              ) : (
+                                <Play className="w-2.5 h-2.5 text-zinc-550 hover:text-white transition-colors" />
+                              )}
+                              <button
+                                onClick={(e) => handleDeleteTrack(track.id, e)}
+                                className="p-1 hover:bg-red-500/10 rounded transition-colors cursor-pointer"
+                              >
+                                <Trash2 className="w-2.5 h-2.5 text-zinc-600 hover:text-red-550" />
+                              </button>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
 
-            {/* Session Room Chat */}
-            <div className="flex flex-col gap-3 flex-1 min-h-[220px] mt-2 pt-4 border-t border-white/5 animate-fadeIn">
-              <div className="flex items-center justify-between pb-2 border-b border-white/5 px-1">
-                <div className="flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-[#ff3366]" />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500 font-sans">Session Room</span>
-                </div>
-                <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-              </div>
-              
-              {/* Dynamic Chat messages scrolling block */}
-              <div ref={chatContainerRef} className="flex-1 overflow-y-auto flex flex-col gap-2.5 pr-1 text-left text-xs max-h-[160px] custom-slim-scrollbar">
-                {chatMessages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className="flex gap-2 items-start cursor-pointer group"
-                    onClick={() => {
-                      if (!msg.isSystem) {
-                        setSelectedUserProfile({
-                          username: msg.username,
-                          avatarColor: msg.avatarColor,
-                          avatarUrl: msg.avatarUrl,
-                          bannerUrl: msg.bannerUrl,
-                          bio: msg.bio,
-                          customBadge: msg.customBadge,
-                          joinedAt: msg.joinedAt || new Date().toISOString(),
-                          latency: "Chat"
-                        });
-                      }
-                    }}
-                  >
-                    <div className="w-6 h-6 rounded-md flex items-center justify-center text-[9px] font-black text-black flex-shrink-0 mt-0.5 overflow-hidden border border-white/5" style={{ backgroundColor: msg.avatarColor || "#ff3366" }}>
-                      {msg.avatarUrl && msg.avatarUrl.startsWith("data:image") ? (
-                        <img src={msg.avatarUrl} alt="" className="w-full h-full object-cover" />
-                      ) : (
-                        msg.username ? msg.username.charAt(0).toUpperCase() : "?"
-                      )}
-                    </div>
-                    <div className="flex flex-col min-w-0 leading-tight">
-                      <div className="flex items-baseline gap-1">
-                        <span className="text-[9.5px] font-black text-zinc-400 group-hover:text-[#ff3366] transition-colors">{msg.username}</span>
-                        <span className="text-[7px] text-zinc-650 font-medium pl-1 font-sans">{msg.timestamp}</span>
-                      </div>
-                      <div className={`mt-1 px-3 py-2 rounded-xl text-[10px] leading-normal font-sans ${msg.isSystem ? "bg-white/5 text-zinc-500 italic" : "bg-black/35 text-white border border-white/5"}`}>
-                        {msg.text}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Message input bar */}
-              <form onSubmit={handleSendChatMessage} className="w-full flex gap-1.5 mt-auto">
-                <input
-                  type="text"
-                  placeholder="Message..."
-                  value={newChatMessage}
-                  onChange={(e) => setNewChatMessage(e.target.value)}
-                  className="flex-1 bg-black/40 border border-white/5 rounded-xl px-3 py-2 text-[10.5px] text-zinc-205 placeholder:text-zinc-650 focus:outline-none focus:border-[#ff3366] transition-colors font-semibold"
-                />
-                <button
-                  type="submit"
-                  disabled={!newChatMessage.trim()}
-                  className="p-2 bg-white text-black hover:bg-[#ff3366] hover:text-white active:scale-95 disabled:opacity-30 rounded-xl transition-all flex items-center justify-center cursor-pointer"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                </button>
-              </form>
-            </div>
           </div>
 
         </div>
-
-        {/* Hidden original layout to preserve React bindings */}
+{/* Hidden original layout to preserve React bindings */}
         <div className="hidden">
           {/* ==================== LEFT COLUMN (3/12 cols) ==================== */}
         <div className="col-span-1 lg:col-span-3 flex flex-col gap-6">
@@ -3406,7 +3284,7 @@ function SyncPlayerApp() {
             </div>
 
             {/* Messages body scrolling */}
-            <div ref={chatContainerRef} className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1.5 select-text mb-4 text-left">
+            <div className="flex-1 overflow-y-auto flex flex-col gap-3 pr-1.5 select-text mb-4 text-left">
                {chatMessages.map((msg) => (
                 <div 
                   key={msg.id} 
