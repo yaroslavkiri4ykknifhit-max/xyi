@@ -1,40 +1,76 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: var(--font-inter), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-sans: var(--font-onest), system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
+  --font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
 }
 
+/* ============================================================
+   DESIGN TOKENS — Dark (default)
+   ============================================================ */
 :root {
-  /* Default Theme Variables: Dark Tech Blue */
-  --bg: #030712;             /* Deep indigo-black */
-  --panel-bg: #0a0f1d;       /* Deep slate-blue card */
-  --text: #f9fafb;           /* Pure white-zinc */
-  --border: rgba(59, 130, 246, 0.15); /* Soft electric-blue border */
-  --accent: #007aff;         /* Classic iOS iMessage blue */
-  --accent-hover: #0056b3;
-  --muted-text: #9ca3af;
-  --imessage-received-bg: #1f2937;
-  --input-bg: #111827;
-  --shadow: rgba(0, 0, 0, 0.5);
-  
+  /* Surfaces */
+  --bg: #04040a;
+  --bg-elevated: #09090f;
+  --panel-bg: #0e0e16;
+
+  /* Borders */
+  --border: rgba(255, 255, 255, 0.055);
+  --border-active: rgba(0, 122, 255, 0.3);
+
+  /* Text */
+  --text: #ededf2;
+  --muted-text: #868694;
+  --dim-text: #46464f;
+
+  /* Accent — iOS blue, consistent with the music sync concept */
+  --accent: #007aff;
+  --accent-hover: #0063d1;
+  --accent-dim: rgba(0, 122, 255, 0.1);
+  --accent-glow: rgba(0, 122, 255, 0.14);
+
+  /* Messaging */
+  --imessage-received-bg: #1a1a24;
+
+  /* Inputs */
+  --input-bg: rgba(0, 0, 0, 0.45);
+
+  /* Shadows */
+  --shadow: rgba(0, 0, 0, 0.55);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 28px rgba(0, 0, 0, 0.65);
+
   background-color: var(--bg);
   color: var(--text);
 }
 
-/* Light Theme Variables */
+/* ============================================================
+   DESIGN TOKENS — Light
+   ============================================================ */
 .light-theme {
-  --bg: #f3f4f6;             /* Cool light grey-blue background */
-  --panel-bg: #ffffff;       /* Crisp white cards */
-  --text: #111827;           /* Deep charcoal text */
-  --border: rgba(59, 130, 246, 0.22); /* Soft blue border */
-  --accent: #0066d6;         /* Deeper blue accent for light contrast */
-  --accent-hover: #004da3;
-  --muted-text: #4b5563;     /* Darker grey secondary text */
-  --imessage-received-bg: #e5e7eb; /* Light grey received bubbles */
+  --bg: #f2f2f7;
+  --bg-elevated: #ffffff;
+  --panel-bg: #ffffff;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-active: rgba(0, 100, 210, 0.28);
+  --text: #1c1c1e;
+  --muted-text: #636369;
+  --dim-text: #b0b0b8;
+  --accent: #0064d2;
+  --accent-hover: #0050a8;
+  --accent-dim: rgba(0, 100, 210, 0.08);
+  --accent-glow: rgba(0, 100, 210, 0.12);
+  --imessage-received-bg: #e5e5ea;
   --input-bg: #ffffff;
-  --shadow: rgba(0, 0, 0, 0.04);
+  --shadow: rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 28px rgba(0, 0, 0, 0.1);
 }
 
+/* ============================================================
+   BASE
+   ============================================================ */
 body {
   background-color: var(--bg);
   color: var(--text);
@@ -43,12 +79,16 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.2s ease, color 0.2s ease;
+  /* Onest OpenType features */
+  font-feature-settings: "ss01" 1, "calt" 1;
 }
 
-/* Custom premium iMessage slim scrollbar */
+/* ============================================================
+   SCROLLBAR — ultra-slim, accent on hover
+   ============================================================ */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 3px;
+  height: 3px;
 }
 
 ::-webkit-scrollbar-track {
@@ -56,15 +96,137 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(59, 130, 246, 0.18);
-  border-radius: 0px;
+  background: rgba(255, 255, 255, 0.07);
+  border-radius: 0;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(59, 130, 246, 0.35);
+  background: rgba(0, 122, 255, 0.35);
 }
 
-/* Hide SoundCloud default standard widget element but keep API working */
+/* ============================================================
+   PANEL COMPONENTS
+   ============================================================ */
+
+/* Minimal panel — room UI cards */
+.minimal-panel {
+  background-color: var(--panel-bg);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: var(--shadow-md);
+  transition: border-color 0.2s ease, background-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.minimal-panel-hover:hover {
+  border-color: var(--border-active);
+}
+
+/* Glass panel — landing page cards */
+.glass-panel {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 0;
+  box-shadow: var(--shadow-md);
+  transition: border-color 0.22s ease, box-shadow 0.22s ease;
+}
+
+.glass-panel-hover:hover {
+  border-color: var(--border-active);
+  box-shadow: 0 8px 40px rgba(0, 122, 255, 0.07);
+}
+
+/* ============================================================
+   IMESSAGE CHAT BUBBLES
+   ============================================================ */
+.imessage-bubble-sent {
+  background-color: var(--accent);
+  color: #ffffff;
+  border-radius: 3px 3px 0 3px;
+  padding: 7px 13px;
+  font-size: 13px;
+  line-height: 1.46;
+  position: relative;
+  word-break: break-word;
+  transition: background-color 0.2s ease;
+}
+
+.imessage-bubble-received {
+  background-color: var(--imessage-received-bg);
+  color: var(--text);
+  border-radius: 3px 3px 3px 0;
+  padding: 7px 13px;
+  font-size: 13px;
+  line-height: 1.46;
+  position: relative;
+  word-break: break-word;
+  border: 1px solid var(--border);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ============================================================
+   RANGE SLIDER — precision instrument feel
+   ============================================================ */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--border);
+  border-radius: 0;
+  outline: none;
+  height: 3px;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 0;
+  background: var(--text);
+  cursor: pointer;
+  transition: transform 0.12s ease, background-color 0.12s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.3);
+  background: var(--accent);
+}
+
+/* ============================================================
+   LIVE STATUS DOT
+   ============================================================ */
+.live-pulse-dot {
+  position: relative;
+}
+
+.live-pulse-dot::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: inherit;
+  border-radius: inherit;
+  animation: livePulse 2.2s ease-out infinite;
+}
+
+@keyframes livePulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(2.4);
+    opacity: 0;
+  }
+}
+
+/* ============================================================
+   SC HIDDEN — SoundCloud widget (API only, no visual)
+   ============================================================ */
 .sc-hidden {
   position: absolute;
   width: 1px;
@@ -76,73 +238,9 @@ body {
   border: 0;
 }
 
-/* Strictly Sharp Cyber Panels & Hover state */
-.minimal-panel {
-  background-color: var(--panel-bg);
-  border: 1px solid var(--border);
-  border-radius: 0px; /* STRICT SQUARE */
-  box-shadow: 0 4px 24px var(--shadow);
-  transition: border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
-}
-
-.minimal-panel-hover:hover {
-  border-color: rgba(59, 130, 246, 0.3);
-  background-color: var(--panel-bg);
-}
-
-/* Authentic iMessage-style sharp speech bubbles */
-.imessage-bubble-sent {
-  background-color: var(--accent);
-  color: #ffffff;
-  border-radius: 4px 4px 0px 4px; /* Crisp square corner visual signature */
-  padding: 8px 14px;
-  font-size: 13px;
-  line-height: 1.4;
-  position: relative;
-  word-break: break-word;
-  transition: background-color 0.2s ease;
-}
-
-.imessage-bubble-received {
-  background-color: var(--imessage-received-bg);
-  color: var(--text);
-  border-radius: 4px 4px 4px 0px; /* Crisp square corner visual signature */
-  padding: 8px 14px;
-  font-size: 13px;
-  line-height: 1.4;
-  position: relative;
-  word-break: break-word;
-  border: 1px solid var(--border);
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-/* Custom premium range slider */
-input[type="range"] {
-  -webkit-appearance: none;
-  appearance: none;
-  background: var(--border);
-  border-radius: 0px; /* STRICT SQUARE SLIDER TRACK */
-  outline: none;
-  height: 4px;
-}
-
-input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 12px;
-  height: 12px;
-  border-radius: 0px; /* STRICT SQUARE GRABBER */
-  background: var(--text);
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-  transition: transform 0.1s ease;
-}
-
-input[type="range"]::-webkit-slider-thumb:hover {
-  transform: scale(1.25);
-}
-
-/* Fade In Keyframes */
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -155,5 +253,26 @@ input[type="range"]::-webkit-slider-thumb:hover {
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Skeleton shimmer for loading states */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--panel-bg) 25%,
+    rgba(255, 255, 255, 0.04) 50%,
+    var(--panel-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s ease-in-out infinite;
 }

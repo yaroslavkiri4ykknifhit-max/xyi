@@ -1936,34 +1936,29 @@ function SyncPlayerApp() {
   }
 
   return (
-    <main className="min-h-screen bg-[#050508] text-white flex flex-col relative select-none pb-28 overflow-x-hidden">
-      {/* Background glowing soft elements */}
-      <div className="absolute top-[-10%] left-[20%] w-[40%] h-[40%] bg-[#007aff]/5 rounded-none blur-[140px] pointer-events-none"></div>
-      <div className="absolute bottom-[10%] right-[10%] w-[35%] h-[35%] bg-[#00b4d8]/5 rounded-none blur-[140px] pointer-events-none"></div>
+    <main className="min-h-[100dvh] bg-[#04040a] text-white flex flex-col relative select-none pb-28 overflow-x-hidden">
+      {/* Ambient glow — subtle, not dominant */}
+      <div className="absolute top-0 left-[15%] w-[30%] h-[50%] bg-[#007aff]/4 blur-[160px] pointer-events-none"></div>
+      <div className="absolute bottom-0 right-[5%] w-[25%] h-[40%] bg-[#007aff]/3 blur-[160px] pointer-events-none"></div>
 
       {!roomCode ? (
         /* ==================== LANDING PAGE CONTENT ==================== */
-        <div className="flex flex-col flex-1 relative z-10 w-full min-h-screen">
-          {/* Glow Auras */}
-          <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-[#007aff]/10 rounded-none blur-[120px] pointer-events-none"></div>
-          <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/10 rounded-none blur-[120px] pointer-events-none"></div>
+        <div className="flex flex-col flex-1 relative z-10 w-full min-h-[100dvh]">
 
           {/* Global Nav */}
-          <nav className="w-full max-w-7xl mx-auto px-6 py-6 flex items-center justify-between z-10">
-            <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => router.push("/")}>
-              <span className="text-3xl font-black tracking-tighter text-white">xyi</span>
-              <span className="w-5 h-5 rounded-none bg-[#007aff] flex items-center justify-center text-[10px] font-black text-black select-none">▶</span>
+          <nav className="w-full max-w-7xl mx-auto px-6 py-5 flex items-center justify-between z-10 border-b border-white/[0.04]">
+            <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push("/")}>
+              <span className="text-[22px] font-black tracking-tighter text-white leading-none">xyi</span>
+              <span className="w-[18px] h-[18px] bg-[#007aff] flex items-center justify-center text-[9px] font-black text-white select-none flex-shrink-0">▶</span>
             </div>
-            <div className="hidden md:flex items-center gap-8 text-sm font-medium text-zinc-400">
-              <span className="hover:text-white transition-colors cursor-pointer">Home</span>
-              <span className="hover:text-white transition-colors cursor-pointer">Rooms</span>
-              <span className="hover:text-white transition-colors cursor-pointer">Features</span>
-              <span className="hover:text-white transition-colors cursor-pointer">Support</span>
+            <div className="hidden md:flex items-center gap-7 text-[13px] font-medium text-zinc-500">
+              <span className="hover:text-white transition-colors cursor-pointer">Комнаты</span>
+              <span className="hover:text-white transition-colors cursor-pointer">Как работает</span>
             </div>
             <div className="flex items-center gap-3">
               <button
                 onClick={toggleTheme}
-                className="w-10 h-10 border border-white/10 hover:border-[#007aff]/30 text-xs font-semibold flex items-center justify-center bg-zinc-900/60 hover:bg-[#007aff]/5 transition-all text-white cursor-pointer rounded-none"
+                className="w-8 h-8 border border-white/[0.07] hover:border-[#007aff]/25 text-xs flex items-center justify-center bg-white/[0.03] hover:bg-[#007aff]/5 transition-all text-white cursor-pointer"
                 title="Переключить тему"
               >
                 {isDark ? "☀️" : "🌙"}
@@ -2014,65 +2009,69 @@ function SyncPlayerApp() {
           </nav>
 
           {/* Hero & Join Card Panel */}
-          <section className="flex-1 max-w-7xl mx-auto w-full px-6 flex flex-col lg:flex-row items-center justify-center gap-16 py-12 z-10">
-            <div className="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start max-w-xl">
-              <span className="px-3.5 py-1.5 rounded-none bg-[#007aff]/10 text-[#007aff] text-xs font-bold uppercase tracking-widest mb-6 border border-[#007aff]/15">
-                Na leg. All vibe.
-              </span>
-              <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight leading-none mb-6">
-                XYI: Listen <br className="hidden md:block"/>
-                <span className="bg-gradient-to-r from-[#007aff] via-[#4364f7] to-[#00c6ff] bg-clip-text text-transparent">Together, Live</span>
+          <section className="flex-1 max-w-7xl mx-auto w-full px-6 flex flex-col lg:flex-row items-center justify-center gap-14 py-16 z-10">
+            <div className="flex-1 text-center lg:text-left flex flex-col items-center lg:items-start max-w-[520px]">
+              <h1 className="text-5xl md:text-6xl lg:text-[64px] font-black tracking-[-0.03em] leading-[1.06] mb-5 text-white">
+                Слушайте музыку
+                <br />
+                <span className="text-[#007aff]">вместе, в реальном</span>
+                <br />
+                <span className="text-[#007aff]">времени.</span>
               </h1>
-              <p className="text-zinc-400 text-base md:text-lg mb-8 font-light leading-relaxed max-w-md">
-                Синхронизируйте музыку в реальном времени с друзьями. Нажмите кнопку, чтобы мгновенно создать приватную аудиосессию без задержек.
+              <p className="text-[#868694] text-[15px] mb-9 font-normal leading-relaxed max-w-[420px]">
+                Создайте комнату и синхронизируйте SoundCloud с друзьями без задержек.
               </p>
               <button
                 onClick={handleCreateRoomAction}
-                className="px-8 py-4 bg-[#007aff] hover:bg-[#0056b3] text-black font-extrabold text-sm uppercase tracking-widest rounded-none transition-all active:scale-[0.97] hover:shadow-[0_8px_30px_rgba(255,85,0,0.3)]"
+                className="px-7 py-3.5 bg-[#007aff] hover:bg-[#0063d1] text-white font-semibold text-sm tracking-wide transition-all active:scale-[0.97] active:-translate-y-[1px]"
               >
-                Create a Session
+                Создать сессию
               </button>
             </div>
 
-            {/* Glass Card Input Box */}
-            <div className="w-full max-w-md glass-panel p-8 rounded-none border-white/10 shadow-2xl flex flex-col gap-6 relative">
-              <div className="absolute top-4 right-4 flex items-center gap-1.5">
-                <span className="w-1.5 h-1.5 rounded-none bg-emerald-500 animate-ping"></span>
-                <span className="text-[9px] font-bold text-emerald-400 tracking-widest uppercase">Online</span>
-              </div>
-              
-              <div className="flex flex-col gap-1">
-                <h2 className="text-xl font-bold">Войти в комнату</h2>
-                <p className="text-xs text-zinc-500">Введите уникальный код сессии вашего друга</p>
+            {/* Join Card */}
+            <div className="w-full max-w-[400px] glass-panel p-7 flex flex-col gap-5 relative">
+              {/* Live indicator */}
+              <div className="absolute top-5 right-5 flex items-center gap-1.5">
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full bg-emerald-500 opacity-60"></span>
+                  <span className="relative inline-flex h-1.5 w-1.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-[10px] font-mono font-medium text-emerald-500 tracking-wider">LIVE</span>
               </div>
 
-              <form onSubmit={handleJoinOrCreateRoomSubmit} className="flex flex-col gap-4">
+              <div className="flex flex-col gap-0.5">
+                <h2 className="text-base font-bold text-white">Войти в комнату</h2>
+                <p className="text-[13px] text-[#868694]">Введите код сессии</p>
+              </div>
+
+              <form onSubmit={handleJoinOrCreateRoomSubmit} className="flex flex-col gap-3">
                 <input
                   type="text"
-                  placeholder="НАПРИМЕР: XYI-8LP2"
+                  placeholder="XYI-8LP2"
                   value={roomCodeInput}
                   onChange={(e) => setRoomCodeInput(e.target.value.toUpperCase())}
-                  className="w-full bg-black/60 border border-white/8 rounded-none px-4 py-4 text-white text-center text-lg font-bold tracking-widest focus:outline-none focus:border-[#007aff] focus:ring-1 focus:ring-[#007aff]/30 transition-all uppercase placeholder:text-zinc-700"
+                  className="w-full bg-black/50 border border-white/[0.07] px-4 py-3.5 text-white text-center font-mono text-base font-semibold tracking-[0.2em] focus:outline-none focus:border-[#007aff]/60 focus:ring-1 focus:ring-[#007aff]/20 transition-all uppercase placeholder:text-white/15 placeholder:tracking-[0.15em]"
                   maxLength={12}
                 />
                 <button
                   type="submit"
                   disabled={!roomCodeInput.trim()}
-                  className="w-full py-4 bg-white text-black font-bold text-xs uppercase tracking-widest rounded-none transition-all hover:bg-zinc-200 active:scale-[0.98] disabled:opacity-40 disabled:pointer-events-none cursor-pointer"
+                  className="w-full py-3.5 bg-white hover:bg-zinc-100 text-black font-semibold text-[13px] tracking-wide transition-all active:scale-[0.98] active:-translate-y-[1px] disabled:opacity-35 disabled:pointer-events-none cursor-pointer"
                 >
                   Подключиться
                 </button>
               </form>
 
-              <div className="relative flex py-2 items-center">
-                <div className="flex-grow border-t border-white/5"></div>
-                <span className="flex-shrink mx-4 text-zinc-600 text-[10px] uppercase tracking-widest">или</span>
-                <div className="flex-grow border-t border-white/5"></div>
+              <div className="relative flex items-center gap-3">
+                <div className="flex-grow border-t border-white/[0.05]"></div>
+                <span className="text-[#46464f] text-[11px] font-mono tracking-widest">ИЛИ</span>
+                <div className="flex-grow border-t border-white/[0.05]"></div>
               </div>
 
               <button
                 onClick={handleCreateRoomAction}
-                className="w-full py-4 bg-zinc-950 border border-white/10 hover:border-[#007aff]/50 hover:bg-[#007aff]/5 text-white font-bold text-xs uppercase tracking-widest rounded-none transition-all active:scale-[0.98] cursor-pointer"
+                className="w-full py-3.5 border border-white/[0.07] hover:border-[#007aff]/40 hover:bg-[#007aff]/5 text-white/80 hover:text-white font-medium text-[13px] tracking-wide transition-all active:scale-[0.98] cursor-pointer"
               >
                 Создать новую сессию
               </button>
@@ -2080,51 +2079,56 @@ function SyncPlayerApp() {
           </section>
 
           {/* Public Rooms Section */}
-          <section className="w-full max-w-7xl mx-auto px-6 py-12 z-10 flex flex-col gap-6 text-left pb-24">
-            <div className="flex items-center justify-between pb-2 border-b border-white/5">
+          <section className="w-full max-w-7xl mx-auto px-6 pb-24 z-10 flex flex-col gap-5 text-left">
+            <div className="flex items-center justify-between py-4 border-t border-b border-white/[0.05]">
               <div className="flex items-center gap-2.5">
-                <span className="w-2 h-2 rounded-none bg-emerald-500 live-pulse-dot"></span>
-                <h2 className="text-xl font-black tracking-tight">Публичные комнаты</h2>
+                <span className="relative flex h-2 w-2">
+                  <span className="live-pulse-dot absolute inset-0 bg-emerald-500"></span>
+                  <span className="relative h-2 w-2 bg-emerald-500"></span>
+                </span>
+                <h2 className="text-sm font-semibold tracking-wide text-white">Публичные комнаты</h2>
               </div>
               <button 
                 onClick={fetchPublicRooms} 
-                className="text-xs font-bold text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                className="text-[12px] text-[#868694] hover:text-white transition-colors cursor-pointer font-mono"
               >
-                Обновить список
+                обновить
               </button>
             </div>
 
             {loadingPublicRooms ? (
-              <div className="w-full py-16 flex items-center justify-center">
-                <div className="w-6 h-6 rounded-none border-2 border-[#007aff] border-r-transparent animate-spin"></div>
+              <div className="w-full py-14 flex items-center justify-center">
+                <div className="w-5 h-5 border border-[#007aff] border-r-transparent animate-spin"></div>
               </div>
             ) : publicRooms.length === 0 ? (
-              <div className="w-full py-16 bg-zinc-950/40 border border-dashed border-white/5 rounded-none flex flex-col items-center justify-center gap-3 px-6 text-center shadow-inner">
-                <Radio className="w-8 h-8 text-zinc-700 animate-pulse" />
-                <h3 className="text-sm font-bold text-zinc-400">Нет активных публичных комнат</h3>
-                <p className="text-zinc-600 text-xs max-w-sm">
-                  Сейчас никто не стримит публично. Войдите, создайте свою постоянную комнату и сделайте её публичной в настройках!
+              <div className="w-full py-16 border border-dashed border-white/[0.06] flex flex-col items-center justify-center gap-2.5 px-6 text-center">
+                <Radio className="w-6 h-6 text-white/15" />
+                <p className="text-[13px] font-medium text-white/30">
+                  Нет активных публичных комнат
+                </p>
+                <p className="text-[12px] text-[#46464f] max-w-[300px]">
+                  Создайте комнату и сделайте её публичной в настройках.
                 </p>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.04]">
                 {publicRooms.map((room) => (
-                  <div key={room.id} className="glass-panel p-6 rounded-none flex flex-col justify-between gap-4 shadow-xl border-white/8 hover:border-[#007aff]/30 transition-all hover:shadow-[0_8px_30px_rgba(255,85,0,0.03)] glass-panel-hover">
-                    <div className="flex flex-col gap-1.5">
+                  <div key={room.id} className="bg-[#04040a] p-6 flex flex-col justify-between gap-5 hover:bg-[#0a0a12] transition-colors group cursor-default">
+                    <div className="flex flex-col gap-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[9px] font-bold text-[#007aff] uppercase tracking-widest pl-0.5">Live Broadcast</span>
-                        <span className="text-[9px] font-mono text-zinc-500 font-bold uppercase">{room.id}</span>
+                        <span className="text-[10px] font-mono text-[#007aff] tracking-widest">LIVE</span>
+                        <span className="text-[10px] font-mono text-[#46464f] tracking-widest">{room.id}</span>
                       </div>
-                      <h3 className="text-base font-black text-white truncate">{room.room_name || `Комната ${room.id}`}</h3>
+                      <h3 className="text-[15px] font-semibold text-white truncate leading-snug">{room.room_name || `Комната ${room.id}`}</h3>
                     </div>
-                    <div className="flex items-center justify-between mt-2 pt-4 border-t border-white/5">
-                      <div className="flex items-center gap-1.5 text-zinc-500 text-[10px] font-bold">
-                        <Users className="w-3.5 h-3.5 text-zinc-500" />
-                        <span>Слушать вместе</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-1.5 text-[#46464f]">
+                        <Users className="w-3 h-3" />
+                        <span className="text-[11px] font-mono">co-listen</span>
                       </div>
                       <button 
                         onClick={() => router.push(`/?room=${room.id}`)}
-                        className="px-4 py-2 bg-white text-black font-extrabold text-[10px] uppercase tracking-wider rounded-none transition-all hover:bg-zinc-200 active:scale-[0.97] cursor-pointer"
+                        className="px-4 py-1.5 bg-[#007aff] hover:bg-[#0063d1] text-white font-medium text-[12px] tracking-wide transition-all active:scale-[0.97] cursor-pointer"
                       >
                         Войти
                       </button>
