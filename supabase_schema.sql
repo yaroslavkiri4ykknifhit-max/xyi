@@ -88,10 +88,10 @@ BEGIN
   END IF;
 END $$;
 
--- 7. Personal & Public Rooms Migration (Run this if tables are already created)
--- ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS owner_id TEXT UNIQUE;
--- ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE NOT NULL;
--- ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS room_name TEXT;
+-- 7. Personal & Public Rooms Migration (Runs safely whether columns exist or not)
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS owner_id TEXT UNIQUE;
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS is_public BOOLEAN DEFAULT FALSE NOT NULL;
+ALTER TABLE public.rooms ADD COLUMN IF NOT EXISTS room_name TEXT;
 
 -- 8. Create profiles table for internal accounts customization
 CREATE TABLE IF NOT EXISTS public.profiles (
