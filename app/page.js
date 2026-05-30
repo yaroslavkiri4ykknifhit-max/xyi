@@ -314,6 +314,29 @@ function SyncPlayerApp() {
     sendChatSystemMessage(`👤 ${data.username} обновил свой профиль!`);
   };
 
+  const getBannerStyle = (url) => {
+    const BANNER_GRADIENTS = [
+      { id: "sunset", name: "Sunset Pulse", style: "linear-gradient(135deg, #ff5500 0%, #ff007f 100%)" },
+      { id: "cyberpunk", name: "Cyber Neon", style: "linear-gradient(135deg, #8a2be2 0%, #00b4d8 100%)" },
+      { id: "emerald", name: "Emerald Dusk", style: "linear-gradient(135deg, #10b981 0%, #064e3b 100%)" },
+      { id: "gold", name: "Liquid Gold", style: "linear-gradient(135deg, #f59e0b 0%, #ec4899 100%)" },
+      { id: "darkmatter", name: "Dark Matter", style: "linear-gradient(135deg, #1e1b4b 0%, #030712 100%)" },
+      { id: "soundwave", name: "Soundwave Glow", style: "linear-gradient(135deg, #ef4444 0%, #f97316 100%)" }
+    ];
+    const matchedGradient = BANNER_GRADIENTS.find(g => g.id === url);
+    if (matchedGradient) {
+      return { background: matchedGradient.style };
+    }
+    if (url && url.startsWith("data:image")) {
+      return { 
+        backgroundImage: `url(${url})`, 
+        backgroundSize: "cover", 
+        backgroundPosition: "center" 
+      };
+    }
+    return { background: BANNER_GRADIENTS[0].style };
+  };
+
   // 3. Initialize unique client session ID, username, and avatar color
   useEffect(() => {
     let cid = sessionStorage.getItem("xyi_client_id");
@@ -2188,7 +2211,7 @@ function SyncPlayerApp() {
 
           {/* Owner Room Settings Control Panel */}
           {currentUser && roomSettings.owner_id === currentUser.id && (
-            <div className="glass-panel p-6 rounded-[28px] text-left flex flex-col gap-4 border-[#ff5500]/20 shadow-[0_8px_30px_rgba(255,85,0,0.04)]">
+            <div className="glass-panel p-6 rounded-xl text-left flex flex-col gap-4 border-[#ff5500]/20 shadow-[0_8px_30px_rgba(255,85,0,0.04)]">
               <div className="flex items-center justify-between pb-2 border-b border-white/5">
                 <h3 className="text-sm font-black uppercase tracking-widest text-[#ff5500]">Настройки комнаты</h3>
                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 live-pulse-dot"></span>
@@ -2325,7 +2348,7 @@ function SyncPlayerApp() {
           </div>
 
           {/* Personal Library Card (Saved Favorite tracks / SoundCloud accounts) */}
-          <div className="glass-panel p-6 rounded-[28px] text-left flex flex-col gap-4">
+          <div className="glass-panel p-6 rounded-xl text-left flex flex-col gap-4">
             <div className="flex items-center justify-between pb-2 border-b border-white/5">
               <div className="flex items-center gap-2">
                 <Music className="w-4 h-4 text-[#ff5500]" />
@@ -2546,11 +2569,11 @@ function SyncPlayerApp() {
         <div className="col-span-1 lg:col-span-5 flex flex-col gap-6">
           
           {/* Main Visual Artwork Card (Static) */}
-          <div className="glass-panel p-6 rounded-[32px] flex flex-col shadow-2xl relative">
+          <div className="glass-panel p-6 rounded-xl flex flex-col shadow-2xl relative">
             
             {/* Album Cover Container (Static) */}
             <div 
-              className={`relative w-full aspect-square bg-zinc-950/60 rounded-[24px] border border-white/5 overflow-hidden flex items-center justify-center group mb-6 transition-all duration-500 animate-beat`}
+              className={`relative w-full aspect-square bg-zinc-950/60 rounded-lg border border-white/5 overflow-hidden flex items-center justify-center group mb-6 transition-all duration-500 animate-beat`}
             >
               {currentTrack && currentTrack.thumbnail ? (
                 <img
@@ -2598,7 +2621,7 @@ function SyncPlayerApp() {
           </div>
 
           {/* Add Track Input glass-form */}
-          <div className="glass-panel p-5 rounded-[28px] flex flex-col gap-3">
+          <div className="glass-panel p-5 rounded-xl flex flex-col gap-3">
             <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-400 text-left pl-1">Добавить новый трек</h3>
             <form onSubmit={handleAddTrack} className="w-full flex gap-2">
               <input
@@ -2607,7 +2630,7 @@ function SyncPlayerApp() {
                 value={newTrackUrl}
                 onChange={(e) => setNewTrackUrl(e.target.value)}
                 disabled={addingTrack}
-                className="flex-1 bg-black/60 border border-white/8 rounded-2xl px-4 py-3.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors disabled:opacity-50"
+                className="flex-1 bg-black/60 border border-white/8 rounded-lg px-4 py-3.5 text-xs text-zinc-200 placeholder:text-zinc-600 focus:outline-none focus:border-[#ff5500] transition-colors disabled:opacity-50"
               />
               <button
                 type="submit"
@@ -2624,7 +2647,7 @@ function SyncPlayerApp() {
           </div>
 
           {/* Playlist Queue Section (Under Player) */}
-          <div className="glass-panel p-6 rounded-[28px] flex flex-col gap-4">
+          <div className="glass-panel p-6 rounded-xl flex flex-col gap-4">
             <div className="flex items-center gap-2">
               <List className="w-4 h-4 text-[#ff5500]" />
               <h3 className="text-xs uppercase tracking-widest font-bold text-zinc-400">
@@ -2718,7 +2741,7 @@ function SyncPlayerApp() {
         <div className="col-span-1 lg:col-span-4 flex flex-col gap-6 h-full lg:sticky lg:top-[90px]">
           
           {/* Real-time Session Chat Card */}
-          <div className="glass-panel p-6 rounded-[28px] flex flex-col min-h-[360px] h-[400px] shadow-2xl relative">
+          <div className="glass-panel p-6 rounded-xl flex flex-col min-h-[360px] h-[400px] shadow-2xl relative">
             <div className="flex items-center justify-between pb-3 border-b border-white/5 mb-4">
               <div className="flex items-center gap-2">
                 <MessageSquare className="w-4 h-4 text-[#ff5500]" />
@@ -2735,16 +2758,25 @@ function SyncPlayerApp() {
                   className={`flex gap-2.5 items-start ${!msg.isSystem ? "cursor-pointer group" : ""}`}
                   onClick={() => {
                     if (!msg.isSystem) {
-                      window.open(`/${msg.username}`, "_blank");
+                      setSelectedUserProfile({
+                        username: msg.username,
+                        avatarColor: msg.avatarColor,
+                        avatarUrl: msg.avatarUrl,
+                        bannerUrl: msg.bannerUrl,
+                        bio: msg.bio,
+                        customBadge: msg.customBadge,
+                        joinedAt: msg.joinedAt || new Date().toISOString(),
+                        latency: "Chat"
+                      });
                     }
                   }}
                 >
                   <div
-                    className="w-7 h-7 rounded-full flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 mt-0.5 overflow-hidden transition-transform group-hover:scale-105"
+                    className="w-7 h-7 rounded-md flex items-center justify-center text-[10px] font-black text-black flex-shrink-0 mt-0.5 overflow-hidden transition-transform group-hover:scale-105 border border-white/5"
                     style={{ backgroundColor: msg.avatarColor || "#ff5500" }}
                   >
                     {msg.avatarUrl && msg.avatarUrl.startsWith("data:image") ? (
-                      <img src={msg.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                      <img src={msg.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-none" />
                     ) : msg.avatarUrl ? (
                       <span className="text-sm">{msg.avatarUrl}</span>
                     ) : (
@@ -2790,7 +2822,7 @@ function SyncPlayerApp() {
           </div>
 
           {/* Active Participants List */}
-          <div className="glass-panel p-6 rounded-[28px] flex flex-col gap-4 text-left shadow-2xl">
+          <div className="glass-panel p-6 rounded-xl flex flex-col gap-4 text-left shadow-2xl">
             <div className="flex items-center justify-between pb-2 border-b border-white/5">
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4 text-[#ff5500]" />
@@ -2803,17 +2835,17 @@ function SyncPlayerApp() {
               {participants.map((p, idx) => (
                 <div 
                   key={idx} 
-                  onClick={() => window.open(`/${p.username}`, "_blank")}
-                  className="w-full p-2.5 bg-black/30 border border-white/5 rounded-2xl flex items-center justify-between hover:bg-white/5 cursor-pointer transition-all active:scale-[0.99] select-none"
+                  onClick={() => setSelectedUserProfile(p)}
+                  className="w-full p-2.5 bg-black/30 border border-[#ff5500]/10 rounded-xl flex items-center justify-between hover:bg-white/5 cursor-pointer transition-all active:scale-[0.99] select-none"
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     {/* Avatar */}
                     <div
-                      className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black text-black flex-shrink-0 overflow-hidden"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black text-black flex-shrink-0 overflow-hidden border border-white/5"
                       style={{ backgroundColor: p.avatarColor || "#ff5500" }}
                     >
                       {p.avatarUrl && p.avatarUrl.startsWith("data:image") ? (
-                        <img src={p.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-full" />
+                        <img src={p.avatarUrl} alt="Avatar" className="w-full h-full object-cover rounded-none" />
                       ) : p.avatarUrl ? (
                         <span className="text-base">{p.avatarUrl}</span>
                       ) : (
@@ -3145,6 +3177,174 @@ function SyncPlayerApp() {
       )}
 
 
+
+      {/* ==================== SINGLE-TAB USER PROFILE FULL-SCREEN OVERLAY ==================== */}
+      {selectedUserProfile && (
+        <div className="fixed inset-0 z-55 bg-[#020204] text-white flex flex-col overflow-y-auto select-text animate-fadeIn pb-16">
+          
+          {/* Dynamic Background Glowing elements */}
+          <div className="absolute top-[20%] left-[-10%] w-[50%] h-[50%] bg-[#ff5500]/5 rounded-full blur-[160px] pointer-events-none z-0"></div>
+          <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/4 rounded-full blur-[160px] pointer-events-none z-0"></div>
+
+          {/* 1. Page-Wide Hero Banner (Stretches 100% Edge-to-Edge) */}
+          <div 
+            className="w-full h-[280px] md:h-[380px] relative transition-all duration-500 border-b border-[#ff5500]/25 shadow-2xl flex-shrink-0"
+            style={getBannerStyle(selectedUserProfile.bannerUrl)}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-[#020204] via-[#020204]/30 to-transparent"></div>
+            
+            {/* Embedded Floating Transparent Navbar */}
+            <div className="absolute top-0 left-0 right-0 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between z-20">
+              <div className="flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-3.5 py-2 border border-white/5 rounded-xl">
+                <span className="text-xl font-black tracking-tighter text-white">xyi</span>
+                <span className="w-4 h-4 rounded bg-[#ff5500] flex items-center justify-center text-[8px] font-black text-black select-none">▶</span>
+                <span className="text-[9px] text-zinc-500 font-mono uppercase tracking-widest pl-2 border-l border-white/10">Профиль резидента</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    if (typeof window !== "undefined") {
+                      navigator.clipboard.writeText(`${window.location.origin}/${selectedUserProfile.username}`);
+                      alert("Ссылка на профиль резидента скопирована!");
+                    }
+                  }}
+                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#ff5500]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  Ссылка
+                </button>
+                <button
+                  onClick={() => setSelectedUserProfile(null)}
+                  className="px-5 py-2.5 bg-white text-black hover:bg-[#ff5500] hover:text-white text-[10px] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg active:scale-95"
+                >
+                  Вернуться в плеер ✕
+                </button>
+              </div>
+            </div>
+
+            {/* Subtle banner tech grid overlay */}
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px] opacity-15"></div>
+          </div>
+
+          {/* 2. Overlapping Profile Identity Container */}
+          <div className="w-full max-w-4xl mx-auto px-6 relative z-10 flex flex-col items-center md:items-start -mt-20 md:-mt-24 pb-8 text-center md:text-left">
+            
+            {/* Identity Header Grid */}
+            <div className="w-full flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
+              
+              {/* Massive Custom Strict Avatar (Rounded Square!) */}
+              <div 
+                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-4 border-[#020204] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden bg-zinc-950 flex-shrink-0"
+                style={{ backgroundColor: selectedUserProfile.avatarColor || "#ff5500" }}
+              >
+                {selectedUserProfile.avatarUrl && selectedUserProfile.avatarUrl.startsWith("data:image") ? (
+                  <img src={selectedUserProfile.avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <span className="text-6xl filter drop-shadow-md">{selectedUserProfile.avatarUrl || "🎧"}</span>
+                )}
+                
+                {/* Active Tech Indicator */}
+                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#020204] live-pulse-dot shadow-md"></div>
+              </div>
+
+              {/* Text Meta Info */}
+              <div className="flex-1 flex flex-col gap-1 items-center md:items-start pb-2">
+                <div className="flex items-center gap-2.5 justify-center md:justify-start min-w-0">
+                  <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white uppercase truncate max-w-[320px] md:max-w-[450px]">
+                    {selectedUserProfile.username || "Guest"}
+                  </h1>
+                  {selectedUserProfile.customBadge && (
+                    <span className="px-3 py-1 bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/25 text-[9px] font-black uppercase tracking-widest rounded-md shadow-sm">
+                      {selectedUserProfile.customBadge}
+                    </span>
+                  )}
+                </div>
+                <span className="text-xs text-zinc-500 font-extrabold tracking-widest uppercase mt-0.5">
+                  ID: @{selectedUserProfile.username ? selectedUserProfile.username.toLowerCase() : "hustler"} // ЧЛЕН КЛУБА XYI
+                </span>
+              </div>
+            </div>
+
+            {/* 3. Strict Glassmorphic Body Grid Layout */}
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-10">
+              
+              {/* Left Bio and Status Column (8/12 cols) */}
+              <div className="lg:col-span-8 flex flex-col gap-6 w-full">
+                <div className="glass-panel p-8 rounded-xl text-left flex flex-col gap-4 border-[#ff5500]/10 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff5500]/2 rounded-full blur-2xl pointer-events-none"></div>
+                  
+                  <div className="flex items-center justify-between pb-2.5 border-b border-white/5">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#ff5500]">Манифест / Статус</span>
+                    <span className="text-[9px] text-zinc-500 font-mono font-bold">STRICT CHILL VIBE</span>
+                  </div>
+                  
+                  <p className="text-sm text-zinc-300 font-medium break-words leading-relaxed italic min-h-[52px]">
+                    {selectedUserProfile.bio ? `"${selectedUserProfile.bio}"` : "Этот хастлер пока не оставил свое описание. Он зашел в клуб просто расслабиться и послушать SoundCloud."}
+                  </p>
+                </div>
+
+                {/* Additional Tech Stats panel for club vibe */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Пинг / Сеть</span>
+                    <p className="text-xs font-mono font-bold text-emerald-450 mt-1 uppercase">{selectedUserProfile.latency || "25ms"}</p>
+                  </div>
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Статус сессии</span>
+                    <p className="text-xs font-bold text-zinc-200 mt-1 uppercase">Подключен</p>
+                  </div>
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">В сети с</span>
+                    <p className="text-xs font-bold text-[#ff5500] mt-1 uppercase truncate">
+                      {selectedUserProfile.joinedAt ? new Date(selectedUserProfile.joinedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : "Только что"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Action Column (4/12 cols) */}
+              <div className="lg:col-span-4 flex flex-col gap-4 w-full">
+                <button
+                  onClick={() => setSelectedUserProfile(null)}
+                  className="w-full py-4.5 bg-white hover:bg-zinc-200 text-black font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer border border-transparent"
+                >
+                  Вернуться в плеер
+                </button>
+
+                <div className="flex flex-col gap-2.5 w-full bg-black/30 border border-white/5 p-4 rounded-xl">
+                  <span className="text-[8px] text-zinc-500 font-black uppercase tracking-widest text-center block mb-1">
+                    Клубные Действия
+                  </span>
+                  
+                  <button
+                    onClick={() => {
+                      if (typeof window !== "undefined") {
+                        navigator.clipboard.writeText(`${window.location.origin}/${selectedUserProfile.username}`);
+                        alert("Ссылка на профиль резидента скопирована!");
+                      }
+                    }}
+                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Copy className="w-3.5 h-3.5" /> Копировать ссылку
+                  </button>
+                  <button
+                    onClick={() => {
+                      setSelectedUserProfile(null);
+                      // Already in player
+                    }}
+                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <Radio className="w-3.5 h-3.5 text-[#ff5500]" /> Чат комнаты
+                  </button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      )}
 
     </main>
   );

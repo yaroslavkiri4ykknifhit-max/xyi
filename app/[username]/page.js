@@ -14,7 +14,8 @@ import {
   ArrowRight,
   MessageSquare,
   AlertCircle,
-  HelpCircle
+  HelpCircle,
+  Play
 } from "lucide-react";
 import ProfileCustomizer, { BANNER_GRADIENTS, AVATAR_COLORS } from "../components/ProfileCustomizer";
 
@@ -32,7 +33,6 @@ export default function UserProfilePage({ params }) {
   const [isDbTableMissing, setIsDbTableMissing] = useState(false);
 
   // UI state
-  const [copied, setCopied] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [showCustomizer, setShowCustomizer] = useState(false);
 
@@ -104,7 +104,7 @@ export default function UserProfilePage({ params }) {
           };
           setProfile(guestProfile);
           updateLocalStates(guestProfile);
-          setIsOwnProfile(true); // Since it's their own guest profile
+          setIsOwnProfile(true);
         } else {
           setProfile(null);
         }
@@ -166,7 +166,6 @@ export default function UserProfilePage({ params }) {
       localStorage.setItem("xyi_guest_custom_badge", data.custom_badge);
     }
 
-    // Update state to render immediately
     const updatedProfile = {
       username: data.username,
       avatar_color: data.avatar_color,
@@ -182,14 +181,12 @@ export default function UserProfilePage({ params }) {
     sessionStorage.setItem("xyi_username", data.username);
     sessionStorage.setItem("xyi_avatar_color", data.avatar_color);
 
-    // If username changed, redirect to new username page silently
     if (data.username.toLowerCase() !== rawUsername.toLowerCase()) {
       router.replace(`/${encodeURIComponent(data.username)}`);
     }
   };
 
   const handleStartCoListening = () => {
-    // Generate a fresh random room code (5 uppercase letters)
     const code = "ROOM_" + Math.random().toString(36).substring(2, 7).toUpperCase();
     router.push(`/?room=${code}`);
   };
@@ -217,169 +214,216 @@ export default function UserProfilePage({ params }) {
   };
 
   return (
-    <main className="min-h-screen bg-[#050508] text-white flex flex-col relative select-none overflow-x-hidden pb-12">
-      {/* Background soft glowing auroras */}
-      <div className="absolute top-[-10%] left-[20%] w-[50%] h-[50%] bg-[#ff5500]/5 rounded-full blur-[140px] pointer-events-none"></div>
-      <div className="absolute bottom-[10%] right-[10%] w-[45%] h-[45%] bg-[#00b4d8]/5 rounded-full blur-[140px] pointer-events-none"></div>
-
-      {/* Global Minimal Nav Bar */}
-      <nav className="w-full max-w-5xl mx-auto px-6 py-6 flex items-center justify-between z-10">
-        <div className="flex items-center gap-1.5 cursor-pointer" onClick={() => router.push("/")}>
-          <span className="text-3xl font-black tracking-tighter text-white">xyi</span>
-          <span className="w-5 h-5 rounded-md bg-[#ff5500] flex items-center justify-center text-[10px] font-black text-black select-none">▶</span>
-        </div>
-        
-        <button
-          onClick={() => router.push("/")}
-          className="flex items-center gap-2 px-4 py-2 bg-zinc-900 border border-white/10 hover:border-[#ff5500]/30 rounded-full text-xs font-bold transition-all hover:bg-white/5 active:scale-95 cursor-pointer"
-        >
-          <Home className="w-4 h-4 text-[#ff5500]" /> На главную
-        </button>
-      </nav>
+    <main className="min-h-screen bg-[#020204] text-white flex flex-col relative select-none overflow-x-hidden pb-16">
+      
+      {/* Dynamic Background Glowing elements */}
+      <div className="absolute top-[20%] left-[-10%] w-[50%] h-[50%] bg-[#ff5500]/5 rounded-full blur-[160px] pointer-events-none z-0"></div>
+      <div className="absolute bottom-[10%] right-[-10%] w-[50%] h-[50%] bg-[#00b4d8]/4 rounded-full blur-[160px] pointer-events-none z-0"></div>
 
       {/* LOADING SCREEN */}
       {loading && (
-        <div className="flex-1 flex flex-col items-center justify-center min-h-[60vh] gap-4">
-          <div className="w-12 h-12 rounded-full border-t-2 border-[#ff5500] border-r-2 border-r-transparent animate-spin"></div>
-          <p className="text-zinc-500 text-xs uppercase tracking-widest font-black animate-pulse">Загрузка профиля...</p>
+        <div className="flex-1 flex flex-col items-center justify-center min-h-[100vh] gap-4">
+          <div className="w-10 h-10 border-t-2 border-[#ff5500] border-r-2 border-r-transparent animate-spin"></div>
+          <p className="text-zinc-600 text-[10px] uppercase font-black tracking-widest animate-pulse">Идентификация в клубе...</p>
         </div>
       )}
 
-      {/* PROFILE CONTENT */}
+      {/* FULL-SCREEN HERO BANNER ROUTE */}
       {!loading && profile && (
-        <div className="flex-1 max-w-xl mx-auto w-full px-6 flex flex-col items-center justify-center z-10 py-8 animate-fadeIn">
+        <div className="flex-1 flex flex-col w-full z-10 animate-fadeIn relative">
           
-          {/* Dynamic Full Screen Profile Card */}
-          <div className="w-full bg-[#0d0d12]/80 border border-white/8 rounded-[40px] overflow-hidden flex flex-col shadow-2xl relative select-text">
+          {/* 1. Page-Wide Hero Banner (Stretches 100% Edge-to-Edge) */}
+          <div 
+            className="w-full h-[280px] md:h-[380px] relative transition-all duration-500 border-b border-[#ff5500]/25 shadow-2xl"
+            style={getBannerStyle(myBannerUrl)}
+          >
+            <div className="absolute inset-0 bg-gradient-to-t from-[#020204] via-[#020204]/30 to-transparent"></div>
             
-            {/* Direct Copy URL Trigger inside Profile banner */}
-            <div 
-              className="w-full h-40 relative transition-all duration-500"
-              style={getBannerStyle(myBannerUrl)}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/35 to-transparent"></div>
-              
-              <button 
-                onClick={handleCopyProfileLink}
-                className="absolute top-4 right-4 px-3 py-1.5 bg-black/40 backdrop-blur-md border border-white/5 hover:border-white/15 rounded-full text-[9px] font-black uppercase tracking-wider text-zinc-300 hover:text-white transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                {copiedLink ? (
-                  <>
-                    <Check className="w-3 h-3 text-emerald-400" />
-                    Скопировано
-                  </>
-                ) : (
-                  <>
-                    <Copy className="w-3 h-3" />
-                    Ссылка
-                  </>
-                )}
-              </button>
+            {/* Embedded Floating Transparent Navbar */}
+            <div className="absolute top-0 left-0 right-0 w-full max-w-6xl mx-auto px-6 py-6 flex items-center justify-between z-20">
+              <div className="flex items-center gap-1.5 cursor-pointer bg-black/40 backdrop-blur-md px-3.5 py-2 border border-white/5 rounded-xl hover:bg-black/60 transition-all" onClick={() => router.push("/")}>
+                <span className="text-xl font-black tracking-tighter text-white">xyi</span>
+                <span className="w-4 h-4 rounded bg-[#ff5500] flex items-center justify-center text-[8px] font-black text-black select-none">▶</span>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCopyProfileLink}
+                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#ff5500]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  {copiedLink ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      Ссылка скопирована
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      Поделиться профилем
+                    </>
+                  )}
+                </button>
+                <button
+                  onClick={() => router.push("/")}
+                  className="px-4 py-2.5 bg-black/50 backdrop-blur-md border border-white/5 hover:border-[#ff5500]/25 text-[10px] font-black uppercase tracking-wider text-zinc-300 hover:text-white rounded-xl transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Home className="w-3.5 h-3.5 text-[#ff5500]" /> Выйти в плеер
+                </button>
+              </div>
             </div>
 
-            {/* Avatar & Floating Badge and Body Content */}
-            <div className="w-full px-8 relative flex flex-col items-center -mt-14 pb-10 text-center">
+            {/* Subtle banner tech grid overlay */}
+            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px] opacity-15"></div>
+          </div>
+
+          {/* 2. Overlapping Profile Identity Container */}
+          <div className="w-full max-w-4xl mx-auto px-6 relative z-10 flex flex-col items-center md:items-start -mt-20 md:-mt-24 pb-8 text-center md:text-left">
+            
+            {/* Identity Header Grid */}
+            <div className="w-full flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
               
-              {/* Pulsing halo indicator */}
+              {/* Massive Custom Strict Avatar (Rounded Square!) */}
               <div 
-                className="w-28 h-28 rounded-full border-[5px] border-[#0d0d12] flex items-center justify-center shadow-2xl relative overflow-hidden transition-all duration-300 bg-zinc-800"
+                className="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-4 border-[#020204] flex items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative overflow-hidden bg-zinc-950 flex-shrink-0"
                 style={{ backgroundColor: myAvatarColor }}
               >
                 {myAvatarUrl && myAvatarUrl.startsWith("data:image") ? (
                   <img src={myAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <span className="text-5xl filter drop-shadow-md">{myAvatarUrl}</span>
+                  <span className="text-6xl filter drop-shadow-md">{myAvatarUrl}</span>
                 )}
+                
+                {/* Active Tech Indicator */}
+                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full bg-emerald-500 border-2 border-[#020204] live-pulse-dot shadow-md"></div>
               </div>
 
-              {/* Title Section */}
-              <div className="mt-4 flex flex-col gap-1 items-center w-full">
-                <div className="flex items-center gap-2 justify-center min-w-0">
-                  <h2 className="text-2xl font-black tracking-tight text-white truncate max-w-[280px]">
+              {/* Text Meta Info */}
+              <div className="flex-1 flex flex-col gap-1 items-center md:items-start pb-2">
+                <div className="flex items-center gap-2.5 justify-center md:justify-start min-w-0">
+                  <h1 className="text-3xl md:text-4xl font-black tracking-tight text-white uppercase truncate max-w-[320px] md:max-w-[450px]">
                     {myUsername}
-                  </h2>
+                  </h1>
                   {myCustomBadge && (
-                    <span className="px-2.5 py-0.5 rounded-[6px] bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/25 text-[8.5px] font-black uppercase tracking-widest flex-shrink-0">
+                    <span className="px-3 py-1 bg-[#ff5500]/10 text-[#ff5500] border border-[#ff5500]/25 text-[9px] font-black uppercase tracking-widest rounded-md shadow-sm">
                       {myCustomBadge}
                     </span>
                   )}
                 </div>
-                <span className="text-xs text-zinc-500 font-bold -mt-0.5">
-                  @{myUsername ? myUsername.toLowerCase() : "user"}
+                <span className="text-xs text-zinc-500 font-extrabold tracking-widest uppercase mt-0.5">
+                  ID: @{myUsername ? myUsername.toLowerCase() : "hustler"} // ЧЛЕН КЛУБА XYI
                 </span>
               </div>
+            </div>
 
-              {/* Status / Bio Quote container */}
-              <div className="w-full mt-6 px-4">
-                <div className="w-full p-4 rounded-3xl bg-black/40 border border-white/5 italic text-sm text-zinc-300 break-words leading-relaxed min-h-[64px] flex items-center justify-center relative shadow-inner">
-                  {myBio ? `"${myBio}"` : "Этот сослушатель еще не настроил свой статус. Но уже готов слушать SoundCloud! 🎧"}
+            {/* 3. Strict Glassmorphic Body Grid Layout */}
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start mt-10">
+              
+              {/* Left Bio and Status Column (8/12 cols) */}
+              <div className="lg:col-span-8 flex flex-col gap-6 w-full">
+                <div className="glass-panel p-8 rounded-xl text-left flex flex-col gap-4 border-[#ff5500]/10 relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-[#ff5500]/2 rounded-full blur-2xl pointer-events-none"></div>
+                  
+                  <div className="flex items-center justify-between pb-2.5 border-b border-white/5">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#ff5500]">Манифест / Статус</span>
+                    <span className="text-[9px] text-zinc-500 font-mono font-bold">STRICT CHILL VIBE</span>
+                  </div>
+                  
+                  <p className="text-sm text-zinc-300 font-medium break-words leading-relaxed italic min-h-[52px]">
+                    {myBio ? `"${myBio}"` : "Этот хастлер пока не оставил свое описание. Он зашел в клуб просто расслабиться и послушать SoundCloud."}
+                  </p>
+                </div>
+
+                {/* Additional Tech Stats panel for club vibe */}
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Статус сессии</span>
+                    <p className="text-xs font-bold text-emerald-450 uppercase mt-1 flex items-center gap-1.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 live-pulse-dot"></span> В сети
+                    </p>
+                  </div>
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Права доступа</span>
+                    <p className="text-xs font-bold text-zinc-200 mt-1 uppercase">Резидент</p>
+                  </div>
+                  <div className="p-4 bg-black/40 border border-white/5 rounded-xl text-left">
+                    <span className="text-[8px] font-black text-zinc-500 uppercase tracking-widest">Зона чилла</span>
+                    <p className="text-xs font-bold text-[#ff5500] mt-1 uppercase flex items-center gap-1">
+                      <Radio className="w-3.5 h-3.5 animate-pulse" /> SoundCloud
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              {/* Actions panel */}
-              <div className="w-full flex flex-col gap-3 mt-8">
+              {/* Right Action Column (4/12 cols) */}
+              <div className="lg:col-span-4 flex flex-col gap-4 w-full">
                 {isOwnProfile ? (
                   <button
                     onClick={() => setShowCustomizer(true)}
-                    className="w-full py-4 bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-4.5 bg-white hover:bg-zinc-200 text-black font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg flex items-center justify-center gap-2 cursor-pointer border border-transparent"
                   >
                     <Sparkles className="w-4 h-4 text-[#ff5500]" /> Настроить Профиль
                   </button>
                 ) : (
                   <button
                     onClick={handleStartCoListening}
-                    className="w-full py-4 bg-[#ff5500] hover:bg-[#ff661a] text-black font-extrabold text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-[#ff5500]/10 flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-4.5 bg-[#ff5500] hover:bg-[#ff661a] text-black font-black text-xs uppercase tracking-widest rounded-xl transition-all active:scale-[0.98] shadow-lg shadow-[#ff5500]/10 flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Radio className="w-4 h-4 animate-pulse" /> Слушать Вместе
                   </button>
                 )}
 
-                <div className="grid grid-cols-2 gap-3 w-full">
+                <div className="flex flex-col gap-2.5 w-full bg-black/30 border border-white/5 p-4 rounded-xl">
+                  <span className="text-[8px] text-zinc-500 font-black uppercase tracking-widest text-center block mb-1">
+                    Клубные Действия
+                  </span>
+                  
                   <button
                     onClick={handleCopyProfileLink}
-                    className="py-3.5 bg-zinc-900 hover:bg-white/5 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <Copy className="w-3.5 h-3.5" /> Ссылка на профиль
+                    <Copy className="w-3.5 h-3.5" /> Копировать ссылку
                   </button>
                   <button
                     onClick={() => router.push("/")}
-                    className="py-3.5 bg-zinc-900 hover:bg-white/5 border border-white/5 rounded-2xl text-[10px] font-black uppercase tracking-widest text-zinc-400 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full py-3.5 bg-[#0d0d12] hover:bg-white/5 border border-white/5 rounded-lg text-[9px] font-black uppercase tracking-widest text-zinc-300 hover:text-white transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Compass className="w-3.5 h-3.5 text-[#ff5500]" /> Обзор комнат
                   </button>
                 </div>
               </div>
+
             </div>
+
           </div>
         </div>
       )}
 
       {/* NOT FOUND SCREEN */}
       {!loading && !profile && (
-        <div className="flex-1 max-w-md mx-auto w-full px-6 flex flex-col items-center justify-center z-10 py-12 animate-fadeIn text-center">
-          <div className="w-20 h-20 rounded-full bg-zinc-900/60 border border-white/5 flex items-center justify-center mb-6">
-            <HelpCircle className="w-10 h-10 text-zinc-600" />
+        <div className="flex-1 max-w-md mx-auto w-full px-6 flex flex-col items-center justify-center z-10 py-16 animate-fadeIn text-center">
+          <div className="w-20 h-20 rounded-xl bg-zinc-950 border border-white/5 flex items-center justify-center mb-6">
+            <HelpCircle className="w-10 h-10 text-zinc-650" />
           </div>
           
           <div className="flex flex-col gap-2 mb-8">
-            <h2 className="text-2xl font-black tracking-tight text-white">Профиль не найден</h2>
+            <h2 className="text-xl font-black tracking-tight text-white uppercase">Хастлер не опознан</h2>
             <p className="text-xs text-zinc-500 leading-relaxed max-w-sm mx-auto">
-              Пользователь с никнеймом <strong>@{decodeURIComponent(rawUsername)}</strong> не зарегистрирован в базе данных, либо это временная сессия гостя, которая уже закрылась.
+              Пользователь с никнеймом <strong>@{decodeURIComponent(rawUsername)}</strong> не зарегистрирован в базе резидентов клуба XYI, либо его временная сессия уже истекла.
             </p>
           </div>
 
-          <div className="flex flex-col gap-2.5 w-full">
+          <div className="flex flex-col gap-2.5 w-full bg-[#0d0d12] border border-white/5 p-6 rounded-xl">
             <button
               onClick={() => router.push("/")}
-              className="w-full py-4 bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full py-4 bg-white hover:bg-zinc-200 text-black font-extrabold text-xs uppercase tracking-widest rounded-lg transition-all active:scale-[0.98] cursor-pointer"
             >
               На главную
             </button>
             <button
               onClick={() => router.push("/?auth=open")}
-              className="w-full py-4 bg-zinc-900 border border-white/5 text-zinc-400 hover:text-white font-extrabold text-xs uppercase tracking-widest rounded-2xl transition-all active:scale-[0.98] cursor-pointer"
+              className="w-full py-4 bg-transparent border border-white/10 hover:border-white/20 text-zinc-400 hover:text-white font-extrabold text-xs uppercase tracking-widest rounded-lg transition-all active:scale-[0.98] cursor-pointer"
             >
-              Зарегистрироваться
+              Зарегистрировать аккаунт
             </button>
           </div>
         </div>
